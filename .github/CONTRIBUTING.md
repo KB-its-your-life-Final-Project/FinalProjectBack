@@ -1,7 +1,7 @@
 # FinalProjectBack
 
 ## 문서 바로가기
-- [PR 템플릿 보기](./.github/PULL_REQUEST_TEMPLATE.md)
+- [PR 템플릿 보기](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## 🔤 변수명 / 함수명 네이밍 규칙
 
