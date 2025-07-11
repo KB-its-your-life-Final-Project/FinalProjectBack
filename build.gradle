@@ -1,0 +1,122 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group 'org.lighthouse'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    springVersion = '5.3.38'
+    servletApiVersion = '4.0.1'
+    annotationApiVersion = '1.3.2'
+    lombokVersion = '1.18.30'
+    jacksonVersion = '2.15.2'
+
+    junitVersion = '5.11.0'
+
+    logbackVersion = '1.5.18'
+    log4jdbcVersion = '1.16'
+
+    mysqlJDBCVersion = '8.4.0'
+    hikariCpVersion = '2.7.4'
+
+    mybatisVersion = '3.5.19'
+    mybatisSpringVersion = '2.0.6'
+    hikariCpVersion = '2.7.4'
+
+    swaggerVersion = '2.9.2'
+
+    httpCoreVersion = '4.4.15'
+    httpClientVersion = '4.5.13'
+
+    springSecurityVersion='5.8.13'
+    jjwtVersion='0.11.5'
+
+    aopVersion='1.9.20'
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+
+    // 스프링
+    implementation ("org.springframework:spring-context:${springVersion}")
+            { exclude group: 'commons-logging', module: 'commons-logging' }
+    implementation "org.springframework:spring-webmvc:${springVersion}"
+    implementation 'javax.inject:javax.inject:1'
+
+    // SERVLET
+    implementation "javax.servlet:javax.servlet-api:${servletApiVersion}"
+    // Annotation
+    implementation "javax.annotation:javax.annotation-api:${annotationApiVersion}"
+
+    // AOP
+    implementation "org.aspectj:aspectjrt:${aopVersion}"
+    implementation "org.aspectj:aspectjweaver:${aopVersion}"
+
+    // Logback (Log4j2 제거)
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+
+    // log4jdbc (logback 연동)
+    implementation "org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:${log4jdbcVersion}"
+
+    // xml내 한글 처리
+    implementation 'xerces:xercesImpl:2.12.2'
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    // Jackson - Json 처리
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+
+
+    // 테스트
+    testImplementation "org.springframework:spring-test:${springVersion}"
+    testCompileOnly"org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    //데이터베이스
+    implementation "com.mysql:mysql-connector-j:${mysqlJDBCVersion}"
+    implementation "com.zaxxer:HikariCP:${hikariCpVersion}"
+
+    implementation "org.springframework:spring-tx:${springVersion}"
+    implementation "org.springframework:spring-jdbc:${springVersion}"
+
+    implementation "org.mybatis:mybatis:${mybatisVersion}"
+    implementation "org.mybatis:mybatis-spring:${mybatisSpringVersion}"
+
+    // swagger
+    implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
+    implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
+
+    // rest template
+    implementation "org.apache.httpcomponents:httpcore:${httpCoreVersion}"
+    implementation "org.apache.httpcomponents:httpclient:${httpClientVersion}"
+
+    // security
+    implementation "org.springframework.security:spring-security-web:$springSecurityVersion"
+    implementation "org.springframework.security:spring-security-config:$springSecurityVersion"
+    implementation "org.springframework.security:spring-security-core:$springSecurityVersion"
+
+    // jjwt
+    implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
+    implementation "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"
+}
+
+test {
+    useJUnitPlatform()
+}
