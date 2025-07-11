@@ -11,7 +11,7 @@
     </settings>
     <!-- vo 경로 생략을 위해 작성. alias로 각 클래스 별칭 지정가능 -->
     <typeAliases>
-        <package name="org.lighthouse.member.vo" />
-        <package name="org.lighthouse.security.vo"/>
+        <package name="com.lighthouse.member.vo" />
+        <package name="com.lighthouse.security.vo"/>
     </typeAliases>
 </configuration>

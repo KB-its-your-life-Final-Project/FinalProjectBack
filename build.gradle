@@ -3,7 +3,7 @@ plugins {
     id 'war'
 }
 
-group 'org.lighthouse'
+group 'com.lighthouse'
 version '1.0-SNAPSHOT'
 
 repositories {

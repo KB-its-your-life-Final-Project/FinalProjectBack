@@ -20,7 +20,7 @@ ___
 ---
 ## 디렉토리 구조
 ```aiignore
-java/org/lighthouse/
+java/com/lighthouse/
 ├── common/       # 공통 유틸리티 및 상수 정의
 ├── config/       # 스프링 설정 전반(RootConfig, ServletConfig, SwaggerConfig 등)
 │   ├── RootConfig.java    # 데이터베이스, MyBatis, 트랜잭션 등 핵심 Bean 설정. Service, Mapper, Repository Bean 등록
@@ -37,7 +37,7 @@ java/org/lighthouse/
   └── vo/ # 값 객체 (VO)
 
 resources/            # 리소스 파일
-├── org/lighthouse/   # MyBatis 매퍼 XML 파일 (mapper 인터페이스 경로와 일치)
+├── com/lighthouse/   # MyBatis 매퍼 XML 파일 (mapper 인터페이스 경로와 일치)
 ├── application-local.properties  # 로컬 개발용 설정 파일. profiles=local 시 사용
 ├── application-prod.properties   # 프로덕션용 설정 파일. profiles=prod 시 사용
 ├── logback.xml                    # 로깅 설정
@@ -55,3 +55,4 @@ resources/            # 리소스 파일
   - Intellij의 경우 실행/디버그 구성 -> 구성편집 -> VM 옵션에 작성
   - src/main/resources/application-local.properties : 개발 환경용 설정 
   - src/main/resources/application-prod.properties : 운영 환경용 설정
+  - properties 포함 내용 : database driver,username,password,url / jwt secret 키
