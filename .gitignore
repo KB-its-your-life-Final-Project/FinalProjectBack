@@ -1,0 +1,25 @@
+# Java
+*.class
+
+# Gradle
+/build/
+/.gradle/
+/out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local configs
+*.env
+application-local.properties
+application-prod.properties

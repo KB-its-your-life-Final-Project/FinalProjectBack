@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- Mybatis 관련 설정 작성하기 * 아래 순서 중요, 바뀌면 안됨! -->
+    <!-- SqlSessionTemplate 관련 설정 -->
+    <settings>
+        <!-- snake 표기 -> camel 표기 자동 변환 -->
+        <setting name="mapUnderscoreToCamelCase" value="true" />
+    </settings>
+    <!-- vo 경로 생략을 위해 작성. alias로 각 클래스 별칭 지정가능 -->
+    <typeAliases>
+        <package name="com.lighthouse.member.vo" />
+        <package name="com.lighthouse.security.vo"/>
+    </typeAliases>
+</configuration>

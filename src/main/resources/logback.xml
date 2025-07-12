@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 콘솔 출력 패턴 설정 -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- 패키지별 로그 수준 설정 -->
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.mybatis" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="jdbc" level="ERROR" />
+    <logger name="jdbc.sqlonly" level="ERROR" />
+    <logger name="jdbc.audit" level="ERROR" />
+    <logger name="jdbc.connection" level="ERROR" />
+
+    <!-- 내 프로젝트는 디버그 로그 출력 허용 -->
+    <logger name="com.lighthouse" level="DEBUG" />
+</configuration>
