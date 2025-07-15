@@ -11,20 +11,27 @@ ex)
 feature/addMap/0715  
 docs/simpleRules/0814
 
-| 타입          | 설명             |
-| ------------- | ---------------- |
-| `feature/`    | 새로운 기능 개발 |
-| `fix/`        | 버그 수정        |
-| `refactor/`   | 리팩토링         |
-| `docs/`       | 문서 관련 작업   |
-| `chore/`      | 기타 수정 사항   |
-| `bug_report/` | 버그 발생 보고   |
+| 타입        | 설명             |
+| ----------- | ---------------- |
+| `feature/`  | 새로운 기능 개발 |
+| `fix/`      | 버그 수정        |
+| `refactor/` | 리팩토링         |
+| `docs/`     | 문서 관련 작업   |
+| `chore/`    | 기타 수정 사항   |
+| `bug/`      | 버그 발생 보고   |
 
-## 🧩 Gitmoji CLI 설치 (커밋 이모지 가이드라인)
+## 🧩 Gitmoji CLI (깃모지 사용 가이드라인)
 
-우리 팀은 커밋 메시지 작성 시 [Gitmoji](https://gitmoji.dev/)를 사용합니다.
+우리 팀은 깃모지는 PR 과 ISSUE 작성시만 [Gitmoji](https://gitmoji.dev/)를 사용합니다.  
+<br> ex)
 
-> Gitmoji는 커밋 메시지 앞에 이모지를 붙여 커밋 목적을 표현
+> [Issue]  
+> :feat 로그인 구현 작업
+
+> [Pull Request]  
+> :feat 로그인 구현료 / JWT 호출 / 프론트 연동
+
+커밋 작성시엔 브랜치에서 작성하는 규칙을 따릅니다.
 
 ### ✅ 설치 명령어
 
