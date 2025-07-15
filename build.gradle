@@ -79,6 +79,8 @@ dependencies {
 
     // Jackson - Json 처리
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    // Xml 응답 처리
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}"
 
 
     // 테스트

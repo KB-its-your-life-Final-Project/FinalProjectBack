@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.transactions.mapper.TransactionMapper">
+
+    <insert id="insertApartmentTrade" parameterType="ApartmentTradeVO">
+        INSERT INTO apartment_trade_0715 (
+            umd_nm, sgg_cd, apt_dong, apt_nm, build_year,
+            cdeal_day, cdeal_type, deal_amount,
+            deal_day, deal_month, deal_year,
+            dealing_gbn, estate_agent_sgg_nm,
+            exclu_use_ar, floor, jibun,
+            land_leasehold_gbn, rgst_date,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{umdNm}, #{sggCd}, #{aptDong}, #{aptNm}, #{buildYear},
+                     #{cdealDay}, #{cdealType}, #{dealAmount},
+                     #{dealDay}, #{dealMonth}, #{dealYear},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{excluUseAr}, #{floor}, #{jibun},
+                     #{landLeaseholdGbn}, #{rgstDate},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertApartmentRental" parameterType="ApartmentRentalVO">
+        INSERT INTO apartment_rental_0715 (
+            sgg_cd, umd_nm, apt_nm, jibun, exclu_use_ar,
+            deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{aptNm}, #{jibun}, #{excluUseAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}
+                 )
+    </insert>
+
+    <insert id="insertMultiHouseTrade" parameterType="MultiHouseTradeVO">
+        INSERT INTO multihouse_trade_0715 (
+            sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+            exclu_use_ar, land_ar,
+            deal_year, deal_month, deal_day, deal_amount,
+            floor, cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm, rgst_date,
+            sler_gbn, buyer_gbn, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{mhouseNm}, #{jibun}, #{buildYear},
+                     #{excluUseAr}, #{landAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay}, #{dealAmount},
+                     #{floor}, #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm}, #{rgstDate},
+                     #{slerGbn}, #{buyerGbn}, #{houseType}
+                 )
+    </insert>
+
+    <insert id="insertMultiHouseRental" parameterType="MultiHouseRentalVO">
+        INSERT INTO multihouse_rental_0715 (
+            sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{mhouseNm}, #{jibun}, #{buildYear},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}, #{houseType}
+                 )
+    </insert>
+
+    <insert id="insertOfficetelTrade" parameterType="OfficetelTradeVO">
+        INSERT INTO officetel_trade_0715 (
+            sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deal_amount, floor, build_year,
+            cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{sggCd}, #{sggNm}, #{umdNm}, #{jibun}, #{offiNm},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{dealAmount}, #{floor}, #{buildYear},
+                     #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertOfficetelRental" parameterType="OfficetelRentalVO">
+        INSERT INTO officetel_rental_0715 (
+            sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent
+        ) VALUES (
+                     #{sggCd}, #{sggNm}, #{umdNm}, #{jibun}, #{offiNm},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}
+                 )
+    </insert>
+
+    <insert id="insertSingleHouseTrade" parameterType="SingleHouseTradeVO">
+        INSERT INTO singlehouse_trade_0715 (
+            sgg_cd, umd_nm, house_type, jibun,
+            total_floor_ar, plottage_ar,
+            deal_year, deal_month, deal_day,
+            deal_amount, build_year,
+            cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{houseType}, #{jibun},
+                     #{totalFloorAr}, #{plottageAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{dealAmount}, #{buildYear},
+                     #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertSingleHouseRental" parameterType="SingleHouseRentalVO">
+        INSERT INTO singlehouse_rental_0715 (
+            sgg_cd, umd_nm, total_floor_ar,
+            deal_year, deal_month, deal_day,
+            deposit, monthly_rent, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{totalFloorAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}, #{houseType}
+                 )
+    </insert>
+
+</mapper>
