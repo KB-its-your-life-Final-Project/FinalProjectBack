@@ -24,4 +24,43 @@
         FROM tbl_member m
                  LEFT OUTER JOIN tbl_member_auth a ON m.username = a.username
     </select>
+
+    <select id="get" resultMap="memberMap">
+        SELECT m.username, password, email, reg_date, update_date, auth
+        FROM tbl_member m
+                 LEFT OUTER JOIN tbl_member_auth a
+                                 ON m.username = a.username
+        where m.username = #{username}
+    </select>
+
+    <update id="update">
+        UPDATE tbl_member
+        SET email       = #{email},
+            update_date = now()
+        WHERE username = #{username}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE tbl_member
+        SET password    = #{newPassword},
+            update_date = now()
+        WHERE username = #{username}
+    </update>
+
+    <select id="findByUsername" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM tbl_member
+        WHERE username = #{username}
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO tbl_member
+        VALUES (#{username}, #{password}, #{email}, now(), now())
+    </insert>
+
+    <insert id="insertAuth">
+        INSERT INTO tbl_member_auth(username, auth)
+        VALUES (#{username}, #{auth})
+    </insert>
 </mapper>
