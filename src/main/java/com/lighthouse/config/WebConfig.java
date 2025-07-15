@@ -1,6 +1,7 @@
 package com.lighthouse.config;
 
 import com.lighthouse.security.config.SecurityConfig;
+import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 
@@ -44,5 +45,9 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
                 "/v2/api-docs",
                 "/webjars/**"
         };
+    }
+    @Override
+    protected ApplicationContextInitializer<?>[] getRootApplicationContextInitializers() {
+        return new ApplicationContextInitializer[]{ new EnvLoader() };
     }
 }

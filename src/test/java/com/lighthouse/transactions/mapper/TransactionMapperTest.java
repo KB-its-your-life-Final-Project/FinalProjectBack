@@ -1,5 +1,6 @@
 package com.lighthouse.transactions.mapper;
 
+import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
 import com.lighthouse.security.config.SecurityConfig;
 import com.lighthouse.transactions.vo.ApartmentTradeVO;
@@ -10,15 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class })
+@ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @Slf4j
 @ActiveProfiles("local")
 class TransactionMapperTest {
