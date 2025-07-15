@@ -13,8 +13,9 @@ ___
 - 로깅: Logback 1.5.18, log4jdbc-log4j2 1.16 (SQL 로그)
 - 의존성 주입: javax.inject 1
 - AOP: AspectJ 1.9.20
-- JSON 처리: Jackson 2.15.2
-- XML 처리: Xerces 2.12.2
+- JSON 자동 매핑: Jackson 2.15.2
+- XML 자동 매핑: Jackson-dataformat-xml 2.15.2
+- XML 처리 엔진: Xerces 2.12.2
 - 테스트: JUnit 5.11.0, Spring Test 5.3.38
 - 코드 자동 생성 및 보조: Lombok 1.18.30
 ---
