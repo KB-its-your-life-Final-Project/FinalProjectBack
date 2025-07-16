@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Setter
 @Getter
-public class ApiDTO<T> {
+public class TransactionApiDTO<T> {
     private Header header;
     private Body<T> body;
 
