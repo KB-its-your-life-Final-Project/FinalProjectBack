@@ -17,17 +17,14 @@ import java.util.List;
 @Builder
 public class MemberDTO {
     private String username;
-    private String email;
     private Date regDate;
     private Date updateDate;
     private List<String> roles;
-    private MultipartFile profileImg;
     private List<String> authList;
 
     public static MemberDTO of(MemberVO member){
         return MemberDTO.builder()
                 .username(member.getUsername())
-                .email(member.getEmail())
                 .regDate(member.getRegDate()).updateDate(member.getUpdateDate())
                         .authList(member.getAuthList().stream().map(a -> a.getAuth()).toList())
                 .build();

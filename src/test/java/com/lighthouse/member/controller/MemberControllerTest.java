@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MemberControllerTest {
     @Autowired
     private WebApplicationContext ctx;
-
     private MockMvc mockMvc;
 
     @BeforeEach

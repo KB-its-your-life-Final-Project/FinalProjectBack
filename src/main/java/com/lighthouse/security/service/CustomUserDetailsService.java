@@ -18,10 +18,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MemberVO vo = mapper.get(username);
-        if(vo == null){
+        MemberVO memberVo = mapper.get(username);
+        if(memberVo == null){
             throw new UsernameNotFoundException(username + "은 없는 id입니다.");
         }
-        return new CustomUser(vo);
+
+        log.info(">>> Username: {}", memberVo.getUsername());
+        log.info(">>> Password: {}", memberVo.getPassword());
+        log.info(">>> Authorities: {}", memberVo.getAuthList());
+        return new CustomUser(memberVo);
     }
 }

@@ -17,7 +17,7 @@ public class JwtProcessor {
     //토큰 유효 기간
     static private final long TOKEN_VALID_MILLISECOND = 1000L * 60 * 10;
 
-    @Value("${jwt.secret}")
+    @Value("thisIsASecretKeyThatIsLongEnoughToBeSecure1234!@#")
     private String secretKey;
     private Key key;
 

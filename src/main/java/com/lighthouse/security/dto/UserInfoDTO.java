@@ -1,4 +1,4 @@
-package com.lighthouse.security.account.dto;
+package com.lighthouse.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,13 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoDTO {
     String username;
-    String email;
     List<String> roles;
 
     public static UserInfoDTO of(MemberVO member) {
         return new UserInfoDTO(
                 member.getUsername(),
-                member.getEmail(),
                 member.getAuthList().stream()
                         .map(a -> a.getAuth())
                         .toList()
