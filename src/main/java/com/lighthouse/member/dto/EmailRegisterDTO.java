@@ -10,14 +10,18 @@ import com.lighthouse.member.vo.MemberVO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberRegisterDTO {
-    private String username;
+public class EmailRegisterDTO {
+    private String email;
+    private String name;
     private String password;
+    private int createdType;
 
     public MemberVO toVO() {
         return MemberVO.builder()
-                .username(username)
+                .email(email)
+                .name(name)
                 .password(password)
+                .createdType(1) // 1: 기본 2: 카카오 3: 구글
                 .build();
     }
 }

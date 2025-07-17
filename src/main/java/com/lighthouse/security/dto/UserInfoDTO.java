@@ -12,14 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoDTO {
     String username;
-    List<String> roles;
-
     public static UserInfoDTO of(MemberVO member) {
         return new UserInfoDTO(
-                member.getUsername(),
-                member.getAuthList().stream()
-                        .map(a -> a.getAuth())
-                        .toList()
+                member.getEmail()
         );
     }
 }

@@ -17,15 +17,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserDetailsMapper mapper;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MemberVO memberVo = mapper.get(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        MemberVO memberVo = mapper.get(email);
         if(memberVo == null){
-            throw new UsernameNotFoundException(username + "은 없는 id입니다.");
+            throw new UsernameNotFoundException(email + "은 없는 이메일입니다.");
         }
 
-        log.info(">>> Username: {}", memberVo.getUsername());
+        log.info(">>> Email: {}", memberVo.getEmail());
         log.info(">>> Password: {}", memberVo.getPassword());
-        log.info(">>> Authorities: {}", memberVo.getAuthList());
         return new CustomUser(memberVo);
     }
 }

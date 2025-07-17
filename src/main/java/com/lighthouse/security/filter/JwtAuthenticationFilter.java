@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String BEARER_PREFIX = "Bearer "; // 끝에 공백 있음
+    public static final String BEARER_PREFIX = "Bearer ";
     private final JwtProcessor jwtProcessor;
     private final UserDetailsService userDetailsService;
     private Authentication getAuthentication(String token) {
