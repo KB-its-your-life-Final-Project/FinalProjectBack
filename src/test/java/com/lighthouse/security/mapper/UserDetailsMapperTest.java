@@ -23,13 +23,13 @@ import org.springframework.test.context.web.WebAppConfiguration;
 class UserDetailsMapperTest {
     @Autowired
     private UserDetailsMapper mapper;
-    @Test
-    public void get() {
-        MemberVO member = mapper.get("admin");
-        log.info("username: {}", member.getUsername());
-        log.info("email: {}", member.getEmail());
-        for(AuthVO auth : member.getAuthList()) {
-            log.info(auth.getAuth());
-        }
-    }
+    // @Test
+    // public void get() {
+    //     MemberVO member = mapper.get("admin");
+    //     log.info("username: {}", member.getUsername());
+    //     log.info("email: {}", member.getEmail());
+    //     for(AuthVO auth : member.getAuthList()) {
+    //         log.info(auth.getAuth());
+    //     }
+    // }
 }

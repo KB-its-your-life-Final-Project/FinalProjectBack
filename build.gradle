@@ -4,7 +4,11 @@ plugins {
 }
 
 group 'com.lighthouse'
-version '1.0-SNAPSHOT'
+// version '1.0-/SNAPSHOT'
+
+war {
+    archiveFileName = 'ROOT.war'
+}
 
 repositories {
     mavenCentral()
@@ -101,7 +105,6 @@ dependencies {
     // swagger
     implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
     implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
-
     // rest template
     implementation "org.apache.httpcomponents:httpcore:${httpCoreVersion}"
     implementation "org.apache.httpcomponents:httpclient:${httpClientVersion}"
@@ -119,4 +122,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+// 내장 톰캣으로 실행하는 태스크 추가
+task runTomcat(type: JavaExec) {
+    description = '내장 톰캣으로 애플리케이션 실행'
+    group = 'application'
+    mainClass = 'com.lighthouse.TomcatRunner'
+    classpath = sourceSets.main.runtimeClasspath
 }
