@@ -120,6 +120,8 @@ dependencies {
 
     // env 설정
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    implementation 'io.codef.api:easycodef-java:1.0.6'
 }
 
 test {
