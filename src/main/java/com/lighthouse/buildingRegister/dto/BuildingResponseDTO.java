@@ -61,6 +61,7 @@ public class BuildingResponseDTO {
     @Getter
     @Setter
     public static class ReqAddr{
-        private String reqAddr;
+        private String commAddrLotNumber;
+        private String commAddrRoadName;
     }
 }
