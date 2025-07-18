@@ -15,7 +15,12 @@ public class EnvLoader implements ApplicationContextInitializer<ConfigurableAppl
         Dotenv dotenv = Dotenv.configure()
                 .filename(".env")
                 .load();
-
+        // 1. SPRING_PROFILES_ACTIVE 우선 처리
+        String springProfile = dotenv.get("SPRING_PROFILES_ACTIVE");
+        if (springProfile != null && System.getProperty("spring.profiles.active") == null) {
+            System.setProperty("spring.profiles.active", springProfile);
+        }
+        // 2. 나머지 환경 변수 처리
         dotenv.entries().forEach(entry -> {
             if (System.getProperty(entry.getKey()) == null) {
                 System.setProperty(entry.getKey(), entry.getValue());

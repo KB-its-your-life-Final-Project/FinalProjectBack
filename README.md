@@ -52,8 +52,12 @@ resources/            # 리소스 파일
 - JDK 17 이상 권장
 
 ### 프로파일 설정
-- 애플리케이션 실행 시 JVM 옵션에 `-Dspring.profiles.active={local, prod}` 작성
-  - Intellij의 경우 실행/디버그 구성 -> 구성편집 -> VM 옵션에 작성
+- 애플리케이션 실행 전 .env 파일에 `SPRING_PROFILE_ACTIVE={local, prod}` 설정
   - src/main/resources/application-local.properties : 개발 환경용 설정 
   - src/main/resources/application-prod.properties : 운영 환경용 설정
-  - properties 포함 내용 : database driver,username,password,url / jwt secret 키
+  - .env 포함 내용
+    - 프로파일 설정값(local|prod)
+    - database driver,username,password,url 
+    - jwt secret 키
+    - 각 API 키값
+    - 계정, 비밀번호
