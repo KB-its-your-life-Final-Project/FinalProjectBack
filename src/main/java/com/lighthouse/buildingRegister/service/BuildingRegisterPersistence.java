@@ -20,39 +20,53 @@ public class BuildingRegisterPersistence {
         mapper.insertBuildingRegister(vo);
         Long id = vo.getId();
         List<ResDetailVO> resDetailVOList = buildingResponseDTO.getResDetailList();
-        for(ResDetailVO resDetailVO : resDetailVOList){
-            resDetailVO.setRegisterId(id);
-            mapper.insertBuildingRegisterDetail(resDetailVO);
+        if(resDetailVOList != null) {
+            for (ResDetailVO resDetailVO : resDetailVOList) {
+                resDetailVO.setRegisterId(id);
+                mapper.insertBuildingRegisterDetail(resDetailVO);
+            }
         }
         List<ResBuildingStatusVO> resBuildingStatusList = buildingResponseDTO.getResBuildingStatusList();
-        for(ResBuildingStatusVO resBuildingStatusVO : resBuildingStatusList){
-            resBuildingStatusVO.setRegisterId(id);
-            mapper.insertBuildingRegisterStatus(resBuildingStatusVO);
+        if(resBuildingStatusList != null) {
+            for (ResBuildingStatusVO resBuildingStatusVO : resBuildingStatusList) {
+                resBuildingStatusVO.setRegisterId(id);
+                mapper.insertBuildingRegisterStatus(resBuildingStatusVO);
+            }
         }
         List<ResLicenseClassVO> resLicenseClassList = buildingResponseDTO.getResLicenseClassList();
-        for(ResLicenseClassVO resLicenseClassVO : resLicenseClassList){
-            resLicenseClassVO.setRegisterId(id);
-            mapper.insertBuildingRegisterLicense(resLicenseClassVO);
+        if(resLicenseClassList != null) {
+            for (ResLicenseClassVO resLicenseClassVO : resLicenseClassList) {
+                resLicenseClassVO.setRegisterId(id);
+                mapper.insertBuildingRegisterLicense(resLicenseClassVO);
+            }
         }
         List<ResParkingLotStatusVO> resParkingLotStatusList = buildingResponseDTO.getResParkingLotStatusList();
-        for(ResParkingLotStatusVO resParkingLotStatusVO : resParkingLotStatusList){
-            resParkingLotStatusVO.setRegisterId(id);
-            mapper.insertBuildingRegisterParkingLot(resParkingLotStatusVO);
+        if(resParkingLotStatusList != null) {
+            for (ResParkingLotStatusVO resParkingLotStatusVO : resParkingLotStatusList) {
+                resParkingLotStatusVO.setRegisterId(id);
+                mapper.insertBuildingRegisterParkingLot(resParkingLotStatusVO);
+            }
         }
         List<ResAuthStatusVO> resAuthStatusList = buildingResponseDTO.getResAuthStatusList();
-        for(ResAuthStatusVO resAuthStatusVO : resAuthStatusList){
-            resAuthStatusVO.setRegisterId(id);
-            mapper.insertBuildingRegisterAuth(resAuthStatusVO);
+        if(resAuthStatusList != null) {
+            for (ResAuthStatusVO resAuthStatusVO : resAuthStatusList) {
+                resAuthStatusVO.setRegisterId(id);
+                mapper.insertBuildingRegisterAuth(resAuthStatusVO);
+            }
         }
         List<ResChangeVO> resChangeList = buildingResponseDTO.getResChangeList();
-        for(ResChangeVO resChangeVO : resChangeList){
-            resChangeVO.setRegisterId(id);
-            mapper.insertBuildingRegisterChange(resChangeVO);
+        if(resChangeList != null) {
+            for (ResChangeVO resChangeVO : resChangeList) {
+                resChangeVO.setRegisterId(id);
+                mapper.insertBuildingRegisterChange(resChangeVO);
+            }
         }
         List<ResOwnerVO> resOwnerList = buildingResponseDTO.getResOwnerList();
-        for(ResOwnerVO resOwnerVO : resOwnerList){
-            resOwnerVO.setRegisterId(id);
-            mapper.insertBuildingRegisterOwner(resOwnerVO);
+        if(resOwnerList != null) {
+            for (ResOwnerVO resOwnerVO : resOwnerList) {
+                resOwnerVO.setRegisterId(id);
+                mapper.insertBuildingRegisterOwner(resOwnerVO);
+            }
         }
     }
 }
