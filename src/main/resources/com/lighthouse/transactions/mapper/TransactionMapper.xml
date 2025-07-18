@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.transactions.mapper.TransactionMapper">
+
+    <insert id="insertApartmentTrade" parameterType="ApartmentTradeVO">
+        INSERT INTO apartment_trade_0715 (
+            umd_nm, sgg_cd, apt_dong, apt_nm, build_year,
+            cdeal_day, cdeal_type, deal_amount,
+            deal_day, deal_month, deal_year,
+            dealing_gbn, estate_agent_sgg_nm,
+            exclu_use_ar, floor, jibun,
+            land_leasehold_gbn, rgst_date,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{umdNm}, #{sggCd}, #{aptDong}, #{aptNm}, #{buildYear},
+                     #{cdealDay}, #{cdealType}, #{dealAmount},
+                     #{dealDay}, #{dealMonth}, #{dealYear},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{excluUseAr}, #{floor}, #{jibun},
+                     #{landLeaseholdGbn}, #{rgstDate},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertApartmentRental" parameterType="ApartmentRentalVO">
+        INSERT INTO apartment_rental_0715 (
+            sgg_cd, umd_nm, apt_nm, jibun, exclu_use_ar,
+            deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{aptNm}, #{jibun}, #{excluUseAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}
+                 )
+    </insert>
+
+    <insert id="insertMultiHouseTrade" parameterType="MultiHouseTradeVO">
+        INSERT INTO multihouse_trade_0715 (
+            sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+            exclu_use_ar, land_ar,
+            deal_year, deal_month, deal_day, deal_amount,
+            floor, cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm, rgst_date,
+            sler_gbn, buyer_gbn, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{mhouseNm}, #{jibun}, #{buildYear},
+                     #{excluUseAr}, #{landAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay}, #{dealAmount},
+                     #{floor}, #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm}, #{rgstDate},
+                     #{slerGbn}, #{buyerGbn}, #{houseType}
+                 )
+    </insert>
+
+    <insert id="insertMultiHouseRental" parameterType="MultiHouseRentalVO">
+        INSERT INTO multihouse_rental_0715 (
+            sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{mhouseNm}, #{jibun}, #{buildYear},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}, #{houseType}
+                 )
+    </insert>
+
+    <insert id="insertOfficetelTrade" parameterType="OfficetelTradeVO">
+        INSERT INTO officetel_trade_0715 (
+            sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deal_amount, floor, build_year,
+            cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{sggCd}, #{sggNm}, #{umdNm}, #{jibun}, #{offiNm},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{dealAmount}, #{floor}, #{buildYear},
+                     #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertOfficetelRental" parameterType="OfficetelRentalVO">
+        INSERT INTO officetel_rental_0715 (
+            sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+            exclu_use_ar, deal_year, deal_month, deal_day,
+            deposit, monthly_rent, floor, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent
+        ) VALUES (
+                     #{sggCd}, #{sggNm}, #{umdNm}, #{jibun}, #{offiNm},
+                     #{excluUseAr}, #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{floor}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}
+                 )
+    </insert>
+
+    <insert id="insertSingleHouseTrade" parameterType="SingleHouseTradeVO">
+        INSERT INTO singlehouse_trade_0715 (
+            sgg_cd, umd_nm, house_type, jibun,
+            total_floor_ar, plottage_ar,
+            deal_year, deal_month, deal_day,
+            deal_amount, build_year,
+            cdeal_type, cdeal_day,
+            dealing_gbn, estate_agent_sgg_nm,
+            sler_gbn, buyer_gbn
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{houseType}, #{jibun},
+                     #{totalFloorAr}, #{plottageAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{dealAmount}, #{buildYear},
+                     #{cdealType}, #{cdealDay},
+                     #{dealingGbn}, #{estateAgentSggNm},
+                     #{slerGbn}, #{buyerGbn}
+                 )
+    </insert>
+
+    <insert id="insertSingleHouseRental" parameterType="SingleHouseRentalVO">
+        INSERT INTO singlehouse_rental_0715 (
+            sgg_cd, umd_nm, total_floor_ar,
+            deal_year, deal_month, deal_day,
+            deposit, monthly_rent, build_year,
+            contract_term, contract_type, use_rr_right,
+            pre_deposit, pre_monthly_rent, house_type
+        ) VALUES (
+                     #{sggCd}, #{umdNm}, #{totalFloorAr},
+                     #{dealYear}, #{dealMonth}, #{dealDay},
+                     #{deposit}, #{monthlyRent}, #{buildYear},
+                     #{contractTerm}, #{contractType}, #{useRRRight},
+                     #{preDeposit}, #{preMonthlyRent}, #{houseType}
+                 )
+    </insert>
+    <insert id="insertLawdCd" parameterType="LawdCdVO">
+        INSERT INTO lawd_cd (
+                             region_cd, sido_cd, sgg_cd, umd_cd, ri_cd,
+                             locatjumin_cd, locatjijuk_cd, locatadd_nm,
+                             locat_order, locat_rm, locathigh_cd,
+                             locallow_nm, adpt_de
+        ) VALUES (
+                  #{regionCd}, #{sidoCd}, #{sggCd}, #{umdCd}, #{riCd},
+                  #{locatjuminCd}, #{locatjijukCd}, #{locataddNm},
+                  #{locatOrder}, #{locatRm}, #{locathighCd},
+                  #{locallowNm}, #{adptDe}
+                )
+
+    </insert>
+    <insert id="insertLawdCdBatch">
+        INSERT INTO lawd_cd (
+                             region_cd, sido_cd, sgg_cd, umd_cd, ri_cd,
+                             locatjumin_cd, locatjijuk_cd, locatadd_nm, locat_order,
+                             locat_rm, locathigh_cd, locallow_nm, adpt_de
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.regionCd}, #{item.sidoCd}, #{item.sggCd}, #{item.umdCd}, #{item.riCd},
+            #{item.locatjuminCd}, #{item.locatjijukCd}, #{item.locataddNm}, #{item.locatOrder},
+            #{item.locatRm}, #{item.locathighCd}, #{item.locallowNm}, #{item.adptDe}
+            )
+        </foreach>
+    </insert>
+
+    <!-- bulk insert 버전 -->
+    <insert id="insertApartmentTradeBatch" parameterType="list">
+        INSERT INTO apartment_trade_0715 (
+        umd_nm, sgg_cd, apt_dong, apt_nm, build_year,
+        cdeal_day, cdeal_type, deal_amount,
+        deal_day, deal_month, deal_year,
+        dealing_gbn, estate_agent_sgg_nm,
+        exclu_use_ar, floor, jibun,
+        land_leasehold_gbn, rgst_date,
+        sler_gbn, buyer_gbn
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.umdNm}, #{item.sggCd}, #{item.aptDong}, #{item.aptNm}, #{item.buildYear},
+            #{item.cdealDay}, #{item.cdealType}, #{item.dealAmount},
+            #{item.dealDay}, #{item.dealMonth}, #{item.dealYear},
+            #{item.dealingGbn}, #{item.estateAgentSggNm},
+            #{item.excluUseAr}, #{item.floor}, #{item.jibun},
+            #{item.landLeaseholdGbn}, #{item.rgstDate},
+            #{item.slerGbn}, #{item.buyerGbn}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertApartmentRentalBatch" parameterType="list">
+        INSERT INTO apartment_rental_0715 (
+        sgg_cd, umd_nm, apt_nm, jibun, exclu_use_ar,
+        deal_year, deal_month, deal_day,
+        deposit, monthly_rent, floor, build_year,
+        contract_term, contract_type, use_rr_right,
+        pre_deposit, pre_monthly_rent
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.umdNm}, #{item.aptNm}, #{item.jibun}, #{item.excluUseAr},
+            #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.deposit}, #{item.monthlyRent}, #{item.floor}, #{item.buildYear},
+            #{item.contractTerm}, #{item.contractType}, #{item.useRRRight},
+            #{item.preDeposit}, #{item.preMonthlyRent}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertMultiHouseTradeBatch" parameterType="list">
+        INSERT INTO multihouse_trade_0715 (
+        sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+        exclu_use_ar, land_ar,
+        deal_year, deal_month, deal_day, deal_amount,
+        floor, cdeal_type, cdeal_day,
+        dealing_gbn, estate_agent_sgg_nm, rgst_date,
+        sler_gbn, buyer_gbn, house_type
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.umdNm}, #{item.mhouseNm}, #{item.jibun}, #{item.buildYear},
+            #{item.excluUseAr}, #{item.landAr},
+            #{item.dealYear}, #{item.dealMonth}, #{item.dealDay}, #{item.dealAmount},
+            #{item.floor}, #{item.cdealType}, #{item.cdealDay},
+            #{item.dealingGbn}, #{item.estateAgentSggNm}, #{item.rgstDate},
+            #{item.slerGbn}, #{item.buyerGbn}, #{item.houseType}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertMultiHouseRentalBatch" parameterType="list">
+        INSERT INTO multihouse_rental_0715 (
+        sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
+        exclu_use_ar, deal_year, deal_month, deal_day,
+        deposit, monthly_rent, floor,
+        contract_term, contract_type, use_rr_right,
+        pre_deposit, pre_monthly_rent, house_type
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.umdNm}, #{item.mhouseNm}, #{item.jibun}, #{item.buildYear},
+            #{item.excluUseAr}, #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.deposit}, #{item.monthlyRent}, #{item.floor},
+            #{item.contractTerm}, #{item.contractType}, #{item.useRRRight},
+            #{item.preDeposit}, #{item.preMonthlyRent}, #{item.houseType}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertOfficetelTradeBatch" parameterType="list">
+        INSERT INTO officetel_trade_0715 (
+        sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+        exclu_use_ar, deal_year, deal_month, deal_day,
+        deal_amount, floor, build_year,
+        cdeal_type, cdeal_day,
+        dealing_gbn, estate_agent_sgg_nm,
+        sler_gbn, buyer_gbn
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.sggNm}, #{item.umdNm}, #{item.jibun}, #{item.offiNm},
+            #{item.excluUseAr}, #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.dealAmount}, #{item.floor}, #{item.buildYear},
+            #{item.cdealType}, #{item.cdealDay},
+            #{item.dealingGbn}, #{item.estateAgentSggNm},
+            #{item.slerGbn}, #{item.buyerGbn}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertOfficetelRentalBatch" parameterType="list">
+        INSERT INTO officetel_rental_0715 (
+        sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
+        exclu_use_ar, deal_year, deal_month, deal_day,
+        deposit, monthly_rent, floor, build_year,
+        contract_term, contract_type, use_rr_right,
+        pre_deposit, pre_monthly_rent
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.sggNm}, #{item.umdNm}, #{item.jibun}, #{item.offiNm},
+            #{item.excluUseAr}, #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.deposit}, #{item.monthlyRent}, #{item.floor}, #{item.buildYear},
+            #{item.contractTerm}, #{item.contractType}, #{item.useRRRight},
+            #{item.preDeposit}, #{item.preMonthlyRent}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertSingleHouseTradeBatch" parameterType="list">
+        INSERT INTO singlehouse_trade_0715 (
+        sgg_cd, umd_nm, house_type, jibun,
+        total_floor_ar, plottage_ar,
+        deal_year, deal_month, deal_day,
+        deal_amount, build_year,
+        cdeal_type, cdeal_day,
+        dealing_gbn, estate_agent_sgg_nm,
+        sler_gbn, buyer_gbn
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.umdNm}, #{item.houseType}, #{item.jibun},
+            #{item.totalFloorAr}, #{item.plottageAr},
+            #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.dealAmount}, #{item.buildYear},
+            #{item.cdealType}, #{item.cdealDay},
+            #{item.dealingGbn}, #{item.estateAgentSggNm},
+            #{item.slerGbn}, #{item.buyerGbn}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertSingleHouseRentalBatch" parameterType="list">
+        INSERT INTO singlehouse_rental_0715 (
+        sgg_cd, umd_nm, total_floor_ar,
+        deal_year, deal_month, deal_day,
+        deposit, monthly_rent, build_year,
+        contract_term, contract_type, use_rr_right,
+        pre_deposit, pre_monthly_rent, house_type
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.umdNm}, #{item.totalFloorAr},
+            #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.deposit}, #{item.monthlyRent}, #{item.buildYear},
+            #{item.contractTerm}, #{item.contractType}, #{item.useRRRight},
+            #{item.preDeposit}, #{item.preMonthlyRent}, #{item.houseType}
+            )
+        </foreach>
+    </insert>
+</mapper>
