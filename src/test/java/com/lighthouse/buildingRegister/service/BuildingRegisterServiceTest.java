@@ -13,14 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
@@ -33,8 +25,13 @@ class BuildingRegisterServiceTest {
 
     @Test
     @DisplayName("건축물대장 일반 조회 테스트")
-    void getBuildingRegisterCommon() throws IOException, InterruptedException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
-        service.getBuildingRegisterCommon("경기도 광명시 소하동 1395-3","0");
+    void getBuildingRegisterCommon() {
+        service.getBuildingRegisterCommon("경기도 광명시 소하동 1276-4","0");
+    }
 
+    @Test
+    @DisplayName("집합건축물 대장 조회 테스트")
+    void getBuildingRegisterSet(){
+        service.getBuildingRegisterSet("경기도 시흥시 하중로209번길 9 (하중동, 참이슬아파트)", "201동");
     }
 }

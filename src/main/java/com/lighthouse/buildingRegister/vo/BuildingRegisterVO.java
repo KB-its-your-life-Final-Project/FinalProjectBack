@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class BuildingRegisterVO {
     private Long id;
+    private String type;                    // (일반/집합) 건축물 표기
     private String resDocNo;                // 문서확인번호
     private String commUniqeNo;             // 고유번호
     private String resAddrDong;             // 동명
@@ -20,4 +21,8 @@ public class BuildingRegisterVO {
     private String resOriGinalData;         // PDF파일 Base64 (선택 요청시)
 
     private String resViolationStatus;      //위반건축물일 경우 "위반건축물"라고 제공
+
+    // 여기부터는 집합 건축물에서만 해당
+    private String reqDong;                 // 요청한 동
+    private String reqHo;                   // N호/N가구/N세대
 }
