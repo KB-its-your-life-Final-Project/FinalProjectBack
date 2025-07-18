@@ -20,7 +20,7 @@ public class EmailRegisterDTO {
         return MemberVO.builder()
                 .email(email)
                 .name(name)
-                .password(password)
+                .pwd(password)
                 .createdType(1) // 1: 기본 2: 카카오 3: 구글
                 .build();
     }

@@ -13,7 +13,6 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class KakaoTokenClient {
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${kakao.rest-api-key}")
@@ -22,7 +21,7 @@ public class KakaoTokenClient {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
-    public static String getAccessToken(String code) {
+    public String getAccessToken(String code) {
         String url = "https://kauth.kakao.com/oauth/token";
 
         HttpHeaders headers = new HttpHeaders();

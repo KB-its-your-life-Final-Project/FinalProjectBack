@@ -15,25 +15,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import com.lighthouse.security.util.JwtCookieManager;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProcessor jwtProcessor;
+    private final JwtCookieManager jwtCookieManager;
 
     private AuthResultDTO makeAuthResult(CustomUser user){
         String username = user.getUsername();
 
-        String token = jwtProcessor.generateToken(username);
+        String token = jwtProcessor.generateAccessToken(username);
         return new AuthResultDTO(token, MemberDTO.of(user.getMember()));
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        CustomUser user = (CustomUser)authentication.getPrincipal();
+    public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication auth) throws IOException {
+        CustomUser user = (CustomUser) auth.getPrincipal();
 
+        jwtCookieManager.setTokensToCookies(resp, user.getUsername());
+
+        // 사용자 정보 + access token (body에도 보낼 수 있으나, JWT는 쿠키에만 포함해도 됨)
         AuthResultDTO authResult = makeAuthResult(user);
-        JsonResponse.send(response, authResult);
+        JsonResponse.send(resp, authResult);
 
     }
 }

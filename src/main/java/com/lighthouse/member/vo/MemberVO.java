@@ -15,7 +15,8 @@ public class MemberVO {
     private int id;
     private String name;
     private String email;
-    private String password;
+    private String pwd;
+    private String kakaoUserId;
     private int phoneNum;
     private int age;
     private String profileImg;

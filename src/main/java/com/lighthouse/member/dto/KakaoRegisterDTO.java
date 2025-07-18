@@ -17,7 +17,7 @@ public class KakaoRegisterDTO {
     public MemberVO toVO() {
         return MemberVO.builder()
                 .name(name != null ? name : "KakaoUser")
-                .password("")
+                .pwd("")
                 .createdType(2) // 1: 이메일, 2: 카카오, 3: 구글
                 .build();
     }

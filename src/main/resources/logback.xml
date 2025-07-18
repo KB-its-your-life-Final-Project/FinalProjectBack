@@ -17,11 +17,13 @@
     <!-- 패키지별 로그 수준 설정 -->
     <logger name="org.springframework" level="WARN" />
     <logger name="org.mybatis" level="WARN" />
+    <logger name="org.apache.ibatis.mapper" level="DEBUG" />
     <logger name="com.zaxxer.hikari" level="WARN" />
     <logger name="jdbc" level="ERROR" />
-    <logger name="jdbc.sqlonly" level="ERROR" />
-    <logger name="jdbc.audit" level="ERROR" />
-    <logger name="jdbc.connection" level="ERROR" />
+    <logger name="jdbc.sqlonly" level="DEBUG" />
+    <logger name="jdbc.resultset" level="DEBUG" />
+    <logger name="jdbc.audit" level="DEBUG" />
+    <logger name="jdbc.connection" level="DEBUG" />
 
     <!-- 내 프로젝트는 디버그 로그 출력 허용 -->
     <logger name="com.lighthouse" level="DEBUG" />

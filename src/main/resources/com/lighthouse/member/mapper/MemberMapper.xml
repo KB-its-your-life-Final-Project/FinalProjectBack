@@ -8,26 +8,32 @@
     </resultMap>
 
     <select id="selectMembers" resultMap="memberMap">
-        SELECT id, name, email, pwd, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
+        SELECT id, name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
         FROM member_tbl
     </select>
 
     <select id="selectMemberById" resultMap="memberMap">
-        SELECT id, name, email, pwd, phone, age, profile_img, created_type, id_disable, is_delete
+        SELECT *
         FROM member_tbl
         where id = #{id}
     </select>
 
-    <select id="findByEmail" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="selectMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
         SELECT *
         FROM member_tbl
         WHERE email = #{email}
     </select>
 
+    <select id="selectMemberByKakaoUserId" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM member_tbl
+        WHERE kakao_user_id = #{kakaoUserId}
+    </select>
+
     <insert id="insertUser">
         INSERT INTO member_tbl
-        (name, email, pwd, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
-        VALUES (#{name}, #{email}, #{pwd}, "", 0, "", #{created_type}, now(), #{reg_ip}, #{recent_ip}, 1, 1)
+        (name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
+        VALUES (#{name}, #{email}, #{pwd}, #{kakaoUserId}, "", 0, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
     </insert>
 
     <update id="updateMember">
@@ -38,13 +44,13 @@
             age         = #{age},
             profile_img = #{profile_img},
             recent_ip   = #{recent_ip},
-        WHERE id = #{id}
+        WHERE email = #{email}
     </update>
 
     <update id="updatePassword">
         UPDATE member_tbl
         SET password    = #{newPassword},
             recent_ip   = #{recent_ip},
-        WHERE id = #{id}
+        WHERE email = #{email}
     </update>
 </mapper>

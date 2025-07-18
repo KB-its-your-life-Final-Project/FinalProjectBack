@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         log.info(">>> Email: {}", memberVo.getEmail());
-        log.info(">>> Password: {}", memberVo.getPassword());
+        log.info(">>> Password: {}", memberVo.getPwd());
         return new CustomUser(memberVo);
     }
 }

@@ -9,7 +9,7 @@ import javax.servlet.ServletRegistration;
 
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
     // upload 기능이 필요하다면 사용.
-    final String LOCATION = "/";
+    final String LOCATION = "c:/upload/";
     final long MAX_FILE_SIZE = 1024 * 1024 * 10L; // 10M
     final long MAX_REQUEST_SIZE = 1024 * 1024 * 20L; // 20M
     final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5; // 5M

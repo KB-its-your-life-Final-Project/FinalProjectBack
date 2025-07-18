@@ -22,7 +22,7 @@ import javax.sql.DataSource;
         basePackages = "com.lighthouse",
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
+//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
         }
 )
 public class RootConfig {

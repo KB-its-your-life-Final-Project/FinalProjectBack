@@ -14,12 +14,12 @@ import java.util.Date;
 @Builder
 public class MemberDTO {
     private String email;
-    private Date regDate;
+    private String kakaoUserId;
 
     public static MemberDTO of(MemberVO member){
         return MemberDTO.builder()
                 .email(member.getEmail())
-                .regDate(member.getRegDate())
+                .kakaoUserId(member.getKakaoUserId())
                 .build();
     }
 }

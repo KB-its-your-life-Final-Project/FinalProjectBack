@@ -15,7 +15,7 @@ public class CustomUser extends User {
 
     public CustomUser(MemberVO vo){
         super(vo.getEmail(),
-              vo.getPassword(),
+              vo.getPwd(),
               Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
         this.member = vo;
     }

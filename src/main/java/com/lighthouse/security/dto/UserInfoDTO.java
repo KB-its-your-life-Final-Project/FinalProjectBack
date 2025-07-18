@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoDTO {
-    String username;
+    String email;
     public static UserInfoDTO of(MemberVO member) {
         return new UserInfoDTO(
                 member.getEmail()
