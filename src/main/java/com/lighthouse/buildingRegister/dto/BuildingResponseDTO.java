@@ -53,7 +53,7 @@ public class BuildingResponseDTO {
     @Getter
     @Setter
     public static class ReqDongNum{
-        private String commonDongNum;
+        private String commDongNum;
         private String reqDong;
         private String reqArea;
     }
