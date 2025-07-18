@@ -1,0 +1,93 @@
+package com.lighthouse.buildingRegister.service;
+
+
+import com.lighthouse.buildingRegister.dto.BuildingRequestDTO;
+import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
+import com.lighthouse.buildingRegister.util.CodefUtil;
+
+import io.codef.api.EasyCodefUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+
+
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class BuildingRegisterService {
+    @Value("${CODEF_DEMO_ID}") private String id;
+    @Value("${CODEF_DEMO_PW}") private String password;
+    @Value("${CODEF_PUBLIC_KEY}") private String publicKey;
+    @Value("${PRIVATE_ID}") private String privateId;
+    @Value("${PRIVATE_PW}") private String privatePassword;
+
+    private final BuildingRegisterPersistence buildingRegisterPersistence;
+
+    /** address = 정확한 도로명 주소, type = (0=지상/1=지하/2=공중) */
+    public void getBuildingRegisterCommon(String address, String type) {
+        CodefUtil codef = new CodefUtil(id, password, publicKey);
+        BuildingRequestDTO buildingRequestDTO;
+        BuildingResponseDTO result;
+        try{
+        /** 요청 파라미터 설정 - 각 상품별 파라미터를 설정(https://developer.codef.io/products) */
+        buildingRequestDTO = BuildingRequestDTO.builder()
+                .address(address)
+                .userId(privateId)
+                .userPassword(EasyCodefUtil.encryptRSA(privatePassword,codef.getCodef().getPublicKey()))
+                .type(type)
+                .build();
+        } catch (Exception e) {
+            log.error("RSA 암호화 에러",e);
+            throw new RuntimeException("RSA 암호화 에러",e);
+        }
+
+        /** 코드에프 정보 조회 요청 - 서비스타입(API:정식, DEMO:데모, SANDBOX:샌드박스) */
+        String productUrl = "/v1/kr/public/lt/eais/general-buildings";
+        /** 요청 전송 - CodefUtil에서 처리 */
+        try {
+            result = codef.request(productUrl, buildingRequestDTO);
+        } catch (Exception e) {
+            log.error("CODEF 요청 에러",e);
+            throw new RuntimeException("CODEF 요청 에러",e);
+        }
+        // DB 저장
+        if(result == null) return;
+        result.getBuildingRegisterVO().setType("일반");
+        buildingRegisterPersistence.insertBuildingRegister(result);
+    }
+    /** address = 정확한 도로명 주소, dong = (ex. 101동...) 동 이름이 존재한다면 넣고 없다면 null */
+    public void getBuildingRegisterSet(String address, String dong) {
+        CodefUtil codef = new CodefUtil(id, password, publicKey);
+        BuildingRequestDTO buildingRequestDTO = null;
+        BuildingResponseDTO result = null;
+        try {
+            /** 요청 파라미터 설정 - 각 상품별 파라미터를 설정(https://developer.codef.io/products) */
+            buildingRequestDTO = BuildingRequestDTO.builder()
+                    .address(address)
+                    .userId(privateId)
+                    .userPassword(EasyCodefUtil.encryptRSA(privatePassword,codef.getCodef().getPublicKey()))
+                    .build();
+            // 동명이 존재한다면 추가
+            if(dong != null){
+                buildingRequestDTO.setDong(dong);
+            }
+        } catch (Exception e) {
+            log.error("RSA 암호화 에러",e);
+            throw new RuntimeException("RSA 암호화 에러",e);
+        }
+        String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
+        try {
+            result = codef.request(productUrl, buildingRequestDTO);
+        } catch (Exception e) {
+            log.error("CODEF 요청 에러",e);
+            throw new RuntimeException("CODEF 요청 에러",e);
+        }
+        // DB 저장
+        if(result == null) return;
+        result.getBuildingRegisterVO().setType("집합");
+        buildingRegisterPersistence.insertBuildingRegister(result);
+    }
+}

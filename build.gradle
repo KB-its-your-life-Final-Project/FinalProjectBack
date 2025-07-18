@@ -79,6 +79,8 @@ dependencies {
 
     // Jackson - Json 처리
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    // Xml 응답 처리
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}"
 
 
     // 테스트
@@ -115,6 +117,11 @@ dependencies {
     implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
     runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
     implementation "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"
+
+    // env 설정
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    implementation 'io.codef.api:easycodef-java:1.0.6'
 }
 
 test {
