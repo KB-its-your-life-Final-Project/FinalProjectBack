@@ -22,8 +22,8 @@ public class MemberService {
                 .orElseThrow(NoSuchElementException::new);
         return MemberDTO.of(vo);
     }
-    public List<MemberDTO> selectMembers(){
-        return mapper.selectMembers().stream()
+    public List<MemberDTO> findAll(){
+        return mapper.findAll().stream()
                 .map(MemberDTO::of)
                 .toList();
     }
