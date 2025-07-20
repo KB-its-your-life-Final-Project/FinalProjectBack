@@ -3,23 +3,22 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.member.mapper.MemberMapper">
+    
+    <!-- autoMapping으로 자동 매핑 -->
+    <resultMap id="memberMap" type="MemberVO" autoMapping="true">
+    </resultMap>
+    
     <resultMap id="authMap" type="AuthVO" autoMapping="true">
     </resultMap>
-    <resultMap id="memberMap" type="MemberVO" autoMapping="true">
-        <id property="username" column="username" />
-        <collection property="authList" resultMap="authMap" />
-    </resultMap>
-
-    <select id="selectMemberByUsername" resultMap="memberMap">
-        SELECT m.username, password, email, reg_date, update_date, auth
-        FROM
-        tbl_member m
-        LEFT OUTER JOIN tbl_member_auth a
-        ON m.username = a.username
-        where m.username = #{username}
-    </select>
 
     <select id="findAll" resultMap="memberMap">
-        SELECT * FORM `member_tbl`
-    </select>    
+        SELECT * FROM `member_tbl`
+    </select>
+    
+    <select id="findById" resultMap="memberMap">
+        SELECT * FROM `member_tbl` 
+        WHERE `id` = #{id}
+    </select>
+
+
 </mapper>

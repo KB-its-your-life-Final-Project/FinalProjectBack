@@ -130,11 +130,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
-// 내장 톰캣으로 실행하는 태스크 추가
-task runTomcat(type: JavaExec) {
-    description = '내장 톰캣으로 애플리케이션 실행'
-    group = 'application'
-    mainClass = 'com.lighthouse.TomcatRunner'
-    classpath = sourceSets.main.runtimeClasspath
-}
