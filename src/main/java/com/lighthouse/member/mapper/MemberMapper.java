@@ -7,5 +7,5 @@ import java.util.List;
 public interface MemberMapper {
     MemberVO selectMemberByUsername(String username);
 
-    List<MemberVO> selectMembers();
+    List<MemberVO> findAll();
 }

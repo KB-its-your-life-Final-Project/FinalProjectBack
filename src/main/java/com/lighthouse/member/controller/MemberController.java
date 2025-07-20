@@ -17,10 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class MemberController {
-    final MemberService memberService;
+    private final MemberService memberService;
     @GetMapping("")
-    public ResponseEntity<List<MemberDTO>> selectMembers() {
-        return ResponseEntity.ok().body(memberService.selectMembers());
+    public ResponseEntity<List<MemberDTO>> finaAll() {
+        return ResponseEntity.ok().body(memberService.findAll());
     }
 
     @GetMapping("/{username}")

@@ -19,9 +19,7 @@
         where m.username = #{username}
     </select>
 
-    <select id="selectMembers" resultMap="memberMap">
-        SELECT m.username, password, email, reg_date, update_date, auth
-        FROM tbl_member m
-                 LEFT OUTER JOIN tbl_member_auth a ON m.username = a.username
-    </select>
+    <select id="findAll" resultMap="memberMap">
+        SELECT * FORM `member_tbl`
+    </select>    
 </mapper>

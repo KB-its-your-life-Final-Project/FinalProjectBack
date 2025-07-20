@@ -13,8 +13,9 @@ ___
 - 로깅: Logback 1.5.18, log4jdbc-log4j2 1.16 (SQL 로그)
 - 의존성 주입: javax.inject 1
 - AOP: AspectJ 1.9.20
-- JSON 처리: Jackson 2.15.2
-- XML 처리: Xerces 2.12.2
+- JSON 자동 매핑: Jackson 2.15.2
+- XML 자동 매핑: Jackson-dataformat-xml 2.15.2
+- XML 처리 엔진: Xerces 2.12.2
 - 테스트: JUnit 5.11.0, Spring Test 5.3.38
 - 코드 자동 생성 및 보조: Lombok 1.18.30
 ---
@@ -51,8 +52,12 @@ resources/            # 리소스 파일
 - JDK 17 이상 권장
 
 ### 프로파일 설정
-- 애플리케이션 실행 시 JVM 옵션에 `-Dspring.profiles.active={local, prod}` 작성
-  - Intellij의 경우 실행/디버그 구성 -> 구성편집 -> VM 옵션에 작성
+- 애플리케이션 실행 전 .env 파일에 `SPRING_PROFILE_ACTIVE={local, prod}` 설정
   - src/main/resources/application-local.properties : 개발 환경용 설정 
   - src/main/resources/application-prod.properties : 운영 환경용 설정
-  - properties 포함 내용 : database driver,username,password,url / jwt secret 키
+  - .env 포함 내용
+    - 프로파일 설정값(local|prod)
+    - database driver,username,password,url 
+    - jwt secret 키
+    - 각 API 키값
+    - 계정, 비밀번호
