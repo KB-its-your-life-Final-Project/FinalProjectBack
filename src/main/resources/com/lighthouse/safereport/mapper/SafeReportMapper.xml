@@ -15,4 +15,14 @@
         LIMIT 1
     </select>
 
+<!--    도로명 주소 -> 위도, 경도로 변환하기 위해 도로명 주소 리스트들만 뽑아내는 쿼리-->
+    <select id="selectAllRoadAddr" resultType="string">
+        SELECT road_addr FROM safe_report_apartment
+    </select>
+<!--    도로명 주소를 좌표로 업데이트하기-->
+    <update id="updateCoordinates">
+        UPDATE safe_report_apartment
+        SET lat=#{lat}, lng=#{lng}
+        WHERE road_addr = #{road_addr}
+    </update>
 </mapper>

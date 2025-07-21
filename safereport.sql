@@ -1,4 +1,51 @@
-drop table if exists safe_report_unified;
+# 안심 레포트용 아파트 실거래가 생성
+DROP TABLE IF EXISTS safe_report_apartment;
+CREATE TABLE safe_report_apartment AS
+    SELECT sgg_cd, umd_nm, jibun,apt_nm,apt_dong, build_year, deal_amount, deal_day, deal_month, deal_year
+    FROM apartment_trade_0715;
+
+# 안심 레포트용 다세대 실거래가 생성
+DROP TABLE IF EXISTS safe_report_multihouse;
+CREATE TABLE safe_report_multihouse AS
+SELECT sgg_cd, umd_nm,jibun, mhouse_nm, build_year, deal_amount, deal_day, deal_month, deal_year
+FROM multihouse_trade_0715;
+
+# 안심 레포트용 오피스텔 실거래가 생성
+DROP TABLE IF EXISTS safe_report_officetel;
+CREATE TABLE safe_report_officetel AS
+SELECT sgg_cd, sgg_nm, umd_nm,jibun, offi_nm, build_year, deal_amount, deal_day, deal_month, deal_year
+FROM officetel_trade_0715;
+
+# 안심 레포트용 다가구 실거래가 생성
+DROP TABLE IF EXISTS safe_report_singlehouse;
+CREATE TABLE safe_report_singlehouse AS
+SELECT sgg_cd, umd_nm,jibun, build_year, deal_amount, deal_day, deal_month, deal_year
+FROM singlehouse_trade_0715;
+
+# 안심 레포트용 아파트 실거래가에 도로명주소 속성 추가
+ALTER TABLE safe_report_apartment DROP COLUMN road_addr;
+ALTER TABLE safe_report_apartment ADD COLUMN road_addr VARCHAR(200);
+UPDATE safe_report_apartment
+SET road_addr = CONCAT(umd_nm,'',jibun);
+
+# 안심 레포트용 아파트 실거래가에 도로명주소 속성 추가
+ALTER TABLE safe_report_multihouse DROP COLUMN road_addr;
+ALTER TABLE safe_report_multihouse ADD COLUMN road_addr VARCHAR(200);
+UPDATE safe_report_multihouse
+SET road_addr = CONCAT(umd_nm,'',jibun);
+
+SELECT umd_nm, jibun, road_addr
+FROM safe_report_multihouse
+LIMIT 3;
+COMMIT;
+
+# 위도, 경도 속성 추가하기
+ALTER TABLE safe_report_apartment ADD COLUMN lat DOUBLE;
+ALTER TABLE safe_report_apartment ADD COLUMN lng DOUBLE;
+
+
+# 안심 레포트용 모든 건물 합치기
+DROP TABLE IF EXISTS safe_report_unified;
 #multihouse : 연립다세대 singlehouse : 단독/다가구
 CREATE TABLE safe_report_unified (
                                      sgg_cd INTEGER COMMENT '지역코드',
