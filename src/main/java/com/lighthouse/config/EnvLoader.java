@@ -13,6 +13,7 @@ public class EnvLoader implements ApplicationContextInitializer<ConfigurableAppl
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         Dotenv dotenv = Dotenv.configure()
+                .directory(System.getProperty("user.dir"))
                 .filename(".env")
                 .load();
         // 1. SPRING_PROFILES_ACTIVE 우선 처리

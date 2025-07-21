@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
+
+    <select id="selectByRoadAddressAndBname" resultType="com.lighthouse.safereport.vo.FormDataVO">
+        SELECT
+        deal_amount AS dealAmount,
+        build_year AS buildYear
+        FROM
+        safe_report_unified
+        WHERE
+            umd_nm =#{dongName} AND #{buildingName} LIKE CONCAT('%', trade_name, '%')
+        LIMIT 1
+    </select>
+
+</mapper>
