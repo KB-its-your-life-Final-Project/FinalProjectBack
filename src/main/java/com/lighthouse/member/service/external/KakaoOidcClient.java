@@ -12,20 +12,24 @@ import java.util.Map;
 @Component
 public class KakaoOidcClient {
     private static final RestTemplate restTemplate = new RestTemplate();
+    private static final String KAKAO_OIDC_USERINFO_URL = "https://kapi.kakao.com/v1/oidc/userinfo";
 
-    public static String getKakaoUserId(String accessToken) {
-        String url = "https://kapi.kakao.com/v1/oidc/userinfo";
+    public static String getKakaoUserId(String kakaoAccessToken) {
+        log.info("KakaoOidcClient.getKakaoUserId() 실행 ======");
+        log.info("받은 kakaoAccessToken: {}", kakaoAccessToken);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.setBearerAuth(kakaoAccessToken);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, Map.class
+                KAKAO_OIDC_USERINFO_URL, HttpMethod.GET, entity, Map.class
         );
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return (String) response.getBody().get("sub");
+            String kakaoUserId = (String) response.getBody().get("sub");
+            log.info("카카오에서 발급한 회원ID: {}", kakaoUserId);
+            return kakaoUserId;
         } else {
-            throw new RuntimeException("카카오 사용자 ID(sub)를 가져오는 데 실패했습니다.");
+            throw new RuntimeException("카카오 회원ID(sub) 가져오기 실패");
         }
     }
 }

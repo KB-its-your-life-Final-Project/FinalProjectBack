@@ -32,25 +32,19 @@
 
     <insert id="insertUser">
         INSERT INTO member_tbl
-        (name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
-        VALUES (#{name}, #{email}, #{pwd}, #{kakaoUserId}, "", 0, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
+        (name, email, pwd, kakao_user_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
+        VALUES (#{name}, #{email}, #{pwd}, #{kakaoUserId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
     </insert>
 
-    <update id="updateMember">
+    <update id="updateUser">
         UPDATE member_tbl
         SET name        = #{name},
             email       = #{email},
+            pwd         = #{pwd},
             phone       = #{phone},
             age         = #{age},
-            profile_img = #{profile_img},
-            recent_ip   = #{recent_ip},
-        WHERE email = #{email}
-    </update>
-
-    <update id="updatePassword">
-        UPDATE member_tbl
-        SET password    = #{newPassword},
-            recent_ip   = #{recent_ip},
-        WHERE email = #{email}
+            profile_img = #{profileImg},
+            recent_ip   = #{recentIp}
+        WHERE id = #{id}
     </update>
 </mapper>

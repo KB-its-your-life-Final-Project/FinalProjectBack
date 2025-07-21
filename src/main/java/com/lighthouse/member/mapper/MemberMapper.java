@@ -16,7 +16,7 @@ public interface MemberMapper {
 
     int insertUser(MemberVO member); // 사용자 정보 추가
 
-    int updateMember(MemberVO member); // 사용자 정보 수정
+    int updateUser(MemberVO member); // 사용자 정보 수정
 
     int updatePassword(ChangePasswordDTO changePasswordDTO); // 비밀번호 수정
 }

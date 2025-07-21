@@ -13,13 +13,56 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class MemberDTO {
+    private int id;
+    private String name;
     private String email;
+    private String pwd;
     private String kakaoUserId;
+    private String phone;
+    private Integer age;
+    private String profileImg;
+    private Integer createdType;
+    private Date regDate;
+    private String regIp;
+    private String recentIp;
+    private Integer isDisable;
+    private Integer isDelete;
+
 
     public static MemberDTO of(MemberVO member){
         return MemberDTO.builder()
                 .email(member.getEmail())
                 .kakaoUserId(member.getKakaoUserId())
                 .build();
+    }
+
+    //클라이언트에 보낼 수 있는 데이터
+    public static MemberDTO toUser(MemberVO member) {
+        MemberDTO dto = new MemberDTO();
+        dto.setId(member.getId());
+        dto.setName(member.getName());
+        dto.setEmail(member.getEmail());
+        dto.setPhone(member.getPhone());
+        dto.setAge(member.getAge());
+        dto.setProfileImg(member.getProfileImg());
+        dto.setRegDate(member.getRegDate());
+        dto.setIsDisable(member.getIsDisable());
+        return dto;
+    }
+
+    // 관리자에게 보내는 데이터
+    public static MemberDTO toAdmin(MemberVO member) {
+        MemberDTO dto = new MemberDTO();
+        dto.setId(member.getId());
+        dto.setName(member.getName());
+        dto.setEmail(member.getEmail());
+        dto.setKakaoUserId(member.getKakaoUserId());
+        dto.setPhone(member.getPhone());
+        dto.setAge(member.getAge());
+        dto.setProfileImg(member.getProfileImg());
+        dto.setCreatedType(member.getCreatedType());
+        dto.setRegDate(member.getRegDate());
+        dto.setIsDisable(member.getIsDisable());
+        return dto;
     }
 }

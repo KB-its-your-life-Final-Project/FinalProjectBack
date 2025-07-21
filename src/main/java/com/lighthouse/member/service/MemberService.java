@@ -1,9 +1,9 @@
 package com.lighthouse.member.service;
 
-import com.lighthouse.member.dto.ChangePasswordDTO;
 import com.lighthouse.member.dto.EmailRegisterDTO;
 import com.lighthouse.member.dto.KakaoRegisterDTO;
 import com.lighthouse.member.exception.PasswordMismatchException;
+import com.lighthouse.member.service.external.KakaoUserClient;
 import com.lighthouse.member.util.ClientIpUtils;
 import com.lighthouse.member.service.external.KakaoOidcClient;
 import com.lighthouse.member.service.external.KakaoTokenClient;
@@ -29,8 +29,9 @@ import java.util.Optional;
 public class MemberService {
     final MemberMapper mapper;
     final PasswordEncoder passwordEncoder;
-    private final KakaoTokenClient kakaoTokenClient;
     private final KakaoOidcClient kakaoOidcClient;
+    private final KakaoTokenClient kakaoTokenClient;
+    private final KakaoUserClient kakaoUserClient;
     private final JwtCookieManager jwtCookieManager;
 
     // 모든 사용자 조회
@@ -70,49 +71,50 @@ public class MemberService {
     // 이메일 회원가입
     @Transactional
     public MemberDTO registerMemberByEmail(EmailRegisterDTO dto, HttpServletRequest req) {
+        log.info("MemberService.registerMemberByEmail() 실행 ======");
         log.info("email: {}", dto.getEmail());
         String clientIp = ClientIpUtils.getClientIp(req);
         MemberVO memberVo = dto.toVO();
-        memberVo.setPwd(passwordEncoder.encode(memberVo.getPwd())); // 비밀번호 암호화
-        memberVo.setKakaoUserId("");
+        memberVo.setPwd(passwordEncoder.encode(memberVo.getPwd())); // 암호화
         memberVo.setRegIp(clientIp);
         memberVo.setRecentIp(clientIp);
         mapper.insertUser(memberVo);
         return selectMemberByEmail(memberVo.getEmail());
     }
 
-    // 카카오 회원가입 (또는 로그인)
+    // 카카오 회원가입 또는 로그인
+    @Transactional
     public MemberDTO registerOrLoginMemberByKakaoCode(KakaoRegisterDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("MemberService.registerOrLoginMemberByKakaoCode() 실행 ======");
         String clientIp = ClientIpUtils.getClientIp(req);
-        String accessTokenKakao = kakaoTokenClient.getAccessToken(dto.getCode());
-        String kakaoUserId = kakaoOidcClient.getKakaoUserId(accessTokenKakao);
+        String kakaoAccessToken = kakaoTokenClient.getKakaoAccessToken(dto.getCode());
+        String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
-        // 사용자 조회
+        // 미등록 사용자 -> 회원가입 / 등록된 사용자 -> IP주소 업데이트
         MemberVO memberVo = mapper.selectMemberByKakaoUserId(kakaoUserId);
-
-        // 회원가입 (미등록 사용자)
+        log.info("MemberService: kakaoUserId로 사용자 조회, memberVo: {}", memberVo);
         if (memberVo == null) {
+            String kakaoNickname = kakaoUserClient.getKakaoNickname(kakaoAccessToken);
             memberVo = dto.toVO();
-            memberVo.setEmail("");
+            memberVo.setName(kakaoNickname);
             memberVo.setKakaoUserId(kakaoUserId);
             memberVo.setRegIp(clientIp);
             memberVo.setRecentIp(clientIp);
             mapper.insertUser(memberVo);
+        } else {
+            memberVo.setRecentIp(clientIp);
+            mapper.updateUser(memberVo);
         }
 
-        // Access Token 및 Refresh Token 쿠키에 저장
+        // Access Token, Refresh Token 쿠키에 저장
         jwtCookieManager.setTokensToCookies(resp, kakaoUserId);
 
         return selectMemberByKakaoUserId(memberVo.getKakaoUserId());
     }
 
-    // 사용자 비밀번호 수정
-    public void changePassword(ChangePasswordDTO dto) {
-        MemberVO memberVo = mapper.selectMemberByEmail(dto.getEmail());
-        if (!passwordEncoder.matches(dto.getOldPassword(), memberVo.getPwd())) {
-            throw new PasswordMismatchException();
-        }
-        dto.setNewPassword(passwordEncoder.encode(dto.getNewPassword()));
-        mapper.updatePassword(dto);
+    // 로그아웃
+    public boolean logoutUser(HttpServletResponse resp) {
+        jwtCookieManager.clearTokensFromCookies(resp);
+        return true;
     }
 }

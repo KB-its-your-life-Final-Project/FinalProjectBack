@@ -1,6 +1,5 @@
 package com.lighthouse.member.controller;
 
-import com.lighthouse.member.dto.ChangePasswordDTO;
 import com.lighthouse.member.dto.EmailRegisterDTO;
 import com.lighthouse.member.dto.KakaoRegisterDTO;
 import com.lighthouse.security.vo.CustomUser;
@@ -65,13 +64,16 @@ public class  MemberController {
     // 카카오 회원가입 (기존 사용자는 로그인)
     @PostMapping("/register/kakao")
     public ResponseEntity<MemberDTO> registerOrLoginMemberByKakao(@RequestBody KakaoRegisterDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("카카오톡으로 로그인 POST 요청==========");
+        log.info("KakaoRegisterDTO: {}", dto);
+        log.info("HttpServletRequest: {}", req);
+        log.info("HttpServletResponse: {}", resp);
         return ResponseEntity.ok(memberService.registerOrLoginMemberByKakaoCode(dto, req, resp));
     }
 
-    // 사용자 비밀번호 수정
-    @PutMapping("/{id}/changepassword")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO dto) {
-        memberService.changePassword(dto);
-        return ResponseEntity.ok().build();
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Boolean> logoutUser(HttpServletResponse resp) {
+        return ResponseEntity.ok(memberService.logoutUser(resp));
     }
 }
