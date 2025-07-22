@@ -13,6 +13,9 @@ bin
 *.iml
 *.ipr
 
+# VsCode
+.vscode
+
 # OS
 .DS_Store
 Thumbs.db
@@ -22,5 +25,3 @@ Thumbs.db
 
 # Local configs
 *.env
-application-local.properties
-application-prod.properties

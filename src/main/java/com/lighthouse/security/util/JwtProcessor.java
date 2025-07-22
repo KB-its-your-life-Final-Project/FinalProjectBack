@@ -14,12 +14,12 @@ import java.util.Date;
 @Component
 public class JwtProcessor {
 
-    //토큰 유효 기간
-    static private final long TOKEN_VALID_MILLISECOND = 1000L * 60 * 10;
-
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
+
+    @Value("${jwt.expiration}")
+    private long tokenValidMillisecond;
 
     @PostConstruct
     public void initKey() {
@@ -29,7 +29,7 @@ public class JwtProcessor {
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + TOKEN_VALID_MILLISECOND))
+                .setExpiration(new Date(new Date().getTime() + tokenValidMillisecond))
                 .signWith(key)
                 .compact();
     }

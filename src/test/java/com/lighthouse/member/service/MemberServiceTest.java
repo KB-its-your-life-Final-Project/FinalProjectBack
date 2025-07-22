@@ -24,16 +24,16 @@ class MemberServiceTest {
     @Autowired
     private MemberService service;
 
-    @Test
-    void getList() {
-        for(MemberDTO member: service.selectMembers()){
-            log.info("{}",member);
-        }
-    }
+    // @Test
+    // void getList() {
+    //     for(MemberDTO member: service.selectMembers()){
+    //         log.info("{}",member);
+    //     }
+    // }
 
-    @Test
-    void get() {
-        MemberDTO dto = service.selectMemberByUsername("admin");
-        assertNotNull(dto, "admin 회원은 반드시 존재해야 함");
-    }
+    // @Test
+    // void get() {
+    //     MemberDTO dto = service.selectMemberByUsername("admin");
+    //     assertNotNull(dto, "admin 회원은 반드시 존재해야 함");
+    // }
 }

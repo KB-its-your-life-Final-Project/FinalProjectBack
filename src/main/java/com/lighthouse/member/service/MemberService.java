@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.vo.MemberVO;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +19,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
-    final MemberMapper mapper;
-    public MemberDTO selectMemberByUsername(String id){
-        MemberVO vo = Optional.ofNullable(mapper.selectMemberByUsername(id))
+    final MemberMapper memberMapper;
+    public MemberDTO findById(Number id){
+        // 기본값 설정
+        MemberVO vo = Optional.ofNullable(memberMapper.findById(id))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.of(vo);
+
+        //Sping Security 권한 별 전달 데이터 변경
+        //내용 미작성
+
+        return MemberDTO.toUser(vo);
     }
-    public List<MemberDTO> selectMembers(){
-        return mapper.selectMembers().stream()
-                .map(MemberDTO::of)
+    public List<MemberDTO> findAll(){
+        
+        return memberMapper.findAll().stream()
+                .map(MemberDTO::toUser)
                 .toList();
     }
 }
