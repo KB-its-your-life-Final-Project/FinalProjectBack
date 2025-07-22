@@ -18,10 +18,10 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = {
         "com.batch",
-        "com.lighthouse.safereport.service",
-        "com.lighthouse.safereport.mapper"
+        "com.batch.toCoord.service",
+        "com.batch.toCoord.mapper"
 })
-@MapperScan("com.lighthouse.safereport.mapper")
+@MapperScan("com.batch.toCoord.mapper")
 @PropertySource("classpath:application-local.properties")
 public class BatchConfig {
 
@@ -50,7 +50,7 @@ public class BatchConfig {
         factory.setDataSource(dataSource);
         // XML Mapper 경로가 있다면 설정
         Resource[] resources = new PathMatchingResourcePatternResolver()
-                .getResources("classpath:/com/lighthouse/**/*.xml");
+                .getResources("classpath:/com/batch/toCoord/mapper/*.xml");
 
         System.out.println("🧾 찾은 XML 파일 개수: " + resources.length);
         for (Resource r : resources) {

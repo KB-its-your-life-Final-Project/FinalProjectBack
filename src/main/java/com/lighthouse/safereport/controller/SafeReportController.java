@@ -25,7 +25,7 @@ public class SafeReportController {
 //        return ResponseEntity.ok(new ApiResponse<>(true, "전송 성공", "전송 성공", 200));
 //    }
     public ResponseEntity<FormDataVO> receiveForm(@RequestBody FormDataDto dto){
-        FormDataVO result = service.getReportByRoadAddress(dto.getBuildingName(), dto.getDongName());
+        FormDataVO result = service.getReportByRoadAddress(dto.getLat(), dto.getLng());
 
         if(result == null){
             log.warn("해당 건물명과 법정동에 대한 데이터가 없습니다:{}, {}",dto.getBuildingName(),dto.getDongName());

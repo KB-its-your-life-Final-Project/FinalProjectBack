@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SafeReportService {
     private final SafeReportMapper safeReportMapper;
-    public FormDataVO getReportByRoadAddress(String buildingName, String dongName) {
-        return safeReportMapper.selectByRoadAddressAndBname(buildingName, dongName);
+    public FormDataVO getReportByRoadAddress(double lat, double lng) {
+        return safeReportMapper.selectByCoord(lat, lng);
     }
 }

@@ -126,18 +126,18 @@ FROM singlehouse_rental_0715;
 
 
 # 도로명 주소 속성 추가하기
-# ALTER TABLE all_real_estate
-#     DROP COLUMN road_addr;
+#  ALTER TABLE all_real_estate
+#      DROP COLUMN longitude;
 
 ALTER TABLE all_real_estate
-    ADD COLUMN road_addr VARCHAR(200) COMMENT '도로명 주소';
+    ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
 
 UPDATE all_real_estate
-SET road_addr = CONCAT(umd_nm, ' ', COALESCE(jibun, ''));
+SET jibun_addr = CONCAT(umd_nm, ' ', COALESCE(jibun, ''));
 
 # 위도, 경도 속성 추가하기
 ALTER TABLE all_real_estate
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
-
+SELECT * FROM all_real_estate WHERE all_real_estate.latitude=37.5470856 AND all_real_estate.longitude=127.1085676;

@@ -8,5 +8,7 @@ public class FormDataDto {
     private String roadAddress;
     private String jibunAddress;
     private String dongName;
+    private double lat;
+    private double lng;
     private Integer budget;
 }

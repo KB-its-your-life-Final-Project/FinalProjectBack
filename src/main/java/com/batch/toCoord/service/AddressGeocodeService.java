@@ -1,4 +1,4 @@
-package com.batch;
+package com.batch.toCoord.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -7,9 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +24,6 @@ public class AddressGeocodeService {
 
     public Map<String, Double> getCoordinates(String address) {
         try{
-            //주소를 URL-safe 형태로 인코딩 ('서울시 강남구' -> 서울시%강남구)
-            //String encoded = UriUtils.encode(address, StandardCharsets.UTF_8);
             //네이버 지도 API의 주소-> 좌표 변환 API 호출
             String url = "https://maps.apigw.ntruss.com/map-geocode/v2/geocode?query=" + address;
 

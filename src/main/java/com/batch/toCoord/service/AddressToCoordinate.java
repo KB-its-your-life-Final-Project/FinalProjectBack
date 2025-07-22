@@ -1,7 +1,7 @@
-package com.batch;
+package com.batch.toCoord.service;
 
 import com.batch.config.BatchConfig;
-import com.lighthouse.safereport.mapper.SafeReportMapper;
+import com.batch.toCoord.mapper.toCoordMapper;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
@@ -16,20 +16,19 @@ public class AddressToCoordinate {
         context.refresh();
 
         AddressGeocodeService geocodeService = context.getBean(AddressGeocodeService.class);
-        SafeReportMapper safeReportMapper = context.getBean(SafeReportMapper.class);
+        toCoordMapper mapper = context.getBean(toCoordMapper.class);
 
-        List<String> addresses = safeReportMapper.selectAllRoadAddr();
+        List<String> addresses = mapper.selectAlljibunAddr();
 
         for (String address : addresses) {
             try {
                 Map<String, Double> coords = geocodeService.getCoordinates(address);
-                safeReportMapper.updateCoordinates(address, coords.get("lat"), coords.get("lng"));
+                mapper.updateCoordinates(address, coords.get("lat"), coords.get("lng"));
                 System.out.println("✅ " + address + " → " + coords);
             } catch (Exception e) {
                 System.err.println("❌ 변환 실패: " + address + "(" + e.getMessage() + ")");
             }
         }
-
-        context.close(); // 자원 정리
+        context.close();
     }
 }
