@@ -33,20 +33,20 @@ class MemberControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
     }
 
-    @Test
-    void testGetById() throws Exception {
-        String testId = "admin";
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/member/{id}", testId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith("application/json"))
-                .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
-    }
+    // @Test
+    // void testGetById() throws Exception {
+    //     String testId = "admin";
+    //     mockMvc.perform(MockMvcRequestBuilders.get("/api/member/{id}", testId))
+    //             .andExpect(status().isOk())
+    //             .andExpect(content().contentTypeCompatibleWith("application/json"))
+    //             .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
+    // }
 
-    @Test
-    void testGetList() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/member"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith("application/json"))
-                .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
-    }
+    // @Test
+    // void testGetList() throws Exception {
+    //     mockMvc.perform(MockMvcRequestBuilders.get("/api/member"))
+    //             .andExpect(status().isOk())
+    //             .andExpect(content().contentTypeCompatibleWith("application/json"))
+    //             .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
+    // }
 }

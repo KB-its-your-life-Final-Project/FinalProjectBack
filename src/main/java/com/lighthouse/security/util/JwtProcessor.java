@@ -22,6 +22,9 @@ public class JwtProcessor {
     private String secretKey;
     private Key key;
 
+    @Value("${jwt.expiration}")
+    private long tokenValidMillisecond;
+
     @PostConstruct
     public void initKey() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));

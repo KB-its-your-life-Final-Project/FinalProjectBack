@@ -10,10 +10,16 @@ import com.lighthouse.member.service.external.KakaoTokenClient;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.vo.MemberVO;
+<<<<<<< HEAD
 import com.lighthouse.security.util.JwtCookieManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
+=======
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+>>>>>>> dev
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
