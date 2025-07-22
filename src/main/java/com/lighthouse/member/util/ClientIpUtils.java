@@ -3,7 +3,6 @@ package com.lighthouse.member.util;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 
 @Slf4j
 public class ClientIpUtils {

@@ -10,10 +10,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -86,5 +89,25 @@ public class RootConfig {
         return new DataSourceTransactionManager(dataSource());
     }
 
+    @Value("${spring.mail.host}") String mailHost;
+    @Value("${spring.mail.port}") int mailPort;
+    @Value("${spring.mail.username}") String mailUsername;
+    @Value("${spring.mail.password}") String mailAppPassword;
+    @Value("${spring.mail.properties.mail.smtp.ssl.trust}") String mailSmtpSslTrust;
 
+    @Bean
+    public JavaMailSender mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailAppPassword); // Gmail 앱 비밀번호 사용 (계정 > 보안 > 앱 비밀번호에서 생성)
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.trust", mailSmtpSslTrust);
+
+        return mailSender;
+    }
 }

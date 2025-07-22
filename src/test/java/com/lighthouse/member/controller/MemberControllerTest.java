@@ -28,10 +28,10 @@ class MemberControllerTest {
     private WebApplicationContext ctx;
     private MockMvc mockMvc;
 
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
-    }
+//    @BeforeEach
+//    public void setup() {
+//        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
+//    }
 
     // @Test
     // void testGetById() throws Exception {

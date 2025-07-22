@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.lighthouse.config.RootConfig;
 import com.lighthouse.security.config.SecurityConfig;
-import com.lighthouse.security.vo.AuthVO;
-import com.lighthouse.member.vo.MemberVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;

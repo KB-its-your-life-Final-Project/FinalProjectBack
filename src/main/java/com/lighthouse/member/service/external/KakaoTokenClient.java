@@ -18,10 +18,10 @@ public class KakaoTokenClient {
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
 
-    @Value("${kakao.rest-api-key}")
+    @Value("${KAKAO_REST_API_KEY}")
     private String clientId;
 
-    @Value("${kakao.redirect-uri}")
+    @Value("${KAKAO_REDIRECT_URI}")
     private String redirectUri;
 
     public String getKakaoAccessToken(String kakaoCode) {

@@ -2,27 +2,26 @@ package com.lighthouse.member.service;
 
 import com.lighthouse.member.dto.EmailRegisterDTO;
 import com.lighthouse.member.dto.KakaoRegisterDTO;
-import com.lighthouse.member.exception.PasswordMismatchException;
 import com.lighthouse.member.service.external.KakaoUserClient;
 import com.lighthouse.member.util.ClientIpUtils;
 import com.lighthouse.member.service.external.KakaoOidcClient;
 import com.lighthouse.member.service.external.KakaoTokenClient;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.mapper.MemberMapper;
+import com.lighthouse.member.util.ValidateUtils;
 import com.lighthouse.member.vo.MemberVO;
-<<<<<<< HEAD
 import com.lighthouse.security.util.JwtCookieManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import javax.mail.internet.MimeMessage;
+import java.time.LocalDateTime;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.security.crypto.password.PasswordEncoder;
-=======
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
->>>>>>> dev
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -33,8 +32,12 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
-    final MemberMapper mapper;
-    final PasswordEncoder passwordEncoder;
+    private final MemberMapper mapper;
+    @Autowired
+    private final JavaMailSender mailSender;
+    private final ConcurrentHashMap<String, String> verificationCodeStore = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, LocalDateTime> codeTimestamps = new ConcurrentHashMap<>();
+    private final PasswordEncoder passwordEncoder;
     private final KakaoOidcClient kakaoOidcClient;
     private final KakaoTokenClient kakaoTokenClient;
     private final KakaoUserClient kakaoUserClient;
@@ -68,10 +71,47 @@ public class MemberService {
         return MemberDTO.of(memberVo);
     }
 
-    // 아이디 중복 확인
+    // 이메일 중복 확인
     public boolean checkDuplicateEmail(String email) {
         MemberVO memberVo = mapper.selectMemberByEmail(email);
         return memberVo != null;
+    }
+
+    // 이메일 유효성 검사
+    public boolean isValidEmail(String email) {
+        return !ValidateUtils.isEmpty(email) && ValidateUtils.isValidEmailFormat(email);
+    }
+
+    // 비밀번호 유효성 검사
+    public boolean isValidPassword(String password) {
+        return !ValidateUtils.isEmpty(password) && ValidateUtils.isValidPasswordFormat(password);
+    }
+
+    // 인증 번호 전송
+    public void sendVerificationCode(String email) throws Exception {
+        String code = generateCode();
+        verificationCodeStore.put(email, code);
+        codeTimestamps.put(email, LocalDateTime.now());
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(email);
+        helper.setSubject("[Lighthouse] 이메일 인증 코드입니다.");
+        helper.setText("Verification Code: " + code, true);
+        mailSender.send(message);
+    }
+
+    // 인증 번호 검사
+    public boolean verifyCode(String email, String code) {
+        String stored = verificationCodeStore.get(email);
+        LocalDateTime sentAt = codeTimestamps.get(email);
+        if (stored == null || sentAt == null) return false;
+        if (LocalDateTime.now().isAfter(sentAt.plusMinutes(3))) return false; // 3분 유효
+        return stored.equals(code);
+    }
+
+    // 인증 번호 생성
+    private String generateCode() {
+        return String.valueOf((int) ((Math.random() * 900000) + 100000)); // 6자리 숫자
     }
 
     // 이메일 회원가입
@@ -79,6 +119,8 @@ public class MemberService {
     public MemberDTO registerMemberByEmail(EmailRegisterDTO dto, HttpServletRequest req) {
         log.info("MemberService.registerMemberByEmail() 실행 ======");
         log.info("email: {}", dto.getEmail());
+        log.info("name: {}", dto.getName());
+        log.info("password: {}", dto.getPassword());
         String clientIp = ClientIpUtils.getClientIp(req);
         MemberVO memberVo = dto.toVO();
         memberVo.setPwd(passwordEncoder.encode(memberVo.getPwd())); // 암호화

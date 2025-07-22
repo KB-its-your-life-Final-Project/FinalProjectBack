@@ -13,6 +13,7 @@ import com.lighthouse.member.vo.MemberVO;
 @Builder
 public class EmailRegisterDTO {
     private String email;
+    private String verificationCode;
     private String name;
     private String password;
 
