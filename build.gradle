@@ -123,6 +123,14 @@ dependencies {
 
     implementation 'io.codef.api:easycodef-java:1.0.6'
 
+    // Mockito
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+
+
+    // 테스트용 assertThat
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+
 
 }
 

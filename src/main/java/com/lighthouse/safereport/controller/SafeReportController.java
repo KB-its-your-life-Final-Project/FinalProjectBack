@@ -21,14 +21,11 @@ import java.time.LocalDate;
 public class SafeReportController {
     private final SafeReportService service;
     @PostMapping("/formdata")
-//    public ResponseEntity<ApiResponse<String>> receiveForm(@RequestBody FormDataDto dto){
-//        return ResponseEntity.ok(new ApiResponse<>(true, "전송 성공", "전송 성공", 200));
-//    }
     public ResponseEntity<FormDataVO> receiveForm(@RequestBody FormDataDto dto){
         FormDataVO result = service.getReportByRoadAddress(dto.getLat(), dto.getLng());
 
         if(result == null){
-            log.warn("해당 건물명과 법정동에 대한 데이터가 없습니다:{}, {}",dto.getBuildingName(),dto.getDongName());
+            log.warn("해당 좌표에 대한 데이터가 없습니다:{}, {}",dto.getLat(),dto.getLng());
             return ResponseEntity.notFound().build();
         }
         // 점수 계산하는 로직
