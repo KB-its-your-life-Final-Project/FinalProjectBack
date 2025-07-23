@@ -44,7 +44,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     REPLACE(deal_amount, ',', '') + 0, NULL, NULL,
     1, 1, 1 AS source_table, id
-FROM apartment_trade_0715
+FROM api_apartment_trade_0715
 
 UNION ALL
 
@@ -55,7 +55,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     NULL, REPLACE(deposit, ',', '') + 0, REPLACE(monthly_rent, ',', '') + 0,
     2, 1, 2 AS source_table, id
-FROM apartment_rental_0715
+FROM api_apartment_rental_0715
 
 UNION ALL
 
@@ -66,7 +66,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     REPLACE(deal_amount, ',', '') + 0, NULL, NULL,
     1, 2, 3 AS source_table, id
-FROM officetel_trade_0715
+FROM api_officetel_trade_0715
 
 UNION ALL
 
@@ -77,7 +77,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     NULL, REPLACE(deposit, ',', '') + 0, REPLACE(monthly_rent, ',', '') + 0,
     2, 2, 4 AS source_table, id
-FROM officetel_rental_0715
+FROM api_officetel_rental_0715
 
 UNION ALL
 
@@ -88,7 +88,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     REPLACE(deal_amount, ',', '') + 0, NULL, NULL,
     1, 3, 5 AS source_table, id
-FROM multihouse_trade_0715
+FROM api_multihouse_trade_0715
 
 UNION ALL
 
@@ -99,7 +99,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     NULL, REPLACE(deposit, ',', '') + 0, REPLACE(monthly_rent, ',', '') + 0,
     2, 3, 6 AS source_table, id
-FROM multihouse_rental_0715
+FROM api_multihouse_rental_0715
 
 UNION ALL
 
@@ -110,7 +110,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     REPLACE(deal_amount, ',', '') + 0, NULL, NULL,
     1, 4, 7 AS source_table, id
-FROM singlehouse_trade_0715
+FROM api_singlehouse_trade_0715
 
 UNION ALL
 
@@ -122,7 +122,7 @@ SELECT
     build_year, deal_year, deal_month, deal_day,
     NULL, REPLACE(deposit, ',', '') + 0, REPLACE(monthly_rent, ',', '') + 0,
     2, 4, 8 AS source_table, id
-FROM singlehouse_rental_0715;
+FROM api_singlehouse_rental_0715;
 
 ALTER TABLE all_real_estate
     ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
@@ -144,4 +144,3 @@ ALTER TABLE all_real_estate
 6: api_multihouse_rental_0715,
 7: api_singlehouse_trade_0715,
 8: api_singlehouse_rental_0715';
-
