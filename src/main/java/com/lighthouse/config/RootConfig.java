@@ -73,6 +73,13 @@ public class RootConfig {
         sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
         sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:/com/lighthouse/**/*.xml"));
         sqlSessionFactory.setDataSource(dataSource());
+
+        // MyBatis 설정 파일 경로
+        sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
+        
+        // Mapper XML 파일 위치 추가
+        sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:com/lighthouse/**/mapper/*.xml"));
+
         return sqlSessionFactory.getObject();
     }
     @Bean
