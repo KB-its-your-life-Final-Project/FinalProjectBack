@@ -8,6 +8,18 @@
     <select id="get" resultMap="memberMap">
         SELECT id, name, email, pwd, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
         FROM member_tbl
-        WHERE email = #{email}
+        <where>
+            <choose>
+                <when test="created_type = 1">
+                    email = #{email}
+                </when>
+                <when test="created_type = 2">
+                    kakao_id = #{kakaoId}
+                </when>
+                <when test="created_type = 3">
+                    google_id = #{googleId}
+                </when>
+            </choose>
+        </where>
     </select>
 </mapper>

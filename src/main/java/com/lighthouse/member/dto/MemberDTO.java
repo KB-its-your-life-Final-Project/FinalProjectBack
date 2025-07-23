@@ -17,7 +17,8 @@ public class MemberDTO {
     private String name;
     private String email;
     private String pwd;
-    private String kakaoUserId;
+    private String kakaoId;
+    private String googleId;
     private String phone;
     private Integer age;
     private String profileImg;
@@ -32,7 +33,7 @@ public class MemberDTO {
     public static MemberDTO of(MemberVO member){
         return MemberDTO.builder()
                 .email(member.getEmail())
-                .kakaoUserId(member.getKakaoUserId())
+                .kakaoId(member.getKakaoId())
                 .build();
     }
 
@@ -56,7 +57,7 @@ public class MemberDTO {
         dto.setId(member.getId());
         dto.setName(member.getName());
         dto.setEmail(member.getEmail());
-        dto.setKakaoUserId(member.getKakaoUserId());
+        dto.setKakaoId(member.getKakaoId());
         dto.setPhone(member.getPhone());
         dto.setAge(member.getAge());
         dto.setProfileImg(member.getProfileImg());

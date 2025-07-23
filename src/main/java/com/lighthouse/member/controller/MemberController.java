@@ -1,7 +1,8 @@
 package com.lighthouse.member.controller;
 
-import com.lighthouse.member.dto.EmailRegisterDTO;
-import com.lighthouse.member.dto.KakaoRegisterDTO;
+import com.lighthouse.member.dto.RegisterEmailDTO;
+import com.lighthouse.member.dto.RegisterGoogleDTO;
+import com.lighthouse.member.dto.RegisterKakaoDTO;
 import com.lighthouse.security.vo.CustomUser;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.service.MemberService;
@@ -90,7 +91,7 @@ public class  MemberController {
 
     // 이메일 회원가입
     @PostMapping("/register/email")
-    public ResponseEntity<ApiResponse<MemberDTO>> registerUserByEmail(@ModelAttribute EmailRegisterDTO registerDto, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<MemberDTO>> registerUserByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
         // 이메일 형식 유효성 검사
         if (!memberService.isValidEmail(registerDto.getEmail())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
@@ -111,16 +112,32 @@ public class  MemberController {
 
     // 카카오 회원가입, 기존 사용자는 로그인
     @PostMapping("/register/kakao")
-    public ResponseEntity<ApiResponse<MemberDTO>> registerOrLoginMemberByKakao(@RequestBody KakaoRegisterDTO registerDto, HttpServletRequest req, HttpServletResponse resp) {
+    public ResponseEntity<ApiResponse<MemberDTO>> registerOrLoginMemberByKakao(@RequestBody RegisterKakaoDTO registerDto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("카카오톡으로 로그인 POST 요청==========");
-        log.info("KakaoRegisterDTO: {}", registerDto);
+        log.info("RegisterKakaoDTO: {}", registerDto);
         log.info("HttpServletRequest: {}", req);
         log.info("HttpServletResponse: {}", resp);
         try {
             MemberDTO userDto = memberService.registerOrLoginMemberByKakaoCode(registerDto, req, resp);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, userDto));
         } catch (Exception e) {
-            log.error("카카오 회원가입 실패", e);
+            log.error("카카오 회원가입/로그인 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+        }
+    }
+
+    // 구글 회원가입, 기존 사용자는 로그인
+    @PostMapping("/register/google")
+    public ResponseEntity<ApiResponse<MemberDTO>> registerOrLoginMemberByGoogle(@RequestBody RegisterGoogleDTO registerDto, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("구글로 로그인 POST 요청==========");
+        log.info("RegisterGoogleDTO: {}", registerDto);
+        log.info("HttpServletRequest: {}", req);
+        log.info("HttpServletResponse: {}", resp);
+        try {
+            MemberDTO userDto = memberService.registerOrLoginMemberByGoogleCode(registerDto, req, resp);
+            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS, userDto));
+        } catch (Exception e) {
+            log.error("구글 회원가입/로그인 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
         }
     }

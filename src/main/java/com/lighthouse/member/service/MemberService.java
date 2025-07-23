@@ -1,11 +1,10 @@
 package com.lighthouse.member.service;
 
-import com.lighthouse.member.dto.EmailRegisterDTO;
-import com.lighthouse.member.dto.KakaoRegisterDTO;
-import com.lighthouse.member.service.external.KakaoUserClient;
+import com.lighthouse.member.dto.RegisterEmailDTO;
+import com.lighthouse.member.dto.RegisterGoogleDTO;
+import com.lighthouse.member.dto.RegisterKakaoDTO;
+import com.lighthouse.member.service.external.*;
 import com.lighthouse.member.util.ClientIpUtils;
-import com.lighthouse.member.service.external.KakaoOidcClient;
-import com.lighthouse.member.service.external.KakaoTokenClient;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.util.ValidateUtils;
@@ -18,6 +17,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import javax.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +41,8 @@ public class MemberService {
     private final KakaoOidcClient kakaoOidcClient;
     private final KakaoTokenClient kakaoTokenClient;
     private final KakaoUserClient kakaoUserClient;
+    private final GoogleTokenClient googleTokenClient;
+    private final GoogleUserClient googleUserClient;
     private final JwtCookieManager jwtCookieManager;
 
     // 모든 사용자 조회
@@ -65,8 +67,15 @@ public class MemberService {
     }
 
     // 카카오 회원ID로 사용자 조회
-    public MemberDTO selectMemberByKakaoUserId(String kakaoUserId) {
-        MemberVO memberVo = Optional.ofNullable(mapper.selectMemberByKakaoUserId(kakaoUserId))
+    public MemberDTO selectMemberByKakaoId(String kakaoUserId) {
+        MemberVO memberVo = Optional.ofNullable(mapper.selectMemberByKakaoId(kakaoUserId))
+                .orElseThrow(NoSuchElementException::new);
+        return MemberDTO.of(memberVo);
+    }
+
+    // 구글 ID로 사용자 조회
+    public MemberDTO selectMemberByGoogleId(String googleId) {
+        MemberVO memberVo = Optional.ofNullable(mapper.selectMemberByGoogleId(googleId))
                 .orElseThrow(NoSuchElementException::new);
         return MemberDTO.of(memberVo);
     }
@@ -116,7 +125,7 @@ public class MemberService {
 
     // 이메일 회원가입
     @Transactional
-    public MemberDTO registerMemberByEmail(EmailRegisterDTO dto, HttpServletRequest req) {
+    public MemberDTO registerMemberByEmail(RegisterEmailDTO dto, HttpServletRequest req) {
         log.info("MemberService.registerMemberByEmail() 실행 ======");
         log.info("email: {}", dto.getEmail());
         log.info("name: {}", dto.getName());
@@ -132,20 +141,20 @@ public class MemberService {
 
     // 카카오 회원가입 또는 로그인
     @Transactional
-    public MemberDTO registerOrLoginMemberByKakaoCode(KakaoRegisterDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberDTO registerOrLoginMemberByKakaoCode(RegisterKakaoDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.registerOrLoginMemberByKakaoCode() 실행 ======");
         String clientIp = ClientIpUtils.getClientIp(req);
         String kakaoAccessToken = kakaoTokenClient.getKakaoAccessToken(dto.getCode());
         String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
         // 미등록 사용자 -> 회원가입 / 등록된 사용자 -> IP주소 업데이트
-        MemberVO memberVo = mapper.selectMemberByKakaoUserId(kakaoUserId);
+        MemberVO memberVo = mapper.selectMemberByKakaoId(kakaoUserId);
         log.info("MemberService: kakaoUserId로 사용자 조회, memberVo: {}", memberVo);
         if (memberVo == null) {
             String kakaoNickname = kakaoUserClient.getKakaoNickname(kakaoAccessToken);
             memberVo = dto.toVO();
             memberVo.setName(kakaoNickname);
-            memberVo.setKakaoUserId(kakaoUserId);
+            memberVo.setKakaoId(kakaoUserId);
             memberVo.setRegIp(clientIp);
             memberVo.setRecentIp(clientIp);
             mapper.insertUser(memberVo);
@@ -157,7 +166,40 @@ public class MemberService {
         // Access Token, Refresh Token 쿠키에 저장
         jwtCookieManager.setTokensToCookies(resp, kakaoUserId);
 
-        return selectMemberByKakaoUserId(memberVo.getKakaoUserId());
+        return selectMemberByKakaoId(memberVo.getKakaoId());
+    }
+
+    // 구글 회원가입 또는 로그인
+    @Transactional
+    public MemberDTO registerOrLoginMemberByGoogleCode(RegisterGoogleDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("MemberService.registerOrLoginMemberByGoogleCode() 실행 ======");
+        String clientIp = ClientIpUtils.getClientIp(req);
+        String googleAccessToken = googleTokenClient.getGoogleAccessToken(dto.getCode());
+        Map googleUserInfoMap = googleUserClient.getGoogleUserInfo(googleAccessToken);
+        String googleId = googleUserInfoMap.get("id").toString();
+
+        // 미등록 사용자 -> 회원가입 / 등록된 사용자 -> IP주소 업데이트
+        MemberVO memberVo = mapper.selectMemberByGoogleId(googleId);
+        log.info("MemberService: googleId로 사용자 조회, memberVo: {}", memberVo);
+        if (memberVo == null) {
+            String email = googleUserInfoMap.get("email").toString();
+            String name = googleUserInfoMap.get("name").toString();
+            memberVo = dto.toVO();
+            memberVo.setName(name);
+            memberVo.setEmail(email);
+            memberVo.setGoogleId(googleId);
+            memberVo.setRegIp(clientIp);
+            memberVo.setRecentIp(clientIp);
+            mapper.insertUser(memberVo);
+        } else {
+            memberVo.setRecentIp(clientIp);
+            mapper.updateUser(memberVo);
+        }
+
+        // Access Token, Refresh Token 쿠키에 저장
+        jwtCookieManager.setTokensToCookies(resp, googleId);
+
+        return selectMemberByGoogleId(memberVo.getGoogleId());
     }
 
     // 로그아웃

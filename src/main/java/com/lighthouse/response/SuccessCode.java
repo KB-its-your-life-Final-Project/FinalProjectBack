@@ -13,6 +13,7 @@ public enum SuccessCode implements ResponseCode{
 	MEMBER_REGISTER_SUCCESS(1002, "회원 가입 성공"),
 	MEMBER_UPDATE_SUCCESS(1003, "회원 정보 수정 성공"),
 	MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS(1004, "카카오 회원가입 또는 로그인 성공"),
+	MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS(1005, "구글 회원가입 또는 로그인 성공"),
 	MEMBER_LOGIN_SUCCESS(1005, "로그인 성공"),
 	MEMBER_LOGOUT_SUCCESS(1005, "로그아웃 성공");
 	

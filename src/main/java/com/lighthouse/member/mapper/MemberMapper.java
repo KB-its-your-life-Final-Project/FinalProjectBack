@@ -11,7 +11,9 @@ public interface MemberMapper {
 
     MemberVO selectMemberByEmail(String email); //  이메일로 사용자 조회
 
-    MemberVO selectMemberByKakaoUserId(String kakaoUserId); // 카카오계정으로 사용자 조회
+    MemberVO selectMemberByKakaoId(String kakaoId); // 카카오계정으로 사용자 조회
+
+    MemberVO selectMemberByGoogleId(String googleId); // 구글계정으로 사용자 조회
 
     int insertUser(MemberVO member); // 사용자 정보 추가
 

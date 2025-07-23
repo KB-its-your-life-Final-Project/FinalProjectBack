@@ -24,16 +24,22 @@
         WHERE email = #{email}
     </select>
 
-    <select id="selectMemberByKakaoUserId" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="selectMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
         SELECT *
         FROM member_tbl
-        WHERE kakao_user_id = #{kakaoUserId}
+        WHERE kakao_id = #{kakaoId}
+    </select>
+
+    <select id="selectMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM member_tbl
+        WHERE google_id = #{googleId}
     </select>
 
     <insert id="insertUser">
         INSERT INTO member_tbl
-        (name, email, pwd, kakao_user_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
-        VALUES (#{name}, #{email}, #{pwd}, #{kakaoUserId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
+        (name, email, pwd, kakao_id, google_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
+        VALUES (#{name}, #{email}, #{pwd}, #{kakaoId}, #{googleId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
     </insert>
 
     <update id="updateUser">

@@ -1,7 +1,6 @@
 package com.lighthouse.member.dto;
 
 import com.lighthouse.member.vo.MemberVO;
-import com.lighthouse.member.service.external.KakaoUserClient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,13 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class KakaoRegisterDTO {
+public class RegisterKakaoDTO {
     private String code;
 
     public MemberVO toVO() {
         return MemberVO.builder()
                 .email("")
                 .pwd("")
+                .googleId("")
                 .phone("")
                 .age(0)
                 .role(10)

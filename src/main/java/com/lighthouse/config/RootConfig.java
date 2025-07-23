@@ -89,11 +89,11 @@ public class RootConfig {
         return new DataSourceTransactionManager(dataSource());
     }
 
-    @Value("${spring.mail.host}") String mailHost;
-    @Value("${spring.mail.port}") int mailPort;
-    @Value("${spring.mail.username}") String mailUsername;
-    @Value("${spring.mail.password}") String mailAppPassword;
-    @Value("${spring.mail.properties.mail.smtp.ssl.trust}") String mailSmtpSslTrust;
+    @Value("${MAIL_HOST}") String mailHost;
+    @Value("${MAIL_PORT}") int mailPort;
+    @Value("${MAIL_USERNAME}") String mailUsername;
+    @Value("${MAIL_APP_PASSWORD}") String mailAppPassword;
+    @Value("${MAIL_SSL_TRUST}") String mailSmtpSslTrust;
 
     @Bean
     public JavaMailSender mailSender() {
@@ -101,7 +101,7 @@ public class RootConfig {
         mailSender.setHost(mailHost);
         mailSender.setPort(mailPort);
         mailSender.setUsername(mailUsername);
-        mailSender.setPassword(mailAppPassword); // Gmail 앱 비밀번호 사용 (계정 > 보안 > 앱 비밀번호에서 생성)
+        mailSender.setPassword(mailAppPassword);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.auth", "true");

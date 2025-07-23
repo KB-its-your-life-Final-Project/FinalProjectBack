@@ -18,7 +18,8 @@ public class MemberVO {
     private String name;        // 이름
     private String email;       // 이메일
     private String pwd;         // 비밀번호
-    private String kakaoUserId; // 카카오 식별자
+    private String kakaoId;     // 카카오 회원 식별자
+    private String googleId;    // 구글 회원 식별자
     private String phone;       // 전화번호
     private int age;            // 나이
     private int role;           // 역할 (1:최고관리자,4:관리자,10:일반회원)

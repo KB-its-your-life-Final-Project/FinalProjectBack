@@ -1,6 +1,5 @@
 package com.lighthouse.member.dto;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,7 @@ import com.lighthouse.member.vo.MemberVO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmailRegisterDTO {
+public class RegisterEmailDTO {
     private String email;
     private String verificationCode;
     private String name;
@@ -22,7 +21,8 @@ public class EmailRegisterDTO {
                 .name(name)
                 .email(email)
                 .pwd(password)
-                .kakaoUserId("")
+                .kakaoId("")
+                .googleId("")
                 .phone("")
                 .age(0)
                 .role(10)
