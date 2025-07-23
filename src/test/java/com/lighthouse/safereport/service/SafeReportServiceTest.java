@@ -1,7 +1,7 @@
 package com.lighthouse.safereport.service;
 
 import com.lighthouse.safereport.mapper.SafeReportMapper;
-import com.lighthouse.safereport.vo.FormDataVO;
+import com.lighthouse.safereport.vo.FormData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,14 +26,14 @@ class SafeReportServiceTest {
         double lat = 37.1234;
         double lng = 127.5678;
 
-        FormDataVO expected = new FormDataVO();
+        FormData expected = new FormData();
         expected.setDealAmount(25000);
         expected.setBuildYear(2015);
 
         when(mockMapper.selectByCoord(lat,lng)).thenReturn(expected);
 
         //when
-        FormDataVO result = service.getReportByRoadAddress(lat,lng);
+        FormData result = service.getReportByRoadAddress(lat,lng);
 
         //then
         assertThat(result.getDealAmount()).isEqualTo(25000);

@@ -3,7 +3,7 @@ package com.lighthouse.safereport.dto;
 import lombok.Data;
 
 @Data
-public class FormDataDto {
+public class SafeReportRequestDto {
     private String buildingName;
     private String roadAddress;
     private String jibunAddress;

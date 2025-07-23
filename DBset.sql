@@ -124,11 +124,6 @@ SELECT
     2, 4, 8 AS source_table, id
 FROM singlehouse_rental_0715;
 
-
-# 도로명 주소 속성 추가하기
-#  ALTER TABLE all_real_estate
-#      DROP COLUMN longitude;
-
 ALTER TABLE all_real_estate
     ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
 
@@ -140,4 +135,13 @@ ALTER TABLE all_real_estate
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
-SELECT * FROM all_real_estate WHERE all_real_estate.latitude=37.5470856 AND all_real_estate.longitude=127.1085676;
+ALTER TABLE all_real_estate
+    MODIFY COLUMN source_table BIGINT COMMENT '원본 테이블(1: api_apartment_trade_0715,
+2: api_apartment_rental_0715,
+3: api_officetel_trade_0715,
+4: api_officetel_rental_0715,
+5: api_multihouse_trade_0715,
+6: api_multihouse_rental_0715,
+7: api_singlehouse_trade_0715,
+8: api_singlehouse_rental_0715';
+

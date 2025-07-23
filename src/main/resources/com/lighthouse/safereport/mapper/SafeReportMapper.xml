@@ -4,15 +4,23 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
 
-    <select id="selectByCoord" resultType="com.lighthouse.safereport.vo.FormDataVO">
-        SELECT
-        deal_amount AS dealAmount,
-        build_year AS buildYear
+    <select id="selectByCoord" resultType="com.lighthouse.safereport.vo.FormData">
+        SELECT s.deal_amount,
+            e.build_year
         FROM
-        all_real_estate
+            all_real_estate e
+                JOIN
+            all_real_estate_sales s ON e.id = s.estate_id
         WHERE
-            latitude =#{lat} AND longitude=#{lng}
-        LIMIT 1
+            e.latitude BETWEEN #{lat} - 0.000001 AND #{lat} + 0.000001
+          AND e.longitude BETWEEN #{lng} - 0.000001 AND #{lng} + 0.000001
+        ORDER BY
+            s.deal_year DESC,
+            s.deal_month DESC,
+            s.deal_day DESC
+        LIMIT 1;
+
+
 
     </select>
 
