@@ -24,27 +24,27 @@ public class JwtProcessor {
     public void initKey() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
-    public String generateAccessToken(String subject) {
+
+    public String generateToken(String subject, long validTime) {
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALID_MILLISECOND))
+                .setExpiration(new Date(new Date().getTime() + validTime))
                 .signWith(key)
                 .compact();
+    }
+
+    public String generateAccessToken(String subject) {
+        return generateToken(subject, ACCESS_TOKEN_VALID_MILLISECOND);
     }
 
     public String generateRefreshToken(String subject) {
-        return Jwts.builder()
-                .setSubject(subject)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + REFRESH_TOKEN_VALID_MILLISECOND))
-                .signWith(key)
-                .compact();
+        return generateToken(subject, REFRESH_TOKEN_VALID_MILLISECOND);
     }
 
-    // JWT Subject(username) 추출- 해석 불가인 경우 예외 발생
+    // JWT Subject(Member) 추출- 해석 불가인 경우 예외 발생
     // 예외 ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException
-    public String getUsername(String token) {
+    public String getMember(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -61,5 +61,18 @@ public class JwtProcessor {
                 .build()
                 .parseClaimsJws(token);
         return true;
+    }
+
+    public boolean isExpired(String token) {
+        try {
+            Date expiration = Jwts.parser()
+                    .setSigningKey(key)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 }

@@ -11,12 +11,12 @@ import java.util.Collections;
 @Getter
 @Setter
 public class CustomUser extends User {
-    private MemberVO member;
+    private MemberVO user;
 
     public CustomUser(MemberVO vo){
         super(vo.getEmail(),
               vo.getPwd(),
               Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        this.member = vo;
+        this.user = vo;
     }
 }

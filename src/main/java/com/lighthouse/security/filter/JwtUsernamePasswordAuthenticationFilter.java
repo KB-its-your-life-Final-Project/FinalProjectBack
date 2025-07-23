@@ -1,7 +1,7 @@
 package com.lighthouse.security.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import com.lighthouse.security.dto.LoginDTO;
+import com.lighthouse.security.dto.LoginEmailDTO;
 import com.lighthouse.security.handler.LoginFailureHandler;
 import com.lighthouse.security.handler.LoginSuccessHandler;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +29,10 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
     }
     // 로그인 요청 URL인 경우 로그인 작업 처리
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse resp)
             throws AuthenticationException {
         // 요청 BODY의 JSON에서 username, password  LoginDTO
-        LoginDTO login = LoginDTO.of(request);
+        LoginEmailDTO login = LoginEmailDTO.of(req);
         // 인증 토큰(UsernamePasswordAuthenticationToken) 구성
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());

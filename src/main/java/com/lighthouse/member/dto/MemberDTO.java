@@ -34,6 +34,7 @@ public class MemberDTO {
         return MemberDTO.builder()
                 .email(member.getEmail())
                 .kakaoId(member.getKakaoId())
+                .googleId(member.getGoogleId())
                 .build();
     }
 

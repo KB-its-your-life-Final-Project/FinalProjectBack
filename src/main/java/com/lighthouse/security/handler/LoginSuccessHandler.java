@@ -28,18 +28,21 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String username = user.getUsername();
 
         String token = jwtProcessor.generateAccessToken(username);
-        return new AuthResultDTO(token, MemberDTO.of(user.getMember()));
+        return new AuthResultDTO(token, MemberDTO.of(user.getUser()));
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication auth) throws IOException {
         CustomUser user = (CustomUser) auth.getPrincipal();
+        String username = user.getUsername();
 
-        jwtCookieManager.setTokensToCookies(resp, user.getUsername());
+        // httponly 쿠키에 access token, refresh token 저장
+        jwtCookieManager.setTokensToCookies(resp, username);
 
         // 사용자 정보 + access token (body에도 보낼 수 있으나, JWT는 쿠키에만 포함해도 됨)
-        AuthResultDTO authResult = makeAuthResult(user);
-        JsonResponse.send(resp, authResult);
+        MemberDTO memberDTO = MemberDTO.of(user.getUser());
+
+        JsonResponse.send(resp, memberDTO);
 
     }
 }
