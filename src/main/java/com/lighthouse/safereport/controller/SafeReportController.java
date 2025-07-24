@@ -1,5 +1,8 @@
 package com.lighthouse.safereport.controller;
 
+import com.lighthouse.response.ApiResponse;
+import com.lighthouse.response.SuccessCode;
+import com.lighthouse.response.ErrorCode;
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.service.SafeReportService;
 import com.lighthouse.safereport.vo.FormData;
@@ -19,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class SafeReportController {
     private final SafeReportService service;
     @PostMapping("/requestData")
-
-    public ResponseEntity<FormData> receiveForm(@RequestBody SafeReportRequestDto dto){
+    public ResponseEntity<ApiResponse<FormData>> receiveForm(@RequestBody SafeReportRequestDto dto){
         FormData result = service.generateSafeReport(dto);
         if(result == null){
             log.warn("해당 좌표에 대한 데이터가 없습니다:{}, {}",dto.getLat(),dto.getLng());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404)
+                .body(ApiResponse.error(ErrorCode.SAFEREPORT_NOT_FOUND));
         }
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, result));
     }
 }
 
