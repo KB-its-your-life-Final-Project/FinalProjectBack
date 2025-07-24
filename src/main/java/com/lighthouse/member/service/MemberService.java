@@ -205,23 +205,23 @@ public class MemberService {
     }
 
     // 이메일 로그인
-    @Transactional
-    public MemberDTO loginMemberByEmail(LoginEmailDTO dto, HttpServletRequest req, HttpServletResponse resp) {
-        log.info("MemberService.loginMemberByEmail() 실행 ======");
-        String clientIp = ClientIpUtils.getClientIp(req);
-        String email = dto.getEmail();
-        if (!isValidEmail(email)) {
-
-        }
-    }
-        MemberVO memberVo = mapper.findMemberByEmail(email);
-        if (memberVo == null) {
-
-            mapper.insertMember(memberVo);
-        } else {
-            memberVo.setRecentIp(clientIp);
-            mapper.updateMember(memberVo);
-        }
+//    @Transactional
+//    public MemberDTO loginMemberByEmail(LoginEmailDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+//        log.info("MemberService.loginMemberByEmail() 실행 ======");
+//        String clientIp = ClientIpUtils.getClientIp(req);
+//        String email = dto.getEmail();
+//        if (!isValidEmail(email)) {
+//
+//        }
+//    }
+//        MemberVO memberVo = mapper.findMemberByEmail(email);
+//        if (memberVo == null) {
+//
+//            mapper.insertMember(memberVo);
+//        } else {
+//            memberVo.setRecentIp(clientIp);
+//            mapper.updateMember(memberVo);
+//        }
 
     // 로그아웃
     public boolean logoutMember(HttpServletResponse resp) {

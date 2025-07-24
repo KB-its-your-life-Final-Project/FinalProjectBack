@@ -143,21 +143,21 @@ public class  MemberController {
         }
     }
 
-    // 이메일 로그인
-    @PostMapping("/loginEmail")
-    public ResponseEntity<ApiResponse<MemberDTO>> loginMemberByEmail(@RequestBody LoginEmailDTO loginDto, HttpServletRequest req, HttpServletResponse resp) {
-        log.info("이메일로 로그인 POST 요청==========");
-        log.info("LoginEmailDTO: {}", loginDto);
-        log.info("HttpServletRequest: {}", req);
-        log.info("HttpServletResponse: {}", resp);
-        try {
-            MemberDTO userDto = memberService.loginMemberByEmail(loginDto, req, resp);
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_SUCCESS, userDto));
-        } catch (Exception e) {
-            log.error("이메일 로그인 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
-        }
-    }
+//    // 이메일 로그인
+//    @PostMapping("/loginEmail")
+//    public ResponseEntity<ApiResponse<MemberDTO>> loginMemberByEmail(@RequestBody LoginEmailDTO loginDto, HttpServletRequest req, HttpServletResponse resp) {
+//        log.info("이메일로 로그인 POST 요청==========");
+//        log.info("LoginEmailDTO: {}", loginDto);
+//        log.info("HttpServletRequest: {}", req);
+//        log.info("HttpServletResponse: {}", resp);
+//        try {
+//            MemberDTO userDto = memberService.loginMemberByEmail(loginDto, req, resp);
+//            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_SUCCESS, userDto));
+//        } catch (Exception e) {
+//            log.error("이메일 로그인 실패", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+//        }
+//    }
 
     // 로그아웃
     @PostMapping("/logout")
