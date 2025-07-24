@@ -3,6 +3,7 @@ package com.lighthouse.member.controller;
 import com.lighthouse.member.dto.RegisterEmailDTO;
 import com.lighthouse.member.dto.RegisterGoogleDTO;
 import com.lighthouse.member.dto.RegisterKakaoDTO;
+import com.lighthouse.security.dto.LoginEmailDTO;
 import com.lighthouse.security.vo.CustomUser;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.service.MemberService;
@@ -28,27 +29,27 @@ public class  MemberController {
     final MemberService memberService;
     // 로그인 여부 확인
     @GetMapping("/loggedin")
-    public ResponseEntity<ApiResponse<MemberDTO>> getLoginUser(Authentication auth) {
+    public ResponseEntity<ApiResponse<MemberDTO>> findLoggedinUser(Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         CustomUser user = (CustomUser) auth.getPrincipal();
-        MemberDTO dto = MemberDTO.of(user.getMember());
+        MemberDTO dto = MemberDTO.toAdmin(user.getUser());
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_SUCCESS, dto));
     }
 
     // 모든 사용자 정보 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<MemberDTO>>> selectAllUsers() {
-        List<MemberDTO> dtos = memberService.selectMembers();
+    public ResponseEntity<ApiResponse<List<MemberDTO>>> findAllUsers() {
+        List<MemberDTO> dtos = memberService.findAllMembers();
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dtos));
     }
 
     // 아이디로 사용자 정보 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MemberDTO>> selectUserById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<MemberDTO>> findMemberById(@PathVariable int id) {
         try {
-            MemberDTO dto = memberService.selectMemberById(id);
+            MemberDTO dto = memberService.findMemberById(id);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dto));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
@@ -91,7 +92,7 @@ public class  MemberController {
 
     // 이메일 회원가입
     @PostMapping("/register/email")
-    public ResponseEntity<ApiResponse<MemberDTO>> registerUserByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<MemberDTO>> registerMemberByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
         // 이메일 형식 유효성 검사
         if (!memberService.isValidEmail(registerDto.getEmail())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
@@ -142,11 +143,27 @@ public class  MemberController {
         }
     }
 
+    // 이메일 로그인
+    @PostMapping("/loginEmail")
+    public ResponseEntity<ApiResponse<MemberDTO>> loginMemberByEmail(@RequestBody LoginEmailDTO loginDto, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("이메일로 로그인 POST 요청==========");
+        log.info("LoginEmailDTO: {}", loginDto);
+        log.info("HttpServletRequest: {}", req);
+        log.info("HttpServletResponse: {}", resp);
+        try {
+            MemberDTO userDto = memberService.loginMemberByEmail(loginDto, req, resp);
+            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_SUCCESS, userDto));
+        } catch (Exception e) {
+            log.error("이메일 로그인 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+        }
+    }
+
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Boolean>> logoutUser(HttpServletResponse resp) {
+    public ResponseEntity<ApiResponse<Boolean>> logoutMember(HttpServletResponse resp) {
         try {
-            boolean userDto = memberService.logoutUser(resp);
+            boolean userDto = memberService.logoutMember(resp);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGOUT_SUCCESS, userDto));
         } catch (Exception e) {
             log.error("로그아웃 실패", e);

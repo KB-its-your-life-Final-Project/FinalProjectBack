@@ -5,17 +5,17 @@ import com.lighthouse.member.vo.MemberVO;
 import java.util.List;
 
 public interface MemberMapper {
-    List<MemberVO> selectMembers(); // 모든 사용자 조회
+    List<MemberVO> findAllMembers(); // 모든 사용자 조회
 
-    MemberVO selectMemberById(int id); // 아이디로 사용자 조회
+    MemberVO findMemberById(int id); // 아이디로 사용자 조회
 
-    MemberVO selectMemberByEmail(String email); //  이메일로 사용자 조회
+    MemberVO findMemberByEmail(String email); //  이메일로 사용자 조회
 
-    MemberVO selectMemberByKakaoId(String kakaoId); // 카카오계정으로 사용자 조회
+    MemberVO findMemberByKakaoId(String kakaoId); // 카카오계정으로 사용자 조회
 
-    MemberVO selectMemberByGoogleId(String googleId); // 구글계정으로 사용자 조회
+    MemberVO findMemberByGoogleId(String googleId); // 구글계정으로 사용자 조회
 
-    int insertUser(MemberVO member); // 사용자 정보 추가
+    int insertMember(MemberVO member); // 사용자 정보 추가
 
-    int updateUser(MemberVO member); // 사용자 정보 수정
+    int updateMember(MemberVO member); // 사용자 정보 수정
 }

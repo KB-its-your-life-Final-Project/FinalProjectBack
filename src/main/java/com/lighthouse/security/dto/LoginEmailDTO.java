@@ -1,6 +1,7 @@
 package com.lighthouse.security.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lighthouse.member.vo.MemberVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

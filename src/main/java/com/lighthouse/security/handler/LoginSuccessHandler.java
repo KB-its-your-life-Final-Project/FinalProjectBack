@@ -28,7 +28,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String username = user.getUsername();
 
         String token = jwtProcessor.generateAccessToken(username);
-        return new AuthResultDTO(token, MemberDTO.of(user.getUser()));
+        return new AuthResultDTO(token, MemberDTO.toUser(user.getUser()));
     }
 
     @Override
@@ -40,7 +40,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         jwtCookieManager.setTokensToCookies(resp, username);
 
         // 사용자 정보 + access token (body에도 보낼 수 있으나, JWT는 쿠키에만 포함해도 됨)
-        MemberDTO memberDTO = MemberDTO.of(user.getUser());
+        MemberDTO memberDTO = MemberDTO.toUser(user.getUser());
 
         JsonResponse.send(resp, memberDTO);
 

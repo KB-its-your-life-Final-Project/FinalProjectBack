@@ -92,6 +92,6 @@ public class JwtCookieManager {
         resp.addCookie(accessTokenCookie);
         resp.addCookie(refreshTokenCookie);
 
-        log.info("JwtCookieManager: 쿠키 초기화 완료");
+        log.info("JwtCookieManager: 쿠키 초    기화 완료");
     }
 }

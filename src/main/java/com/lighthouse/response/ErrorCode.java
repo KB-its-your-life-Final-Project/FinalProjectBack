@@ -17,6 +17,8 @@ public enum ErrorCode implements ResponseCode{
     INVALID_VERRIFICATION_CODE(1007, "인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     MEMBER_REGISTER_FAIL(1006, "회원가입에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     KAKAO_REGISTER_LOGIN_FAIL(1007, "카카오 회원가입 또는 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    GOOGLE_REGISTER_LOGIN_FAIL(1007, "구글 회원가입 또는 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_LOGIN_FAIL(1007, "이메일 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     MEMBER_LOGOUT_FAIL(1008, "로그아웃에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int code;

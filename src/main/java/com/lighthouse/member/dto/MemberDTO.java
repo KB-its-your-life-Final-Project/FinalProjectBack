@@ -29,42 +29,39 @@ public class MemberDTO {
     private Integer isDisable;
     private Integer isDelete;
 
-
-    public static MemberDTO of(MemberVO member){
+    //클라이언트에 보낼 수 있는 데이터
+    public static MemberDTO toUser(MemberVO member) {
         return MemberDTO.builder()
+                .id(member.getId())
+                .name(member.getName())
                 .email(member.getEmail())
                 .kakaoId(member.getKakaoId())
                 .googleId(member.getGoogleId())
+                .phone(member.getPhone())
+                .age(member.getAge())
+                .profileImg(member.getProfileImg())
+                .createdType(member.getCreatedType())
+                .regDate(member.getRegDate())
                 .build();
-    }
-
-    //클라이언트에 보낼 수 있는 데이터
-    public static MemberDTO toUser(MemberVO member) {
-        MemberDTO dto = new MemberDTO();
-        dto.setId(member.getId());
-        dto.setName(member.getName());
-        dto.setEmail(member.getEmail());
-        dto.setPhone(member.getPhone());
-        dto.setAge(member.getAge());
-        dto.setProfileImg(member.getProfileImg());
-        dto.setRegDate(member.getRegDate());
-        dto.setIsDisable(member.getIsDisable());
-        return dto;
     }
 
     // 관리자에게 보내는 데이터
     public static MemberDTO toAdmin(MemberVO member) {
-        MemberDTO dto = new MemberDTO();
-        dto.setId(member.getId());
-        dto.setName(member.getName());
-        dto.setEmail(member.getEmail());
-        dto.setKakaoId(member.getKakaoId());
-        dto.setPhone(member.getPhone());
-        dto.setAge(member.getAge());
-        dto.setProfileImg(member.getProfileImg());
-        dto.setCreatedType(member.getCreatedType());
-        dto.setRegDate(member.getRegDate());
-        dto.setIsDisable(member.getIsDisable());
-        return dto;
+        return MemberDTO.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .email(member.getEmail())
+                .kakaoId(member.getKakaoId())
+                .googleId(member.getGoogleId())
+                .phone(member.getPhone())
+                .age(member.getAge())
+                .profileImg(member.getProfileImg())
+                .createdType(member.getCreatedType())
+                .regDate(member.getRegDate())
+                .regIp(member.getRegIp())
+                .recentIp(member.getRecentIp())
+                .isDisable(member.getIsDisable())
+                .isDelete(member.getIsDelete())
+                .build();
     }
 }
