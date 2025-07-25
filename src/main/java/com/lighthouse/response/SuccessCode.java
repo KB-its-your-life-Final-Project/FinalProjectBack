@@ -5,6 +5,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SuccessCode implements ResponseCode{
+
 	// Member
 	MEMBER_FETCH_SUCCESS(1000, "회원 조회 성공"),
 	MEMBER_USABLE_EMAIL_SUCCESS(1001, "사용 가능한 이메일 주소"),
