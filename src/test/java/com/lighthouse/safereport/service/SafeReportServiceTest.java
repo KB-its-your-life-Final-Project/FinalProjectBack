@@ -2,7 +2,7 @@ package com.lighthouse.safereport.service;
 
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.mapper.SafeReportMapper;
-import com.lighthouse.safereport.vo.FormData;
+import com.lighthouse.safereport.vo.SafeResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,14 +33,14 @@ class SafeReportServiceTest {
         dto.setLng(lng);
         dto.setBudget(budget);
 
-        FormData dbData = new FormData();
+        SafeResult dbData = new SafeResult();
         dbData.setDealAmount(25000); // 예: 80% 비율 → ratioScore = 1
         dbData.setBuildYear(2015);   // 예: 9년차 → ageScore = 1
 
         when(mockMapper.selectByCoord(lat, lng)).thenReturn(dbData);
 
         // when
-        FormData result = service.generateSafeReport(dto);
+        SafeResult result = service.generateSafeReport(dto);
 
         // then
         assertThat(result).isNotNull();
@@ -60,7 +60,7 @@ class SafeReportServiceTest {
         when(mockMapper.selectByCoord(37.0, 127.0)).thenReturn(null);
 
         // when
-        FormData result = service.generateSafeReport(dto);
+        SafeResult result = service.generateSafeReport(dto);
 
         // then
         assertThat(result).isNull();

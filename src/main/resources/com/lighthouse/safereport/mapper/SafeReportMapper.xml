@@ -4,8 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
 
-    <select id="selectByCoord" resultType="com.lighthouse.safereport.vo.FormData">
-        SELECT s.deal_amount,
+    <!-- 건물의 거래 금액과 건축 년도 얻기 -->
+    <select id="getRealEstateInfo" resultType="com.lighthouse.safereport.vo.SafeResult">
+        SELECT
+            COALESCE(s.deal_amount, s.deposit) AS deal_amount,
             e.build_year
         FROM
             all_real_estate e
@@ -19,9 +21,21 @@
             s.deal_month DESC,
             s.deal_day DESC
         LIMIT 1;
-
-
-
     </select>
 
+    <select id="getViolateAndPurpose" resultType="com.lighthouse.safereport.vo.BuildingTypeAndPurpose">
+        SELECT
+            br.res_violation_status,
+            bruf.res_use_type
+        FROM
+            building_registry br
+                LEFT JOIN
+            building_registry_use_for bruf
+            ON
+                br.id = bruf.register_id
+        WHERE
+            br.latitude = #{lat}
+          AND br.longitude = #{lng}
+        ;
+    </select>
 </mapper>
