@@ -6,9 +6,9 @@ plugins {
 group 'com.lighthouse'
 // version '1.0-/SNAPSHOT'
 
-//war {
-//    archiveFileName = 'ROOT.war'
-//}
+war {
+    archiveFileName = 'ROOT.war'
+}
 
 repositories {
     mavenCentral()
