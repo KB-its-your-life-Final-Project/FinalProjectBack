@@ -25,8 +25,13 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, successCode.getCode(), successCode.getMessage(), null);
     }
 
+    // 에러 응답
     public static <T> ApiResponse<T> error(ErrorCode errorCode) {
         return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null);
+    }
+
+    public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) {
+        return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), data);
     }
 
 }

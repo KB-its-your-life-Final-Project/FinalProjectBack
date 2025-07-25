@@ -1,6 +1,7 @@
 package com.lighthouse.security.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lighthouse.member.vo.MemberVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,18 +12,17 @@ import javax.servlet.http.HttpServletRequest;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class LoginDTO {
-    private String username;
+public class LoginEmailDTO {
+    private String email;
     private String password;
 
-    public static LoginDTO of(HttpServletRequest request){
-        // jackson 객체 - 자동 역직렬화
+    public static LoginEmailDTO of(HttpServletRequest request){
         ObjectMapper om = new ObjectMapper();
         try {
-            return om.readValue(request.getInputStream(), LoginDTO.class);
+            return om.readValue(request.getInputStream(), LoginEmailDTO.class);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadCredentialsException("username 또는 password가 없습니다.");
+            throw new BadCredentialsException("email 또는 password가 없습니다.");
         }
     }
 }

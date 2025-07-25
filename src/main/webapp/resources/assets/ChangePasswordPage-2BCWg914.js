@@ -1,0 +1,1 @@
+import{_ as a,c as s,o,a as t}from"./index-Cr3oa366.js";const c={},n={class:"ChangePasswordPage"};function r(d,e){return o(),s("div",n,e[0]||(e[0]=[t("h1",null,"비밀번호 변경 화면",-1)]))}const f=a(c,[["render",r],["__scopeId","data-v-2fcd57ba"]]);export{f as default};

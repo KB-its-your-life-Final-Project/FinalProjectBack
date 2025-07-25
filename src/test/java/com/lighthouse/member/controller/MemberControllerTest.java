@@ -26,13 +26,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MemberControllerTest {
     @Autowired
     private WebApplicationContext ctx;
-
     private MockMvc mockMvc;
 
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
-    }
+//    @BeforeEach
+//    public void setup() {
+//        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
+//    }
 
     // @Test
     // void testGetById() throws Exception {
