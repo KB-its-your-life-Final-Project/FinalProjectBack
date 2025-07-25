@@ -1,20 +1,19 @@
-/*package com.lighthouse.transactions.service;*/
+package com.lighthouse.transactions.service;
 
-import com.lighthouse.transactions.mapper.TransactionMapper;
-import com.lighthouse.transactions.vo.MonthlyTransactionVO;
-import lombok.RequiredArgsConstructor;
+import com.lighthouse.transactions.mapper.TransactionDetailMapper;
+import com.lighthouse.transactions.vo.TransactionGraphVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
-/*
 @Service
-@RequiredArgsConstructor
 public class TransactionDetailService {
-    private final TransactionMapper transactionMapper;
 
-    public List<MonthlyTransactionVO> getMonthlyAvgTransactions(int startYear) {
-        return transactionMapper.selectMonthlyAvgTransactions(startYear);
+    @Autowired
+    private TransactionDetailMapper transactionDetailMapper;
+
+    public List<TransactionGraphVO> transactionGraph() {
+        return transactionDetailMapper.transactionGraph();
     }
-}*/
+}
