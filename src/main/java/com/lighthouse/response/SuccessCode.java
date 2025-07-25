@@ -16,8 +16,11 @@ public enum SuccessCode implements ResponseCode{
 	MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS(1004, "카카오 회원가입 또는 로그인 성공"),
 	MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS(1005, "구글 회원가입 또는 로그인 성공"),
 	MEMBER_LOGIN_SUCCESS(1005, "로그인 성공"),
-	MEMBER_LOGOUT_SUCCESS(1005, "로그아웃 성공");
+	MEMBER_LOGOUT_SUCCESS(1005, "로그아웃 성공"),
 	
+	// SafeReport
+	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공");
+
 	private final int code;
 	private final String message;
 }
