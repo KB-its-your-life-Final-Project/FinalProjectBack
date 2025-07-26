@@ -151,7 +151,7 @@ ALTER TABLE all_real_estate
 
 DROP TABLE IF EXISTS building_registry;
 CREATE TABLE building_registry (
-                                 id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '기본 키',
+                                 id BIGINT PRIMARY KEY COMMENT '기본 키',
                                  type CHAR(2) NOT NULL COMMENT '일반/집합',
                                  res_addr_dong VARCHAR(100) COMMENT '동명',
                                  res_number VARCHAR(100) COMMENT '호수 (매수)',
@@ -164,13 +164,13 @@ CREATE TABLE building_registry (
 );
 
 INSERT INTO building_registry (
-    type, res_addr_dong, res_number, res_user_addr,
+    id, type, res_addr_dong, res_number, res_user_addr,
     comm_addr_lot_number, comm_addr_road_name, res_violation_status,
     req_dong, req_ho
 )
 
 SELECT
-    type, res_addr_dong, res_number, res_user_addr,
+    id, type, res_addr_dong, res_number, res_user_addr,
     comm_addr_lot_number, comm_addr_road_name, res_violation_status,
     req_dong, req_ho
 FROM api_building_register;
@@ -200,3 +200,28 @@ SET jibun_addr = CONCAT(res_user_addr, ' ', COALESCE(comm_addr_lot_number, ''));
 ALTER TABLE building_registry
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
+
+# 토지 대장 관련 샘플 데이터 추가하기
+INSERT INTO building_registry
+    (id, type, res_addr_dong, res_number, res_user_addr, comm_addr_lot_number, comm_addr_road_name, res_violation_status, req_dong, req_ho, jibun_addr,latitude,longitude)
+VALUES (8,'일반',null,null, '고현동', '1039','고현동 1039','위반 건축물','덕산베스트타운',null,'고현동 1039',34.8971714,128.630888);
+
+DELETE FROM building_registry WHERE id=7;
+
+INSERT INTO building_registry_use_for
+(id, register_id, res_use_type)
+VALUES (40,8,'아파트');
+
+SELECT
+    br.res_violation_status,
+    bruf.res_use_type
+FROM
+    building_registry br
+        LEFT JOIN
+    building_registry_use_for bruf
+    ON
+        br.id = bruf.register_id
+WHERE
+    br.latitude = 34.8971714
+        AND br.longitude = 128.630888
+;

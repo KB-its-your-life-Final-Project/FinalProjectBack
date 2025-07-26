@@ -3,7 +3,7 @@ package com.lighthouse.safereport.service;
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.mapper.SafeReportMapper;
 import com.lighthouse.safereport.vo.BuildingTypeAndPurpose;
-import com.lighthouse.safereport.vo.SafeResult;
+import com.lighthouse.safereport.vo.RentalRatioAndBuildyear;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +15,8 @@ public class SafeReportService {
     private final SafeReportMapper mapper;
 
     // 건물의 건축연도, 깡통 전세 점수 계산
-    public SafeResult generateSafeReport(SafeReportRequestDto dto) {
-        SafeResult result = mapper.getRealEstateInfo(dto.getLat(), dto.getLng());//거래 금액, 건축 년도 저장
+    public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
+        RentalRatioAndBuildyear result = mapper.getRealEstateInfo(dto.getLat(), dto.getLng());//거래 금액, 건축 년도 저장
         if(result == null) return null;
 
         int budget = dto.getBudget();
@@ -29,6 +29,7 @@ public class SafeReportService {
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - buildYear;
         int ageScore = (age <= 10) ? 1 : (age <= 20) ? 2 : (age <= 30) ? 3 : 4;
+        result.setBuildyear_score(ageScore); //연식률 점수 저장
 
         int totalScore = ratioScore + ageScore;
         //역전세율만 고려하는 것으로 수정됨
