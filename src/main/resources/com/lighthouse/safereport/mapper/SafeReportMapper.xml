@@ -25,17 +25,17 @@
 
     <select id="getViolateAndPurpose" resultType="com.lighthouse.safereport.vo.BuildingTypeAndPurpose">
         SELECT
-            br.res_violation_status AS violationStatus,
-            bruf.res_use_type AS buildingPurpose
+            A.res_violation_status AS violationStatus,
+            B.res_use_type AS buildingPurpose
         FROM
-            building_registry br
+            api_building_register A
                 LEFT JOIN
-            building_registry_use_for bruf
+            api_building_register_building_status B
             ON
-                br.id = bruf.register_id
+                A.id = B.register_id
         WHERE
-            br.latitude BETWEEN #{lat} - 0.000001 AND #{lat} + 0.000001
-          AND br.longitude BETWEEN #{lng} - 0.000001 AND #{lng} + 0.000001
+            A.latitude BETWEEN #{lat} - 0.000001 AND #{lat} + 0.000001
+          AND A.longitude BETWEEN #{lng} - 0.000001 AND #{lng} + 0.000001
         LIMIT 1;
     </select>
 </mapper>

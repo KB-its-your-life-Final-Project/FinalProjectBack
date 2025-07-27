@@ -190,14 +190,14 @@ SELECT register_id, res_use_type
 FROM api_building_register_building_status;
 
 # 지번 속성 추가하기
-ALTER TABLE building_registry
+ALTER TABLE api_building_register
     ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
 
-UPDATE building_registry
+UPDATE api_building_register
 SET jibun_addr = CONCAT(res_user_addr, ' ', COALESCE(comm_addr_lot_number, ''));
 
 # 위도, 경도 속성 추가하기
-ALTER TABLE building_registry
+ALTER TABLE api_building_register
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
@@ -206,22 +206,3 @@ INSERT INTO building_registry
     (id, type, res_addr_dong, res_number, res_user_addr, comm_addr_lot_number, comm_addr_road_name, res_violation_status, req_dong, req_ho, jibun_addr,latitude,longitude)
 VALUES (8,'일반',null,null, '고현동', '1039','고현동 1039','위반 건축물','덕산베스트타운',null,'고현동 1039',34.8971714,128.630888);
 
-DELETE FROM building_registry WHERE id=7;
-
-INSERT INTO building_registry_use_for
-(id, register_id, res_use_type)
-VALUES (40,8,'아파트');
-
-SELECT
-    br.res_violation_status,
-    bruf.res_use_type
-FROM
-    building_registry br
-        LEFT JOIN
-    building_registry_use_for bruf
-    ON
-        br.id = bruf.register_id
-WHERE
-    br.latitude = 34.8971714
-        AND br.longitude = 128.630888
-;

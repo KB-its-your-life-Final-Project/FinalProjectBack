@@ -5,11 +5,11 @@
 <mapper namespace="com.batch.toCoord.mapper.buildingToCoordMapper">
     <!--    지번 주소 -> 위도, 경도로 변환하기 위해 도로명 주소 리스트들만 뽑아내는 쿼리-->
     <select id="selectAlljibunAddr" resultType="string">
-        SELECT jibun_addr FROM building_registry
+        SELECT jibun_addr FROM api_building_register
     </select>
     <!--    도로명 주소를 좌표로 업데이트하기-->
     <update id="updateCoordinates">
-        UPDATE building_registry
+        UPDATE api_building_register
         SET latitude=#{lat}, longitude=#{lng}
         WHERE jibun_addr = #{jibunAddr}
     </update>

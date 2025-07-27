@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.lighthouse")
 @ComponentScan(
-        basePackages = "com.lighthouse",
+        basePackages = {"com.lighthouse", "com.batch"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class),
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")

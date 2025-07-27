@@ -4,17 +4,24 @@ import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.mapper.SafeReportMapper;
 import com.lighthouse.safereport.vo.BuildingTypeAndPurpose;
 import com.lighthouse.safereport.vo.RentalRatioAndBuildyear;
+import com.lighthouse.buildingRegister.service.BuildingRegisterService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import com.batch.toCoord.service.AddressGeocodeService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SafeReportService {
     private final SafeReportMapper mapper;
+    private final BuildingRegisterService buildingRegisterService;
+    private final AddressGeocodeService addressGeocodeService; 
 
-    // 건물의 건축연도, 깡통 전세 점수 계산
+    // 건물의 건축연도 점수수, 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
         RentalRatioAndBuildyear result = mapper.getRealEstateInfo(dto.getLat(), dto.getLng());//거래 금액, 건축 년도 저장
         if(result == null) return null;
@@ -40,6 +47,28 @@ public class SafeReportService {
     // 건출물 용도, 위반 여부 확인
     public BuildingTypeAndPurpose generateSafeBuilding(SafeReportRequestDto dto) {
         BuildingTypeAndPurpose safeBuilding = mapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
+        if(safeBuilding == null){
+            if(dto.getRoadAddress() != null && !dto.getRoadAddress().trim().isEmpty()){
+                try{
+                    buildingRegisterService.getBuildingRegisterCommon(dto.getRoadAddress(), "1");
+                    // 새로 불러온 토지대장 정보 -> 위/경도 변환해서 저장해야 함
+
+
+                    safeBuilding = mapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
+
+                    if(safeBuilding == null){
+                        log.warn("API 호출 후에도 건물 정보를 얻을 수 없음");
+                        return new BuildingTypeAndPurpose("정보없음", "정보없음");
+                        }
+                }catch(Exception e){
+                    log.error("API 호출 실패: {}", e.getMessage());
+                    return new BuildingTypeAndPurpose("정보없음", "정보없음");
+                }
+            }else{
+                log.warn("도로명 주소가 없어서 찾을 수 없음");
+                return new BuildingTypeAndPurpose("정보없음", "정보없음");
+            }
+        }
         return safeBuilding;
     }
 

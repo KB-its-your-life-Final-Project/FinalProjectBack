@@ -11,7 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
+import com.batch.toCoord.service.AddressGeocodeService;
+import java.util.Map;
 
 
 @Service
@@ -25,6 +26,7 @@ public class BuildingRegisterService {
     @Value("${PRIVATE_PW}") private String privatePassword;
 
     private final BuildingRegisterPersistence buildingRegisterPersistence;
+    private final AddressGeocodeService addressGeocodeService;
 
     /** address = 정확한 도로명 주소, type = (0=지상/1=지하/2=공중) */
     public void getBuildingRegisterCommon(String address, String type) {
@@ -52,6 +54,16 @@ public class BuildingRegisterService {
         } catch (Exception e) {
             log.error("CODEF 요청 에러",e);
             throw new RuntimeException("CODEF 요청 에러",e);
+        }
+        // DB 저장 전에 위/경도 변환
+        if(result != null) {
+            try {
+                Map<String, Double> coords = addressGeocodeService.getCoordinates(address);
+                result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
+                result.getBuildingRegisterVO().setLongitude(coords.get("lng"));
+            } catch (Exception e) {
+                log.warn("주소 좌표 변환 실패: {}", address);
+            }
         }
         // DB 저장
         if(result == null) return;
@@ -84,6 +96,16 @@ public class BuildingRegisterService {
         } catch (Exception e) {
             log.error("CODEF 요청 에러",e);
             throw new RuntimeException("CODEF 요청 에러",e);
+        }
+        // DB 저장 전에 위/경도 변환
+        if(result != null) {
+            try {
+                Map<String, Double> coords = addressGeocodeService.getCoordinates(address);
+                result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
+                result.getBuildingRegisterVO().setLongitude(coords.get("lng"));
+            } catch (Exception e) {
+                log.warn("주소 좌표 변환 실패: {}", address);
+            }
         }
         // DB 저장
         if(result == null) return;

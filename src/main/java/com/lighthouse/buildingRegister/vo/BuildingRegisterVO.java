@@ -22,6 +22,10 @@ public class BuildingRegisterVO {
 
     private String resViolationStatus;      //위반건축물일 경우 "위반건축물"라고 제공
 
+    // 위도/경도 정보
+    private Double latitude;                // 위도
+    private Double longitude;               // 경도
+
     // 여기부터는 집합 건축물에서만 해당
     private String reqDong;                 // 요청한 동
     private String reqHo;                   // N호/N가구/N세대
