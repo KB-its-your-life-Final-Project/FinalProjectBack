@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import com.batch.toCoord.service.AddressGeocodeService;
+import com.lighthouse.toCoord.service.AddressGeocodeService;
 
 @Slf4j
 @Service
@@ -50,22 +50,32 @@ public class SafeReportService {
         if(safeBuilding == null){
             if(dto.getRoadAddress() != null && !dto.getRoadAddress().trim().isEmpty()){
                 try{
+                    // 1단계: type=1 (일반)으로 시도
+                    System.out.println("1단계 시도: type=1 (일반)");
                     buildingRegisterService.getBuildingRegisterCommon(dto.getRoadAddress(), "1");
-                    // 새로 불러온 토지대장 정보 -> 위/경도 변환해서 저장해야 함
-
-
                     safeBuilding = mapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
 
                     if(safeBuilding == null){
-                        log.warn("API 호출 후에도 건물 정보를 얻을 수 없음");
-                        return new BuildingTypeAndPurpose("정보없음", "정보없음");
+                        // 2단계: type=2 (공중)으로 시도
+                        System.out.println("1단계 실패, 2단계 시도: type=2 (집합)");
+                        buildingRegisterService.getBuildingRegisterCommon(dto.getRoadAddress(), "2");
+                        safeBuilding = mapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
+
+                        if(safeBuilding == null){
+                            log.warn("type=1, type=2 모두 실패: {}", dto.getRoadAddress());
+                            return new BuildingTypeAndPurpose("정보없음", "정보없음");
+                        } else {
+                            log.info("type=2 (집합)으로 성공: {}", dto.getRoadAddress());
                         }
+                    } else {
+                        log.info("type=1 (일반)으로 성공: {}", dto.getRoadAddress());
+                    }
                 }catch(Exception e){
-                    log.error("API 호출 실패: {}", e.getMessage());
+                    log.error("API 호출 실패: {} - {}", dto.getRoadAddress(), e.getMessage());
                     return new BuildingTypeAndPurpose("정보없음", "정보없음");
                 }
             }else{
-                log.warn("도로명 주소가 없어서 찾을 수 없음");
+                log.warn("도로명 주소가 없어서 찾을 수 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
                 return new BuildingTypeAndPurpose("정보없음", "정보없음");
             }
         }

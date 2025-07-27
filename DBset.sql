@@ -124,6 +124,7 @@ SELECT
     2, 4, 8 AS source_table, id
 FROM api_singlehouse_rental_0715;
 
+
 ALTER TABLE all_real_estate
     ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
 
@@ -200,9 +201,4 @@ SET jibun_addr = CONCAT(res_user_addr, ' ', COALESCE(comm_addr_lot_number, ''));
 ALTER TABLE api_building_register
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
-
-# 토지 대장 관련 샘플 데이터 추가하기
-INSERT INTO building_registry
-    (id, type, res_addr_dong, res_number, res_user_addr, comm_addr_lot_number, comm_addr_road_name, res_violation_status, req_dong, req_ho, jibun_addr,latitude,longitude)
-VALUES (8,'일반',null,null, '고현동', '1039','고현동 1039','위반 건축물','덕산베스트타운',null,'고현동 1039',34.8971714,128.630888);
 

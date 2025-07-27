@@ -14,8 +14,8 @@
                 JOIN
             all_real_estate_sales s ON e.id = s.estate_id
         WHERE
-            e.latitude BETWEEN #{lat} - 0.000001 AND #{lat} + 0.000001
-          AND e.longitude BETWEEN #{lng} - 0.000001 AND #{lng} + 0.000001
+            e.latitude BETWEEN #{lat} - 0.01 AND #{lat} + 0.01
+          AND e.longitude BETWEEN #{lng} - 0.01 AND #{lng} + 0.01
         ORDER BY
             s.deal_year DESC,
             s.deal_month DESC,
@@ -34,8 +34,8 @@
             ON
                 A.id = B.register_id
         WHERE
-            A.latitude BETWEEN #{lat} - 0.000001 AND #{lat} + 0.000001
-          AND A.longitude BETWEEN #{lng} - 0.000001 AND #{lng} + 0.000001
+            A.latitude BETWEEN #{lat} - 0.01 AND #{lat} + 0.01
+          AND A.longitude BETWEEN #{lng} - 0.01 AND #{lng} + 0.01
         LIMIT 1;
     </select>
 </mapper>

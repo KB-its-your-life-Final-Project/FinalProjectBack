@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.lighthouse")
 @ComponentScan(
-        basePackages = {"com.lighthouse", "com.batch"},
+        basePackages = {"com.lighthouse"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class),
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
@@ -74,9 +74,6 @@ public class RootConfig {
         sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:/com/lighthouse/**/*.xml"));
         sqlSessionFactory.setDataSource(dataSource());
 
-        // MyBatis 설정 파일 경로
-        sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
-        
         // Mapper XML 파일 위치 추가
         sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:com/lighthouse/**/mapper/*.xml"));
 
