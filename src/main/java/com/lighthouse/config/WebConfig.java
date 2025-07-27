@@ -4,6 +4,9 @@ import com.lighthouse.security.config.SecurityConfig;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration;
+
 
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
     // upload 기능이 필요하다면 사용.
@@ -11,7 +14,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
 //    final long MAX_FILE_SIZE = 1024 * 1024 * 10L; // 10M
 //    final long MAX_REQUEST_SIZE = 1024 * 1024 * 20L; // 20M
 //    final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5; // 5M
-
+//
 //    @Override
 //    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
 //        registration.setInitParameter("throwExceptionIfNoHandlerFound", "true");

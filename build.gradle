@@ -69,7 +69,7 @@ dependencies {
     implementation "org.aspectj:aspectjweaver:${aopVersion}"
 
     // Logback (Log4j2 제거)
-    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
 
     // log4jdbc (logback 연동)
     implementation "org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:${log4jdbcVersion}"
@@ -111,12 +111,18 @@ dependencies {
     implementation "org.apache.httpcomponents:httpcore:${httpCoreVersion}"
     implementation "org.apache.httpcomponents:httpclient:${httpClientVersion}"
 
+    // email
+    implementation 'javax.mail:mail:1.4.7'
+    implementation 'com.sun.mail:jakarta.mail:1.6.7'
+    implementation 'javax.activation:activation:1.1.1'
+    implementation "org.springframework:spring-context-support:${springVersion}"
+
     // security
     implementation "org.springframework.security:spring-security-web:$springSecurityVersion"
     implementation "org.springframework.security:spring-security-config:$springSecurityVersion"
     implementation "org.springframework.security:spring-security-core:$springSecurityVersion"
 
-    // jjwt
+    // jwt
     implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
     runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
     implementation "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"

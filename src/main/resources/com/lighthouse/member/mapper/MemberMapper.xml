@@ -3,22 +3,54 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.member.mapper.MemberMapper">
-    
-    <!-- autoMapping으로 자동 매핑 -->
     <resultMap id="memberMap" type="MemberVO" autoMapping="true">
-    </resultMap>
-    
-    <resultMap id="authMap" type="AuthVO" autoMapping="true">
+        <id property="id" column="id" />
     </resultMap>
 
-    <select id="findAll" resultMap="memberMap">
-        SELECT * FROM `member_tbl`
-    </select>
-    
-    <select id="findById" resultMap="memberMap">
-        SELECT * FROM `member_tbl` 
-        WHERE `id` = #{id}
+    <select id="findAllMembers" resultMap="memberMap">
+        SELECT id, name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
+        FROM member_tbl
     </select>
 
+    <select id="findMemberById" resultMap="memberMap">
+        SELECT *
+        FROM member_tbl
+        where id = #{id}
+    </select>
 
+    <select id="findMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM member_tbl
+        WHERE email = #{email}
+    </select>
+
+    <select id="findMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM member_tbl
+        WHERE kakao_id = #{kakaoId}
+    </select>
+
+    <select id="findMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
+        SELECT *
+        FROM member_tbl
+        WHERE google_id = #{googleId}
+    </select>
+
+    <insert id="insertMember">
+        INSERT INTO member_tbl
+        (name, email, pwd, kakao_id, google_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
+        VALUES (#{name}, #{email}, #{pwd}, #{kakaoId}, #{googleId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
+    </insert>
+
+    <update id="updateMember">
+        UPDATE member_tbl
+        SET name        = #{name},
+            email       = #{email},
+            pwd         = #{pwd},
+            phone       = #{phone},
+            age         = #{age},
+            profile_img = #{profileImg},
+            recent_ip   = #{recentIp}
+        WHERE id = #{id}
+    </update>
 </mapper>
