@@ -25,32 +25,42 @@ public class JwtProcessor {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String subject, long validTime) {
+    public String generateToken(String subject, int createdType, long validTime) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("createdType", createdType)  // 추가 데이터: 회원 가입 유형
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + validTime))
                 .signWith(key)
                 .compact();
     }
 
-    public String generateAccessToken(String subject) {
-        return generateToken(subject, ACCESS_TOKEN_VALID_MILLISECOND);
+    public String generateAccessToken(String subject, int createdType) {
+        return generateToken(subject, createdType, ACCESS_TOKEN_VALID_MILLISECOND);
     }
 
-    public String generateRefreshToken(String subject) {
-        return generateToken(subject, REFRESH_TOKEN_VALID_MILLISECOND);
+    public String generateRefreshToken(String subject, int createdType) {
+        return generateToken(subject, createdType, REFRESH_TOKEN_VALID_MILLISECOND);
     }
 
     // JWT Subject(Member) 추출- 해석 불가인 경우 예외 발생
     // 예외 ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException
-    public String getMember(String token) {
+    public String getSubjectFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public int getCreatedTypeFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("createdType", Integer.class);
     }
 
     // JWT 검증(유효 기간 검증) - 해석 불가인 경우 예외 발생

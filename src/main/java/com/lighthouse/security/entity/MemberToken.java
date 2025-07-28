@@ -1,4 +1,4 @@
-package com.lighthouse.security.vo;
+package com.lighthouse.security.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberTokenVO {
+public class MemberToken {
     private int id;
     private int memberId;
     private String refreshToken;

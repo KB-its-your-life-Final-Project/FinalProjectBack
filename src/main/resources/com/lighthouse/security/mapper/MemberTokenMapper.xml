@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.security.mapper.MemberTokenMapper">
-    <resultMap id="memberTokenMap" type="MemberTokenVO" autoMapping="true">
+    <resultMap id="memberTokenMap" type="MemberToken" autoMapping="true">
         <id property="id" column="id" />
     </resultMap>
 

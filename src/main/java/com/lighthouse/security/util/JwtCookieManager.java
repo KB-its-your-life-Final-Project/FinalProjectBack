@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
@@ -14,12 +15,12 @@ import java.util.Date;
 public class JwtCookieManager {
     private final JwtProcessor jwtProcessor;
 
-    public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject) {
+    public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject, int createdType) {
         log.info("JwtCookieManager.setTokensToCookies 실행  ======");
 
         // Access Token, Refresh Token 생성
-        String accessToken = jwtProcessor.generateAccessToken(subject);
-        String refreshToken = jwtProcessor.generateRefreshToken(subject);
+        String accessToken = jwtProcessor.generateAccessToken(subject, createdType);
+        String refreshToken = jwtProcessor.generateRefreshToken(subject, createdType);
         log.info("JwtCookieManager: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
@@ -62,6 +63,28 @@ public class JwtCookieManager {
         log.info("RefreshToken createdAt: {}", createdAt);
         log.info("RefreshToken expiresAt: {}", expiresAt);
         return new TokenDTO(accessToken, refreshToken, createdAt, expiresAt);
+    }
+
+    public String getAccessTokenFromRequest (HttpServletRequest req) {
+        log.info("JwtCookieManager.getAccessTokenFromRequest 실행  ======");
+        if (req.getCookies() == null) return null;
+        for (Cookie cookie: req.getCookies()) {
+            if ("accessToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    public String getRefreshTokenFromRequest (HttpServletRequest req) {
+        log.info("JwtCookieManager.getRefreshTokenFromRequest 실행 ======");
+        if (req.getCookies() == null) return null;
+        for (Cookie cookie: req.getCookies()) {
+            if ("refreshToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     public void clearTokensFromCookies (HttpServletResponse resp) {

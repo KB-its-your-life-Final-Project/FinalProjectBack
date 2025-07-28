@@ -23,6 +23,7 @@ public enum ErrorCode implements ResponseCode{
     INVALID_PASSWORD(1013, "비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     EMAIL_LOGIN_FAIL(1014, "이메일 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     MEMBER_LOGOUT_FAIL(1015, "로그아웃에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNAUTHORIZED(1016, "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
 
     // SafeReport
     SAFEREPORT_NOT_FOUND(2001, "해당 위도/경도에 대한 건물 데이터가 없습니다.", HttpStatus.NOT_FOUND);

@@ -9,6 +9,7 @@ import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
 import com.lighthouse.security.util.JwtCookieManager;
 import com.lighthouse.security.service.TokenService;
+import com.lighthouse.security.util.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -42,6 +43,7 @@ public class MemberService {
     private final GoogleTokenClient googleTokenClient;
     private final GoogleUserClient googleUserClient;
     private final JwtCookieManager jwtCookieManager;
+    private final JwtProcessor jwtProcessor;
     private final TokenService tokenService;
 
     // 모든 사용자 조회
@@ -77,6 +79,61 @@ public class MemberService {
         Member member = Optional.ofNullable(mapper.findMemberByGoogleId(googleId))
                 .orElseThrow(NoSuchElementException::new);
         return MemberDTO.toUser(member);
+    }
+
+    // 로그인된 사용자 조회
+    public MemberDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
+        log.info("MemberService.findMemberLoggedIn() 실행 ======");
+        // accessToken 쿠키 추출, 사용자 반환
+        String accessToken = jwtCookieManager.getAccessTokenFromRequest(req);
+        if (accessToken != null || !ValidateUtils.isEmpty(accessToken)) {
+            String subject = jwtProcessor.getSubjectFromToken(accessToken);
+            int createdType = jwtProcessor.getCreatedTypeFromToken(accessToken);
+            log.info("request에서 추출된 accessToken: {}", accessToken);
+            log.info("accessToken에서 추출된 subject: {}", subject);
+            log.info("accessToken에서 추출된 createdType: {}", createdType);
+            if (createdType == 1) {
+                Member member = mapper.findMemberByEmail(subject);
+                log.info("createdType: {}", createdType);
+                log.info("subject로 찾은 member: {}", member);
+                return MemberDTO.toUser(member);
+            } else if (createdType == 2) {
+                Member member = mapper.findMemberByKakaoId(subject);
+                log.info("createdType: {}", createdType);
+                log.info("subject로 찾은 member: {}", member);
+                return MemberDTO.toUser(member);
+            } else if (createdType == 3) {
+                Member member = mapper.findMemberByGoogleId(subject);
+                log.info("createdType: {}", createdType);
+                log.info("subject로 찾은 member: {}", member);
+                return MemberDTO.toUser(member);
+            } else {
+                log.info("unsupported createdType");
+                return null;
+            }
+        } else {
+            log.info("accessToken 없음! {}", accessToken);
+            String refreshToken = jwtCookieManager.getRefreshTokenFromRequest(req);
+            if (refreshToken != null || !ValidateUtils.isEmpty(refreshToken)) {
+                // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
+                String subject = jwtProcessor.getSubjectFromToken(refreshToken);
+                int createdType = jwtProcessor.getCreatedTypeFromToken(refreshToken);
+                TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, subject, createdType);
+                Member member = null;
+                if (createdType == 1) {
+                    member = mapper.findMemberByEmail(subject);
+                } else if (createdType == 2) {
+                    member = mapper.findMemberByKakaoId(subject);
+                } else if (createdType == 3) {
+                    member = mapper.findMemberByGoogleId(subject);
+                }
+                tokenService.saveRefreshToken(member.getId(), tokenDto);
+                return MemberDTO.toUser(member);
+            } else {
+                log.info("refreshToken 없음! {}", refreshToken);
+                return null;
+            }
+        }
     }
 
     // 이메일 중복 확인
@@ -159,7 +216,7 @@ public class MemberService {
             member.setRecentIp(clientIp);
             mapper.updateMember(member);
             // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, email);
+            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, email, member.getCreatedType());
             tokenService.saveRefreshToken(member.getId(), tokenDto);
             return findMemberByEmail(member.getEmail());
         }
@@ -190,7 +247,7 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, kakaoUserId);
+        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, kakaoUserId, member.getCreatedType());
         tokenService.saveRefreshToken(member.getId(), tokenDto);
 
         return findMemberByKakaoId(member.getKakaoId());
@@ -224,7 +281,7 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, googleId);
+        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, googleId, member.getCreatedType());
         tokenService.saveRefreshToken(member.getId(), tokenDto);
 
         return findMemberByGoogleId(member.getGoogleId());

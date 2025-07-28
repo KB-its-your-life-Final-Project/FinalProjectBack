@@ -1,13 +1,12 @@
 package com.lighthouse.security.mapper;
 
-import com.lighthouse.security.vo.MemberTokenVO;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.lighthouse.security.entity.MemberToken;
 
 public interface MemberTokenMapper {
 
-    int insertRefreshToken(MemberTokenVO memberTokenVO);
+    int insertRefreshToken(MemberToken memberToken);
 
-    int updateRefreshToken(MemberTokenVO memberTokenVO);
+    int updateRefreshToken(MemberToken memberToken);
 
-    MemberTokenVO findRefreshTokenByMemberId(int memberId);
+    MemberToken findRefreshTokenByMemberId(int memberId);
 }

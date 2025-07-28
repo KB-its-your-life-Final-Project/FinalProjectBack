@@ -32,12 +32,28 @@ public class  MemberController {
 
     // 아이디로 사용자 정보 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MemberDTO>> findMemberById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<MemberDTO>> findMemberById(@RequestBody int id) {
         try {
             MemberDTO dto = memberService.findMemberById(id);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dto));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
+        }
+    }
+
+    // 로그인된 사용자 정보 조회
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<MemberDTO>> checkLoginStatus(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            MemberDTO memberDto = memberService.findMemberLoggedIn(req, resp);
+            if (memberDto != null) {
+                return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, memberDto));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+        } catch (NoSuchElementException e) {
+            log.error("사용자 정보 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
         }
     }
 
