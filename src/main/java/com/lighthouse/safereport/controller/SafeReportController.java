@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import io.swagger.annotations.Api;
 
 @RestController
 @RequestMapping("/api/report")
 @RequiredArgsConstructor
 @Slf4j
+@Api(tags = "SafeReport")
 public class SafeReportController {
     private final SafeReportService service;
     // 사용자로부터 건물, 예산 전달 받아 처리
