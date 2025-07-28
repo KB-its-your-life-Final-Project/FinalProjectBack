@@ -75,4 +75,20 @@ public class JwtProcessor {
             return true;
         }
     }
+
+    public Date getIssuedAt(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody()
+                .getIssuedAt();
+    }
+
+    public Date getExpiration(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+    }
 }

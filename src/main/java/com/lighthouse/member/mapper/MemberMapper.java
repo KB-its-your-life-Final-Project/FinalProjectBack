@@ -11,9 +11,15 @@ public interface MemberMapper {
 
     MemberVO findMemberByEmail(String email); //  이메일로 사용자 조회
 
-    MemberVO findMemberByKakaoId(String kakaoId); // 카카오계정으로 사용자 조회
+    MemberVO findMemberByKakaoId(String kakaoId); // 카카오 회원ID로 사용자 조회
 
-    MemberVO findMemberByGoogleId(String googleId); // 구글계정으로 사용자 조회
+    MemberVO findMemberByGoogleId(String googleId); // 구글 ID로 사용자 조회
+
+    Boolean existsByEmail(String email); // 이메일로 사용자 존재 여부 확인
+
+    Boolean existsByKakaoId(String kakaoId); // 카카오 회원ID로 사용자 존재 여부 확인
+
+    Boolean existsByGoogleId(String googleId); // 구글ID로 사용자 존재 여부 확인
 
     int insertMember(MemberVO member); // 사용자 정보 추가
 

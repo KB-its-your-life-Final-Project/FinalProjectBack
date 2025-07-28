@@ -1,11 +1,12 @@
 package com.lighthouse.security.util;
 
+import com.lighthouse.security.dto.TokenDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 public class JwtCookieManager {
     private final JwtProcessor jwtProcessor;
 
-    public void setTokensToCookies(HttpServletResponse resp, String subject) {
+    public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject) {
         log.info("JwtCookieManager.setTokensToCookies 실행  ======");
 
         // Access Token, Refresh Token 생성
@@ -53,8 +54,15 @@ public class JwtCookieManager {
         // 쿠키를 응답에 추가
         resp.addCookie(accessTokenCookie);
         resp.addCookie(refreshTokenCookie);
-
         log.info("JwtCookieManager: 응답 객체 resp: " + resp);
+
+        // 발급 시간과 만료 시간 추출
+        Date createdAt = jwtProcessor.getIssuedAt(refreshToken);
+        Date expiresAt = jwtProcessor.getExpiration(refreshToken);
+
+        log.info("RefreshToken createdAt: {}", createdAt);
+        log.info("RefreshToken expiresAt: {}", expiresAt);
+        return new TokenDTO(accessToken, refreshToken, createdAt, expiresAt);
     }
 
     public void clearTokensFromCookies (HttpServletResponse resp) {

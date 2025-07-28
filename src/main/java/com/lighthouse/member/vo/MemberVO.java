@@ -12,7 +12,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
 public class MemberVO {
     private int id;             // 아이디
     private String name;        // 이름
