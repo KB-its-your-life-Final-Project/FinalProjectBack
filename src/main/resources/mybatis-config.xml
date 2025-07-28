@@ -15,5 +15,6 @@
         <package name="com.lighthouse.security.vo" />
         <package name="com.lighthouse.transactions.vo" />
         <package name="com.lighthouse.buildingRegister.vo "/>
+        <package name="com.lighthouse.localinfo.vo"/>
     </typeAliases>
 </configuration>
