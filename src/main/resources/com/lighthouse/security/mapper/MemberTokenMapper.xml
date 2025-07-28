@@ -7,70 +7,23 @@
         <id property="id" column="id" />
     </resultMap>
 
-    <select id="findAllMembers" resultMap="memberMap">
+    <select id="findRefreshTokenByMemberId" resultMap="memberTokenMap">
         SELECT *
-        FROM member_tbl
+        FROM member_token_tbl
+        WHERE member_id = #{memberId}
     </select>
 
-    <select id="findMemberById" resultMap="memberMap">
-        SELECT *
-        FROM member_tbl
-        where id = #{id}
-    </select>
-
-    <select id="findMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
-        SELECT *
-        FROM member_tbl
-        WHERE email = #{email}
-    </select>
-
-    <select id="findMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
-        SELECT *
-        FROM member_tbl
-        WHERE kakao_id = #{kakaoId}
-    </select>
-
-    <select id="findMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
-        SELECT *
-        FROM member_tbl
-        WHERE google_id = #{googleId}
-    </select>
-
-    <select id="existsByEmail" resultType="java.lang.Boolean">
-        SELECT EXISTS(
-            SELECT 1
-            FROM member_tbl
-            WHERE email = #{email})
-    </select>
-
-    <select id="existsByKakaoId" resultType="java.lang.Boolean">
-        SELECT EXISTS(
-            SELECT 1
-            FROM member_tbl
-            WHERE kakao_id = #{kakaoId})
-    </select>
-
-    <select id="existsByGoogleId" resultType="java.lang.Boolean">
-        SELECT EXISTS(
-            SELECT 1
-            FROM member_tbl
-            WHERE google_id = #{googleId})
-    </select>
-
-    <insert id="insertMember">
-        INSERT INTO member_tbl
-        (name, email, pwd, kakao_id, google_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
-        VALUES (#{name}, #{email}, #{pwd}, #{kakaoId}, #{googleId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
+    <insert id="insertRefreshToken">
+        INSERT INTO member_token_tbl
+        (member_id, refresh_token, created_at, expires_at)
+        VALUES (#{memberId}, #{refreshToken}, #{createdAt}, #{expiresAt})
     </insert>
 
-    <update id="updateMember">
-        UPDATE member_tbl
-        SET name        = #{name},
-            pwd         = #{pwd},
-            phone       = #{phone},
-            age         = #{age},
-            profile_img = #{profileImg},
-            recent_ip   = #{recentIp}
-        WHERE id = #{id}
+    <update id="updateRefreshToken">
+        UPDATE member_token_tbl
+        SET refresh_token    = #{refreshToken},
+            created_at       = #{createdAt},
+            expires_at       = #{expiresAt}
+        WHERE member_id = #{memberId}
     </update>
 </mapper>

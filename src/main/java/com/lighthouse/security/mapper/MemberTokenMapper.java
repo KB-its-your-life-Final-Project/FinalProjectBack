@@ -1,5 +1,6 @@
 package com.lighthouse.security.mapper;
 
+import com.lighthouse.security.vo.MemberTokenVO;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public interface MemberTokenMapper {

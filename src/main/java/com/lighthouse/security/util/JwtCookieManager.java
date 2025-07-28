@@ -20,8 +20,7 @@ public class JwtCookieManager {
         // Access Token, Refresh Token 생성
         String accessToken = jwtProcessor.generateAccessToken(subject);
         String refreshToken = jwtProcessor.generateRefreshToken(subject);
-        log.info("JwtCookieManager: accessToken 발급: " + accessToken);
-        log.info("JwtCookieManager: refreshToken 발급: " + refreshToken);
+        log.info("JwtCookieManager: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
@@ -100,6 +99,6 @@ public class JwtCookieManager {
         resp.addCookie(accessTokenCookie);
         resp.addCookie(refreshTokenCookie);
 
-        log.info("JwtCookieManager: 쿠키 초    기화 완료");
+        log.info("JwtCookieManager: 쿠키 초기화 완료");
     }
 }

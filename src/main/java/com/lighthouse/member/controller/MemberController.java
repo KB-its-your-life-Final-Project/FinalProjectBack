@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +19,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class  MemberController {
     final MemberService memberService;
 
@@ -53,40 +53,44 @@ public class  MemberController {
     }
 
     // 인증 코드 발송
-    @PostMapping("/sendcode")
-    public ResponseEntity<ApiResponse<Boolean>> sendVerificationCode(@RequestParam String email) {
-        if (!memberService.isValidEmail(email)) {
-            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
-        }
-        try {
-            memberService.sendVerificationCode(email);
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SENT, true));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
-        }
-    }
+//    @PostMapping("/sendcode")
+//    public ResponseEntity<ApiResponse<Boolean>> sendVerificationCode(@RequestParam String email) {
+//        if (!memberService.isValidEmail(email)) {
+//            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
+//        }
+//        try {
+//            memberService.sendVerificationCode(email);
+//            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SENT, true));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
+//        }
+//    }
 
     // 인증 코드 검사
-    @PostMapping("/verifycode")
-    public ResponseEntity<ApiResponse<Boolean>> verifyCode(@RequestParam String email, @RequestParam String verificationCode) {
-        boolean isVerifiedCode = memberService.verifyCode(email, verificationCode);
-        if (isVerifiedCode) {
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SUCCESS, true));
-        }
-        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_VERIFICATION_CODE, false));
-    }
+//    @PostMapping("/verifycode")
+//    public ResponseEntity<ApiResponse<Boolean>> verifyCode(@RequestParam String email, @RequestParam String verificationCode) {
+//        boolean isVerifiedCode = memberService.verifyCode(email, verificationCode);
+//        if (isVerifiedCode) {
+//            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SUCCESS, true));
+//        }
+//        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_VERIFICATION_CODE, false));
+//    }
 
     // 이메일 회원가입
     @PostMapping("/register/email")
-    public ResponseEntity<ApiResponse<MemberDTO>> registerMemberByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<MemberDTO>> registerByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
         // 이메일 형식 유효성 검사
         if (!memberService.isValidEmail(registerDto.getEmail())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
 
         // 비밀번호 형식 유효성 검사
-        if (!memberService.isValidPassword(registerDto.getPassword())) {
+        if (!memberService.isValidPassword(registerDto.getPassword1())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
+        }
+        // 비밀번호1과 비밀번호2 일치 여부 검사
+        if (registerDto.getPassword1() != registerDto.getPassword2()) {
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));
         }
         try {
             log.info("email: {}", registerDto.getEmail());
@@ -118,7 +122,7 @@ public class  MemberController {
                     if (memberDto == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
                     } else {
-                        return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, memberDto));
+                        return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
                     }
                 } catch (Exception e) {
                     log.error("이메일 로그인 실패", e);

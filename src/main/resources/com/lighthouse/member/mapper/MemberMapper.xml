@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.member.mapper.MemberMapper">
-    <resultMap id="memberMap" type="MemberVO" autoMapping="true">
+    <resultMap id="memberMap" type="Member" autoMapping="true">
         <id property="id" column="id" />
     </resultMap>
 
@@ -18,19 +18,19 @@
         where id = #{id}
     </select>
 
-    <select id="findMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByEmail" resultMap="memberMap">
         SELECT *
         FROM member_tbl
         WHERE email = #{email}
     </select>
 
-    <select id="findMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByKakaoId" resultMap="memberMap">
         SELECT *
         FROM member_tbl
         WHERE kakao_id = #{kakaoId}
     </select>
 
-    <select id="findMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByGoogleId" resultMap="memberMap">
         SELECT *
         FROM member_tbl
         WHERE google_id = #{googleId}
