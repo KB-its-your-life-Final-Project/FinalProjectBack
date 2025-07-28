@@ -3,7 +3,7 @@ package com.lighthouse.security.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.lighthouse.security.vo.CustomUser;
-import com.lighthouse.member.vo.MemberVO;
+import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.mapper.UserDetailsMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        MemberVO memberVo = mapper.get(email);
+        Member memberVo = mapper.get(email);
         if(memberVo == null){
             throw new UsernameNotFoundException(email + "은 없는 이메일입니다.");
         }

@@ -3,12 +3,12 @@ package com.lighthouse.member.service;
 import com.lighthouse.member.dto.RegisterEmailDTO;
 import com.lighthouse.member.dto.RegisterGoogleDTO;
 import com.lighthouse.member.dto.RegisterKakaoDTO;
+import com.lighthouse.member.entity.Member;
 import com.lighthouse.member.service.external.*;
 import com.lighthouse.member.util.ClientIpUtils;
 import com.lighthouse.member.dto.MemberDTO;
 import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.util.ValidateUtils;
-import com.lighthouse.member.vo.MemberVO;
 import com.lighthouse.security.dto.LoginEmailDTO;
 import com.lighthouse.security.util.JwtCookieManager;
 import lombok.RequiredArgsConstructor;
@@ -55,36 +55,36 @@ public class MemberService {
 
     // 아이디로 사용자 조회
     public MemberDTO findMemberById(int id) {
-        MemberVO memberVo = Optional.ofNullable(mapper.findMemberById(id))
+        Member member = Optional.ofNullable(mapper.findMemberById(id))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(memberVo);
+        return MemberDTO.toUser(member);
     }
 
     // 이메일로 사용자 조회
     public MemberDTO findMemberByEmail(String email) {
-        MemberVO memberVo = Optional.ofNullable(mapper.findMemberByEmail(email))
+        Member member = Optional.ofNullable(mapper.findMemberByEmail(email))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(memberVo);
+        return MemberDTO.toUser(member);
     }
 
     // 카카오 회원ID로 사용자 조회
     public MemberDTO findMemberByKakaoId(String kakaoUserId) {
-        MemberVO memberVo = Optional.ofNullable(mapper.findMemberByKakaoId(kakaoUserId))
+        Member member = Optional.ofNullable(mapper.findMemberByKakaoId(kakaoUserId))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(memberVo);
+        return MemberDTO.toUser(member);
     }
 
     // 구글 ID로 사용자 조회
     public MemberDTO findMemberByGoogleId(String googleId) {
-        MemberVO memberVo = Optional.ofNullable(mapper.findMemberByGoogleId(googleId))
+        Member member = Optional.ofNullable(mapper.findMemberByGoogleId(googleId))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(memberVo);
+        return MemberDTO.toUser(member);
     }
 
     // 이메일 중복 확인
     public boolean checkDuplicateEmail(String email) {
-        MemberVO memberVo = mapper.findMemberByEmail(email);
-        return memberVo != null;
+        Member member = mapper.findMemberByEmail(email);
+        return member != null;
     }
 
     // 이메일 유효성 검사
@@ -132,12 +132,12 @@ public class MemberService {
         log.info("name: {}", dto.getName());
         log.info("password: {}", dto.getPassword());
         String clientIp = ClientIpUtils.getClientIp(req);
-        MemberVO memberVo = dto.toVO();
-        memberVo.setPwd(passwordEncoder.encode(memberVo.getPwd())); // 암호화
-        memberVo.setRegIp(clientIp);
-        memberVo.setRecentIp(clientIp);
-        mapper.insertMember(memberVo);
-        return findMemberByEmail(memberVo.getEmail());
+        Member member = dto.toVO();
+        member.setPwd(passwordEncoder.encode(member.getPwd())); // 암호화
+        member.setRegIp(clientIp);
+        member.setRecentIp(clientIp);
+        mapper.insertMember(member);
+        return findMemberByEmail(member.getEmail());
     }
 
     // 카카오 회원가입 또는 로그인
@@ -149,26 +149,26 @@ public class MemberService {
         String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
         // 미등록 사용자 -> 회원가입 / 등록된 사용자 -> IP주소 업데이트
-        MemberVO memberVo = mapper.findMemberByKakaoId(kakaoUserId);
-        log.info("MemberService: kakaoUserId로 사용자 조회, memberVo: {}", memberVo);
-        if (memberVo == null) {
+        Member member = mapper.findMemberByKakaoId(kakaoUserId);
+        log.info("MemberService: kakaoUserId로 사용자 조회, member: {}", member);
+        if (member == null) {
             String kakaoNickname = kakaoUserClient.getKakaoNickname(kakaoAccessToken);
-            memberVo = dto.toVO();
-            memberVo.setName(kakaoNickname);
-            memberVo.setKakaoId(kakaoUserId);
-            memberVo.setRegIp(clientIp);
-            memberVo.setRecentIp(clientIp);
-            mapper.insertMember(memberVo);
+            member = dto.toVO();
+            member.setName(kakaoNickname);
+            member.setKakaoId(kakaoUserId);
+            member.setRegIp(clientIp);
+            member.setRecentIp(clientIp);
+            mapper.insertMember(member);
         } else {
-            memberVo.setRecentIp(clientIp);
-            mapper.updateMember(memberVo);
+            member.setRecentIp(clientIp);
+            mapper.updateMember(member);
         }
 
         // Access Token, Refresh Token 쿠키에 저장
-        log.info("==========반환될 memberVo: {}", memberVo);
+        log.info("==========반환될 member: {}", member);
         jwtCookieManager.setTokensToCookies(resp, kakaoUserId);
-        log.info("==========반환될 memberVo: {}", memberVo);
-        return findMemberByKakaoId(memberVo.getKakaoId());
+        log.info("==========반환될 member: {}", member);
+        return findMemberByKakaoId(member.getKakaoId());
     }
 
     // 구글 회원가입 또는 로그인
@@ -181,27 +181,27 @@ public class MemberService {
         String googleId = googleUserInfoMap.get("id").toString();
 
         // 미등록 사용자 -> 회원가입 / 등록된 사용자 -> IP주소 업데이트
-        MemberVO memberVo = mapper.findMemberByGoogleId(googleId);
-        log.info("MemberService: googleId로 사용자 조회, memberVo: {}", memberVo);
-        if (memberVo == null) {
+        Member member = mapper.findMemberByGoogleId(googleId);
+        log.info("MemberService: googleId로 사용자 조회, member: {}", member);
+        if (member == null) {
             String email = googleUserInfoMap.get("email").toString();
             String name = googleUserInfoMap.get("name").toString();
-            memberVo = dto.toVO();
-            memberVo.setName(name);
-            memberVo.setEmail(email);
-            memberVo.setGoogleId(googleId);
-            memberVo.setRegIp(clientIp);
-            memberVo.setRecentIp(clientIp);
-            mapper.insertMember(memberVo);
+            member = dto.toVO();
+            member.setName(name);
+            member.setEmail(email);
+            member.setGoogleId(googleId);
+            member.setRegIp(clientIp);
+            member.setRecentIp(clientIp);
+            mapper.insertMember(member);
         } else {
-            memberVo.setRecentIp(clientIp);
-            mapper.updateMember(memberVo);
+            member.setRecentIp(clientIp);
+            mapper.updateMember(member);
         }
 
         // Access Token, Refresh Token 쿠키에 저장
         jwtCookieManager.setTokensToCookies(resp, googleId);
 
-        return findMemberByGoogleId(memberVo.getGoogleId());
+        return findMemberByGoogleId(member.getGoogleId());
     }
 
     // 이메일 로그인
@@ -214,13 +214,13 @@ public class MemberService {
 //
 //        }
 //    }
-//        MemberVO memberVo = mapper.findMemberByEmail(email);
-//        if (memberVo == null) {
+//        member member = mapper.findMemberByEmail(email);
+//        if (member == null) {
 //
-//            mapper.insertMember(memberVo);
+//            mapper.insertMember(member);
 //        } else {
-//            memberVo.setRecentIp(clientIp);
-//            mapper.updateMember(memberVo);
+//            member.setRecentIp(clientIp);
+//            mapper.updateMember(member);
 //        }
 
     // 로그아웃

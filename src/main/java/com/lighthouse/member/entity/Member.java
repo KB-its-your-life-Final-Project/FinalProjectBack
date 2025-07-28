@@ -1,4 +1,4 @@
-package com.lighthouse.member.vo;
+package com.lighthouse.member.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Getter
-public class MemberVO {
+public class Member {
     private int id;             // 아이디
     private String name;        // 이름
     private String email;       // 이메일

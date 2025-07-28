@@ -1,9 +1,9 @@
 package com.lighthouse.security.mapper;
 
-import com.lighthouse.member.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
+import com.lighthouse.member.entity.Member;
 
 @Mapper
 public interface UserDetailsMapper {
-    MemberVO get(String email);
+    Member get(String email);
 }

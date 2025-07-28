@@ -1,12 +1,12 @@
 package com.lighthouse.member.mapper;
 
+import com.lighthouse.member.entity.Member;
 import com.lighthouse.member.mapper.MemberMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.lighthouse.config.RootConfig;
-import com.lighthouse.member.vo.MemberVO;
 import com.lighthouse.security.config.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;

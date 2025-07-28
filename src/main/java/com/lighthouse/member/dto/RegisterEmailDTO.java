@@ -1,10 +1,10 @@
 package com.lighthouse.member.dto;
 
+import com.lighthouse.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.lighthouse.member.vo.MemberVO;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +16,8 @@ public class RegisterEmailDTO {
     private String name;
     private String password;
 
-    public MemberVO toVO() {
-        return MemberVO.builder()
+    public Member toVO() {
+        return Member.builder()
                 .name(name)
                 .email(email)
                 .pwd(password)

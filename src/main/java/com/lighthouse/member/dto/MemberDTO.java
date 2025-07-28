@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.lighthouse.member.vo.MemberVO;
-
 import java.util.Date;
+import com.lighthouse.member.entity.Member;
 
 @Data
 @NoArgsConstructor
@@ -30,7 +29,7 @@ public class MemberDTO {
     private Integer isDelete;
 
     //클라이언트에 보낼 수 있는 데이터
-    public static MemberDTO toUser(MemberVO member) {
+    public static MemberDTO toUser(Member member) {
         return MemberDTO.builder()
                 .id(member.getId())
                 .name(member.getName())
@@ -46,7 +45,7 @@ public class MemberDTO {
     }
 
     // 관리자에게 보내는 데이터
-    public static MemberDTO toAdmin(MemberVO member) {
+    public static MemberDTO toAdmin(Member member) {
         return MemberDTO.builder()
                 .id(member.getId())
                 .name(member.getName())

@@ -1,6 +1,6 @@
 package com.lighthouse.member.dto;
 
-import com.lighthouse.member.vo.MemberVO;
+import com.lighthouse.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 public class RegisterKakaoDTO {
     private String code;
 
-    public MemberVO toVO() {
-        return MemberVO.builder()
+    public Member toVO() {
+        return Member.builder()
                 .email("")
                 .pwd("")
                 .googleId("")
