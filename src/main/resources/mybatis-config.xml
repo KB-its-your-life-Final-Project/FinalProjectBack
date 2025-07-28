@@ -14,6 +14,8 @@
         <package name="com.lighthouse.member.vo" />
         <package name="com.lighthouse.security.vo" />
         <package name="com.lighthouse.transactions.vo" />
-        <package name="com.lighthouse.buildingRegister.vo "/>
+        <package name="com.lighthouse.buildingRegister.vo" />
+        <package name="com.lighthouse.safereport.vo" />
+        <package name="com.lighthouse.toCoord.vo" />
     </typeAliases>
 </configuration>

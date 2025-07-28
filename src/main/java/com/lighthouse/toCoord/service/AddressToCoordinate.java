@@ -1,7 +1,7 @@
-package com.batch.toCoord.service;
+package com.lighthouse.toCoord.service;
 
-import com.batch.config.BatchConfig;
-import com.batch.toCoord.mapper.toCoordMapper;
+import com.lighthouse.config.RootConfig;
+import com.lighthouse.toCoord.mapper.toCoordMapper;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class AddressToCoordinate {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.getEnvironment().setActiveProfiles("local");
-        context.register(BatchConfig.class);
+        context.register(RootConfig.class);
         context.refresh();
 
         AddressGeocodeService geocodeService = context.getBean(AddressGeocodeService.class);

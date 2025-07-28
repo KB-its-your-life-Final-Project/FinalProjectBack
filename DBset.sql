@@ -124,6 +124,7 @@ SELECT
     2, 4, 8 AS source_table, id
 FROM api_singlehouse_rental_0715;
 
+
 ALTER TABLE all_real_estate
     ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
 
@@ -144,3 +145,60 @@ ALTER TABLE all_real_estate
 6: api_multihouse_rental_0715,
 7: api_singlehouse_trade_0715,
 8: api_singlehouse_rental_0715';
+
+
+# 토지대장 관련 데이터 저장하기
+# building_registry 테이블은 건물에 대한 정보
+
+DROP TABLE IF EXISTS building_registry;
+CREATE TABLE building_registry (
+                                 id BIGINT PRIMARY KEY COMMENT '기본 키',
+                                 type CHAR(2) NOT NULL COMMENT '일반/집합',
+                                 res_addr_dong VARCHAR(100) COMMENT '동명',
+                                 res_number VARCHAR(100) COMMENT '호수 (매수)',
+                                 res_user_addr VARCHAR(100) COMMENT '시군구법정동',
+                                 comm_addr_lot_number VARCHAR(100) COMMENT '지번',
+                                 comm_addr_road_name VARCHAR(100) COMMENT '도로명 주소',
+                                 res_violation_status VARCHAR(50) COMMENT '위반 건축물인 경우 "위만 건축물"라고 제공',
+                                 req_dong VARCHAR(30) COMMENT '요청한 동',
+                                 req_ho VARCHAR(30) COMMENT 'N호/N가구/N세대'
+);
+
+INSERT INTO building_registry (
+    id, type, res_addr_dong, res_number, res_user_addr,
+    comm_addr_lot_number, comm_addr_road_name, res_violation_status,
+    req_dong, req_ho
+)
+
+SELECT
+    id, type, res_addr_dong, res_number, res_user_addr,
+    comm_addr_lot_number, comm_addr_road_name, res_violation_status,
+    req_dong, req_ho
+FROM api_building_register;
+
+# building_registry_for 는 용도에 대한 정보
+DROP TABLE IF EXISTS building_registry_use_for;
+CREATE TABLE building_registry_use_for(
+                                      id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '기본 키',
+                                      register_id BIGINT NOT NULL COMMENT 'building_registry에서의 인덱스',
+                                      res_use_type VARCHAR(100) COMMENT '용도'
+);
+
+INSERT INTO building_registry_use_for(
+                                  register_id, res_use_type
+)
+SELECT register_id, res_use_type
+FROM api_building_register_building_status;
+
+# 지번 속성 추가하기
+ALTER TABLE api_building_register
+    ADD COLUMN jibun_addr VARCHAR(200) COMMENT '지번 주소';
+
+UPDATE api_building_register
+SET jibun_addr = CONCAT(res_user_addr, ' ', COALESCE(comm_addr_lot_number, ''));
+
+# 위도, 경도 속성 추가하기
+ALTER TABLE api_building_register
+    ADD COLUMN latitude DOUBLE COMMENT '위도',
+    ADD COLUMN longitude DOUBLE COMMENT '경도';
+
