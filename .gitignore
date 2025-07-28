@@ -25,3 +25,6 @@ Thumbs.db
 
 # Local configs
 *.env
+
+# DB test
+DBset.sql
