@@ -23,7 +23,25 @@ public class CodefUtil {
         String b1 = b.replaceAll("\\s+", "");
         System.out.println("a1: " + a1);
         System.out.println("b1: " + b1);
-        return a1.equals(b1);
+        
+        // 정확히 일치하는 경우
+        if (a1.equals(b1)) {
+            return true;
+        }
+        
+        // 요청 주소가 제안 주소에 포함되는지 확인
+        if (b1.contains(a1)) {
+            System.out.println("요청 주소가 제안 주소에 포함됨: " + a1 + " -> " + b1);
+            return true;
+        }
+        
+        // 제안 주소가 요청 주소에 포함되는지 확인 (역방향)
+        if (a1.contains(b1)) {
+            System.out.println("제안 주소가 요청 주소에 포함됨: " + b1 + " -> " + a1);
+            return true;
+        }
+        
+        return false;
     }
 
     public CodefUtil(String id, String password, String publicKey) {
@@ -33,7 +51,6 @@ public class CodefUtil {
     }
 
     public BuildingResponseDTO request(String productUrl, BuildingRequestDTO requestDto) throws Exception {
-        BuildingResponseDTO finalResult;
         HashMap<String, Object> parameterMap = requestDto.toMap();
 
         String result = codef.requestProduct(productUrl, EasyCodefServiceType.DEMO, parameterMap);
@@ -67,6 +84,41 @@ public class CodefUtil {
                     }
                 }
                 parameterMap.put("dongNum", dongNum);
+                
+                // 2차 인증 요청
+                Long twoWayTimestamp = responseDto.getTwoWayTimestamp();
+                Integer jobIndex = responseDto.getJobIndex();
+                Integer threadIndex = responseDto.getThreadIndex();
+                String jti = responseDto.getJti();
+                HashMap<String, Object> twoWayInfoMap = new HashMap<>();
+                twoWayInfoMap.put("jobIndex", jobIndex);
+                twoWayInfoMap.put("threadIndex", threadIndex);
+                twoWayInfoMap.put("jti", jti);
+                twoWayInfoMap.put("twoWayTimestamp", twoWayTimestamp);
+                parameterMap.put("is2Way", true);
+                parameterMap.put("twoWayInfo", twoWayInfoMap);
+                
+                result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
+                System.out.println("dongNum 2차 인증 결과: " + result);
+                
+                HashMap<String, Object> tryResponseMap = objectMapper.readValue(result, new TypeReference<>() {});
+                Object tryDataObj = tryResponseMap.get("data");
+                Object tryResultObj = tryResponseMap.get("result");
+                String tryJson = objectMapper.writeValueAsString(tryResultObj);
+                HashMap<String, Object> tryResultMap = objectMapper.readValue(tryJson, new TypeReference<>() {});
+                
+                // 성공한 경우
+                if ("CF-00000".equals(tryResultMap.get("code"))) {
+                    System.out.println("dongNum 성공!");
+                    json = objectMapper.writeValueAsString(tryDataObj);
+                    BuildingResponseDTO dongNumResult = objectMapper.readValue(json, BuildingResponseDTO.class);
+                    System.out.println("reqDong " + dongNumResult.getBuildingRegisterVO().getReqDong());
+                    System.out.println("reqHo" + dongNumResult.getBuildingRegisterVO().getReqHo());
+                    return dongNumResult;
+                } else {
+                    System.out.println("dongNum 실패: " + tryResultMap.get("message"));
+                    throw new RuntimeException("동번호 매칭에 실패했습니다.");
+                }
             }else if(responseDto.getMethod().equals("etc")) {
                 String reqAddress = null;
                 List<BuildingResponseDTO.ReqAddr> addrList = responseDto.getExtraInfo().getReqAddrList();
@@ -76,11 +128,65 @@ public class CodefUtil {
                         System.out.println("  " + (i+1) + ". " + addrList.get(i).getCommAddrRoadName());
                     }
                     
-                    // 모든 주소를 순차적으로 시도
-                    for (int i = 0; i < addrList.size(); i++) {
-                        reqAddress = addrList.get(i).getCommAddrRoadName();
-                        System.out.println("시도 " + (i+1) + ": " + reqAddress);
+                    // 먼저 띄어쓰기 차이를 고려한 정확한 매칭 시도
+                    for (BuildingResponseDTO.ReqAddr addr : addrList) {
+                        if (compareIgnoringSpaces(requestDto.getAddress(), addr.getCommAddrRoadName())) {
+                            reqAddress = addr.getCommAddrRoadName();
+                            System.out.println("띄어쓰기 차이 고려하여 매칭된 주소: " + reqAddress);
+                            break;
+                        }
+                    }
+                    
+                    // 정확한 매칭이 없으면 모든 주소를 순차적으로 시도
+                    if (reqAddress == null) {
+                        System.out.println("정확한 매칭 없음, 모든 주소 순차 시도");
+                        for (int i = 0; i < addrList.size(); i++) {
+                            reqAddress = addrList.get(i).getCommAddrRoadName();
+                            System.out.println("시도 " + (i+1) + ": " + reqAddress);
+                            
+                            parameterMap.put("reqAddress", reqAddress);
+                            
+                            // 2차 인증 요청
+                            Long twoWayTimestamp = responseDto.getTwoWayTimestamp();
+                            Integer jobIndex = responseDto.getJobIndex();
+                            Integer threadIndex = responseDto.getThreadIndex();
+                            String jti = responseDto.getJti();
+                            HashMap<String, Object> twoWayInfoMap = new HashMap<>();
+                            twoWayInfoMap.put("jobIndex", jobIndex);
+                            twoWayInfoMap.put("threadIndex", threadIndex);
+                            twoWayInfoMap.put("jti", jti);
+                            twoWayInfoMap.put("twoWayTimestamp", twoWayTimestamp);
+                            parameterMap.put("is2Way", true);
+                            parameterMap.put("twoWayInfo", twoWayInfoMap);
+                            
+                            result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
+                            System.out.println("시도 " + (i+1) + " 결과: " + result);
+                            
+                            HashMap<String, Object> tryResponseMap = objectMapper.readValue(result, new TypeReference<>() {});
+                            Object tryDataObj = tryResponseMap.get("data");
+                            Object tryResultObj = tryResponseMap.get("result");
+                            String tryJson = objectMapper.writeValueAsString(tryResultObj);
+                            HashMap<String, Object> tryResultMap = objectMapper.readValue(tryJson, new TypeReference<>() {});
+                            
+                            // 성공한 경우
+                            if ("CF-00000".equals(tryResultMap.get("code"))) {
+                                System.out.println("성공! 주소: " + reqAddress);
+                                json = objectMapper.writeValueAsString(tryDataObj);
+                                BuildingResponseDTO addrResult = objectMapper.readValue(json, BuildingResponseDTO.class);
+                                System.out.println("reqDong " + addrResult.getBuildingRegisterVO().getReqDong());
+                                System.out.println("reqHo" + addrResult.getBuildingRegisterVO().getReqHo());
+                                return addrResult;
+                            }
+                            
+                            // 실패한 경우 계속 시도
+                            System.out.println("실패: " + tryResultMap.get("message"));
+                        }
                         
+                        // 모든 주소 시도 실패
+                        System.out.println("모든 주소 시도 실패");
+                        throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
+                    } else {
+                        // 정확한 매칭된 주소로 2차 인증 시도
                         parameterMap.put("reqAddress", reqAddress);
                         
                         // 2차 인증 요청
@@ -97,7 +203,7 @@ public class CodefUtil {
                         parameterMap.put("twoWayInfo", twoWayInfoMap);
                         
                         result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
-                        System.out.println("시도 " + (i+1) + " 결과: " + result);
+                        System.out.println("정확한 매칭 주소로 2차 인증 결과: " + result);
                         
                         HashMap<String, Object> tryResponseMap = objectMapper.readValue(result, new TypeReference<>() {});
                         Object tryDataObj = tryResponseMap.get("data");
@@ -107,62 +213,24 @@ public class CodefUtil {
                         
                         // 성공한 경우
                         if ("CF-00000".equals(tryResultMap.get("code"))) {
-                            System.out.println("성공! 주소: " + reqAddress);
+                            System.out.println("성공! 정확한 매칭 주소: " + reqAddress);
                             json = objectMapper.writeValueAsString(tryDataObj);
-                            finalResult = objectMapper.readValue(json, BuildingResponseDTO.class);
-                            System.out.println("reqDong " + finalResult.getBuildingRegisterVO().getReqDong());
-                            System.out.println("reqHo" + finalResult.getBuildingRegisterVO().getReqHo());
-                            return finalResult;
+                            BuildingResponseDTO exactMatchResult = objectMapper.readValue(json, BuildingResponseDTO.class);
+                            System.out.println("reqDong " + exactMatchResult.getBuildingRegisterVO().getReqDong());
+                            System.out.println("reqHo" + exactMatchResult.getBuildingRegisterVO().getReqHo());
+                            return exactMatchResult;
+                        } else {
+                            System.out.println("정확한 매칭 주소로도 실패: " + tryResultMap.get("message"));
+                            throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
                         }
-                        
-                        // 실패한 경우 계속 시도
-                        System.out.println("실패: " + tryResultMap.get("message"));
                     }
-                    
-                    // 모든 주소 시도 실패
-                    System.out.println("모든 주소 시도 실패");
-                    throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
                 }
             }
-            
-            // 주소가 같은지 확인 - 발견된 추가 인증원인이 띄어쓰기 차이였으므로 띄어쓰기 없앤 상태에서 리스트에 같은 값이 있는 지 확인함.
-            // else if(responseDto.getMethod().equals("etc")) {
-            //     String reqAddress = null;
-            //     List<BuildingResponseDTO.ReqAddr> addrList = responseDto.getExtraInfo().getReqAddrList();
-            //     if (addrList != null) {
-            //         for (BuildingResponseDTO.ReqAddr addr : addrList) {
-            //             if (compareIgnoringSpaces(requestDto.getAddress(), addr.getCommAddrRoadName())) {
-            //                 reqAddress = addr.getCommAddrRoadName();
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //     parameterMap.put("reqAddress", reqAddress);
-            // }
-            Long twoWayTimestamp = responseDto.getTwoWayTimestamp();
-            Integer jobIndex = responseDto.getJobIndex();
-            Integer threadIndex = responseDto.getThreadIndex();
-            String jti = responseDto.getJti();
-            HashMap<String, Object> twoWayInfoMap = new HashMap<>();
-            twoWayInfoMap.put("jobIndex", jobIndex);
-            twoWayInfoMap.put("threadIndex", threadIndex);
-            twoWayInfoMap.put("jti", jti);
-            twoWayInfoMap.put("twoWayTimestamp", twoWayTimestamp);
-            parameterMap.put("is2Way", true);
-            parameterMap.put("twoWayInfo", twoWayInfoMap);
-            result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
-            System.out.println("final result: " + result);
-            responseMap = new ObjectMapper().readValue(result, new TypeReference<>() {});
-            dataObj = responseMap.get("data");
-            json = objectMapper.writeValueAsString(dataObj);
-            finalResult = objectMapper.readValue(json, BuildingResponseDTO.class);
         } else {
             // throw new RuntimeException("요청 실패: " + resultMap.get("code"));
             System.out.println("요청 실패: " + resultMap.get("code"));
             return null; // 예외 대신 null 반환
         }
-        System.out.println("reqDong " + finalResult.getBuildingRegisterVO().getReqDong());
-        System.out.println("reqHo" + finalResult.getBuildingRegisterVO().getReqHo() );
-        return finalResult;
+        return null;
     }
 }
