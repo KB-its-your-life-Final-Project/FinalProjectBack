@@ -31,7 +31,6 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableWebSecurity
 @Slf4j
-@MapperScan(basePackages = {"com.lighthouse.security.mapper"})
 @ComponentScan(basePackages = {"com.lighthouse.security"})
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
