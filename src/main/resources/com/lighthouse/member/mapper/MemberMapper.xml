@@ -9,41 +9,41 @@
 
     <select id="findAllMembers" resultMap="memberMap">
         SELECT id, name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
     </select>
 
     <select id="findMemberById" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         where id = #{id}
     </select>
 
     <select id="findMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE email = #{email}
     </select>
 
     <select id="findMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE kakao_id = #{kakaoId}
     </select>
 
     <select id="findMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE google_id = #{googleId}
     </select>
 
     <insert id="insertMember">
-        INSERT INTO member_tbl
+        INSERT INTO ${MEMBER_TBL}
         (name, email, pwd, kakao_id, google_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
         VALUES (#{name}, #{email}, #{pwd}, #{kakaoId}, #{googleId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
     </insert>
 
     <update id="updateMember">
-        UPDATE member_tbl
+        UPDATE ${MEMBER_TBL}
         SET name        = #{name},
             email       = #{email},
             pwd         = #{pwd},
