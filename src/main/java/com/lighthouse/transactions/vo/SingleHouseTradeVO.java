@@ -1,6 +1,7 @@
 package com.lighthouse.transactions.vo;
 
 import com.lighthouse.transactions.entity.EstateApiIntegration;
+import com.lighthouse.transactions.util.AddressUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class SingleHouseTradeVO {
     private String buyerGbn;           // 매수자
 
     public static EstateApiIntegration toEstateApiIntegration(SingleHouseTradeVO entity) {
+        String jibunAddr = AddressUtils.getJibunAddr(entity.getUmdNm(), entity.getJibun());
         return EstateApiIntegration.builder()
                 .sggCd(entity.getSggCd())
 //                .sggNm(entity.getSggNm())
@@ -43,9 +45,8 @@ public class SingleHouseTradeVO {
                 .shouseType(entity.getHouseType())
                 .buildYear(entity.getBuildYear())
                 .buildingType(4)                        // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
-//                .sourceTable(entity.getSourceTable())
-//                .originalId(entity.getOriginalId())
-//                .jibunAddr(entity.getJibunAddr())
+                .sourceApi(7) // 1: api_apartment_trade, 2: api_apartment_rental, 3: api_officetel_trade, 4: api_officetel_rental, 5: api_multihouse_trade, 6: api_multihouse_rental, 7: api_singlehouse_trade, 8: api_singlehouse_rental
+                .jibunAddr(jibunAddr)
 //                .latitude(entity.getLatitude())
 //                .longitude(entity.getLongitude())
                 .build();

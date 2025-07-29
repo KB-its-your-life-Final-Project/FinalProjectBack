@@ -9,12 +9,15 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.lighthouse.transactions.dto.TransactionApiDTO;
 import com.lighthouse.transactions.entity.EstateApiIntegration;
 import com.lighthouse.transactions.mapper.TransactionMapper;
+import com.lighthouse.transactions.util.AddressUtils;
 import com.lighthouse.transactions.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,6 +25,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
 @Service
@@ -30,8 +35,15 @@ import java.util.List;
 public class ApiService {
     @Value("${DATA_GO_KR_API_KEY}")
     private String apiKey;
-    final private TransactionMapper mapper;
-    final String BASE_URL = "https://apis.data.go.kr/1613000/";
+    private final TransactionMapper mapper;
+    private final AddressUtils addrUtils;
+    private final String BASE_URL = "https://apis.data.go.kr/1613000/";
+
+    @Autowired
+    public ApiService(AddressUtils addrUtils) {
+        this.addrUtils = addrUtils;
+    }
+
     private <T> TransactionApiDTO<T> apiRequest(String url, int lawdCd, int dealYmd, Class<T> itemType) throws Exception {
         String urlStr = UriComponentsBuilder
                 .fromHttpUrl(url)
@@ -43,6 +55,7 @@ public class ApiService {
         JavaType type = xmlMapper.getTypeFactory().constructParametricType(TransactionApiDTO.class, itemType);
         return xmlMapper.readValue(new URL(urlStr), type);
     }
+
     private <T> void insertCommon(String endpoint, int lawdCd, int dealYmd, Class<T> clazz, SaveHandler<T> handler, String logPrefix) {
         final String url = BASE_URL + endpoint;
         try {
@@ -99,27 +112,39 @@ public class ApiService {
     }
 
     // estate_api_integration_tbl
-    public void insertApartmentTradesToEstateApiIntegration(int lawdCd, int dealYmd) {
-        insertToEstateIntegration("/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade",
-                lawdCd, dealYmd, ApartmentTradeVO.class,
-                ApartmentTradeVO::toEstateApiIntegration, "아파트 매매", 1, 1);
-    }
-
-    private <T> void insertToEstateIntegration(String endpoint, int lawdCd, int dealYmd, Class<T> clazz,
-                                               java.util.function.Function<T, EstateApiIntegration> mapperFunc,
-                                               String logPrefix, int sourceTableCode, int buildingType) {
+    private <T> void insertEstateIntegration(String endpoint, int lawdCd, int dealYmd, Class<T> clazz,
+                                             BiFunction<T, AddressUtils, EstateApiIntegration> mapperFunc,
+                                             String logPrefix) {
         insertCommon(endpoint, lawdCd, dealYmd, clazz,
-                list -> mapper.insertEstateApiIntegrationBatch(
-                        list.stream().map(vo -> {
-                            EstateApiIntegration e = mapperFunc.apply(vo);
-                            e.setSourceTable(sourceTableCode);
-                            e.setBuildingType(buildingType);
-                            return e;
-                        }).toList()
-                ),
+                voList -> {
+                    List<EstateApiIntegration> integrationList = voList.stream()
+                            .map(vo -> {
+                                EstateApiIntegration entity = mapperFunc.apply(vo, addrUtils);
+                                return entity;
+                            })
+                            .toList();
+                    mapper.insertEstateApiIntegrationBatch(integrationList);
+                },
                 logPrefix
         );
     }
+
+    @Transactional
+    public void insertApartmentTradesToEstateApiIntegration(int lawdCd, int dealYmd) {
+        insertEstateIntegration("/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade",
+                lawdCd, dealYmd, ApartmentTradeVO.class,
+                (vo, addrUtils) -> ApartmentTradeVO.toEstateApiIntegration(vo, addrUtils),
+                "아파트 매매");
+    }
+
+    @Transactional
+    public void insertApartmentRentalsToEstateApiIntegration(int lawdCd, int dealYmd) {
+        insertEstateIntegration("/RTMSDataSvcAptRent/getRTMSDataSvcAptRent",
+                lawdCd, dealYmd, ApartmentRentalVO.class,
+                (vo, addrUtils) -> ApartmentRentalVO.toEstateApiIntegration(vo, addrUtils),
+                "아파트 전월세");
+    }
+
 
     private List<LawdCdVO> parseRowFromJson(String jsonResponse) {
         try {
@@ -133,7 +158,8 @@ public class ApiService {
                 return Collections.emptyList();
             }
 
-            return objectMapper.readValue(rows.toString(), new TypeReference<>() {});
+            return objectMapper.readValue(rows.toString(), new TypeReference<>() {
+            });
 
         } catch (Exception e) {
             log.error("❌ JSON 파싱 실패", e);

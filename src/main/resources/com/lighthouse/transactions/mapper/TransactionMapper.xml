@@ -339,18 +339,18 @@
     </insert>
 
     <insert id="insertEstateApiIntegrationBatch" parameterType="list">
-        INSERT INTO estate_api_integration (
+        INSERT INTO estate_api_integration_tbl (
         sgg_cd, umd_nm, jibun,
         building_name, mhouse_type, shouse_type,
-        build_year, building_type, source_table,
-        original_id, jibun_addr, latitude, longitude
+        build_year, building_type, source_api,
+        jibun_addr, latitude, longitude
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
             #{item.sggCd}, #{item.umdNm}, #{item.jibun},
             #{item.buildingName}, #{item.mhouseType}, #{item.shouseType},
-            #{item.buildYear}, #{item.buildingType}, #{item.sourceTable},
-            #{item.originalId}, #{item.jibunAddr}, #{item.latitude}, #{item.longitude}
+            #{item.buildYear}, #{item.buildingType}, #{item.sourceApi},
+            #{item.jibunAddr}, #{item.latitude}, #{item.longitude}
             )
         </foreach>
     </insert>

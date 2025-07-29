@@ -23,8 +23,7 @@ public class EstateApiIntegration {
     private String shouseType;      // 다가구/단독 유형
     private int buildYear;          // 건축 년도
     private int buildingType;       // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
-    private int sourceTable;        // 원본 API (1: apartment_trade, 2: apartment_rental, 3: officetel_trade, 4: officetel_rental, 5: multihouse_trade, 6: multihouse_rental, 7: singlehouse_trade, 8: singlehouse_rental)
-    private int originalId;         // 없어도 됨 - 삭제 고려 (원래는 원본 테이블에서의 id)
+    private int sourceApi;        // 원본 API (1: apartment_trade, 2: apartment_rental, 3: officetel_trade, 4: officetel_rental, 5: multihouse_trade, 6: multihouse_rental, 7: singlehouse_trade, 8: singlehouse_rental)
     private String jibunAddr;      // 지번 주소
     private double latitude;        // 위도
     private double longitude;       // 경도

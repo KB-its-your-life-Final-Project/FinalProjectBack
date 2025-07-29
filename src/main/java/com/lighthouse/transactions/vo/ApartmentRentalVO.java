@@ -1,10 +1,12 @@
 package com.lighthouse.transactions.vo;
 
 import com.lighthouse.transactions.entity.EstateApiIntegration;
+import com.lighthouse.transactions.util.AddressUtils;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
+
+import java.util.Map;
 
 /**
  * 아파트 전월세 거래 정보 VO
@@ -31,7 +33,9 @@ public class ApartmentRentalVO {
     private String preDeposit;        // 종전계약 보증금
     private String preMonthlyRent;    // 종전계약 월세
 
-    public static EstateApiIntegration toEstateApiIntegration(ApartmentRentalVO entity) {
+    public static EstateApiIntegration toEstateApiIntegration(ApartmentRentalVO entity, AddressUtils addrUtils) {
+        String jibunAddr = AddressUtils.getJibunAddr(entity.getUmdNm(), entity.getJibun());
+        Map<String, Double> latLongMap = addrUtils.getLatLong(jibunAddr);
         return EstateApiIntegration.builder()
                 .sggCd(entity.getSggCd())
 //                .sggNm(entity.getSggNm())
@@ -42,9 +46,8 @@ public class ApartmentRentalVO {
 //                .shouseType(entity.getShouseType())
                 .buildYear(entity.getBuildYear())
                 .buildingType(1) // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
-//                .sourceTable(entity.getSourceTable())
-//                .originalId(entity.getOriginalId())
-//                .jibunAddr(entity.getJibunAddr())
+                .sourceApi(2) // 1: api_apartment_trade, 2: api_apartment_rental, 3: api_officetel_trade, 4: api_officetel_rental, 5: api_multihouse_trade, 6: api_multihouse_rental, 7: api_singlehouse_trade, 8: api_singlehouse_rental
+                .jibunAddr(jibunAddr)
 //                .latitude(entity.getLatitude())
 //                .longitude(entity.getLongitude())
                 .build();
