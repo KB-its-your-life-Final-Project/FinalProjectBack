@@ -13,16 +13,16 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtCookieManager {
-    private final JwtProcessor jwtProcessor;
+public class JwtCookieUtil {
+    private final JwtUtil jwtUtil;
 
     public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject, int createdType) {
-        log.info("JwtCookieManager.setTokensToCookies 실행  ======");
+        log.info("JwtCookieUtil.setTokensToCookies 실행  ======");
 
         // Access Token, Refresh Token 생성
-        String accessToken = jwtProcessor.generateAccessToken(subject, createdType);
-        String refreshToken = jwtProcessor.generateRefreshToken(subject, createdType);
-        log.info("JwtCookieManager: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
+        String accessToken = jwtUtil.generateAccessToken(subject, createdType);
+        String refreshToken = jwtUtil.generateRefreshToken(subject, createdType);
+        log.info("JwtCookieUtil: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
@@ -55,11 +55,11 @@ public class JwtCookieManager {
         // 쿠키를 응답에 추가
         resp.addCookie(accessTokenCookie);
         resp.addCookie(refreshTokenCookie);
-        log.info("JwtCookieManager: 응답 객체 resp: " + resp);
+        log.info("JwtCookieUtil: 응답 객체 resp: " + resp);
 
         // 발급 시간과 만료 시간 추출
-        Date createdAt = jwtProcessor.getIssuedAt(refreshToken);
-        Date expiresAt = jwtProcessor.getExpiration(refreshToken);
+        Date createdAt = jwtUtil.getIssuedAt(refreshToken);
+        Date expiresAt = jwtUtil.getExpiration(refreshToken);
 
         log.info("RefreshToken createdAt: {}", createdAt);
         log.info("RefreshToken expiresAt: {}", expiresAt);
@@ -67,7 +67,7 @@ public class JwtCookieManager {
     }
 
     public String getAccessTokenFromRequest(HttpServletRequest req) {
-        log.info("JwtCookieManager.getAccessTokenFromRequest 실행  ======");
+        log.info("JwtCookieUtil.getAccessTokenFromRequest 실행  ======");
         if (req.getCookies() == null) return null;
         for (Cookie cookie : req.getCookies()) {
             if ("accessToken".equals(cookie.getName())) {
@@ -78,7 +78,7 @@ public class JwtCookieManager {
     }
 
     public String getRefreshTokenFromRequest(HttpServletRequest req) {
-        log.info("JwtCookieManager.getRefreshTokenFromRequest 실행 ======");
+        log.info("JwtCookieUtil.getRefreshTokenFromRequest 실행 ======");
         if (req.getCookies() == null) return null;
         for (Cookie cookie : req.getCookies()) {
             if ("refreshToken".equals(cookie.getName())) {
@@ -89,7 +89,7 @@ public class JwtCookieManager {
     }
 
     public void clearTokensFromCookies(HttpServletResponse resp) {
-        log.info("JwtCookieManager.clearTokensFromCookies 실행  ======");
+        log.info("JwtCookieUtil.clearTokensFromCookies 실행  ======");
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
         Cookie accessTokenCookie = new Cookie("accessToken", "");
@@ -123,6 +123,6 @@ public class JwtCookieManager {
         resp.addCookie(accessTokenCookie);
         resp.addCookie(refreshTokenCookie);
 
-        log.info("JwtCookieManager: 쿠키 초기화 완료");
+        log.info("JwtCookieUtil: 쿠키 초기화 완료");
     }
 }

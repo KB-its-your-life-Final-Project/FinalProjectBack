@@ -1,10 +1,15 @@
 package com.lighthouse.transactions.vo;
 
 import com.lighthouse.transactions.entity.EstateApiIntegration;
-import com.lighthouse.transactions.util.AddressUtils;
+import com.lighthouse.transactions.entity.EstateApiIntegrationSales;
+import com.lighthouse.transactions.util.AddressUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
+
+import static com.lighthouse.transactions.util.ParseUtil.safeParseInt;
 
 /**
  * 오피스텔 매매 거래 정보 VO
@@ -32,8 +37,11 @@ public class OfficetelTradeVO {
     private String slerGbn;            // 거래주체정보_매도자
     private String buyerGbn;           // 거래주체정보_매수자
 
-    public static EstateApiIntegration toEstateApiIntegration(OfficetelTradeVO entity) {
-        String jibunAddr = AddressUtils.getJibunAddr(entity.getUmdNm(), entity.getJibun());
+    public static EstateApiIntegration toEstateApiIntegration(OfficetelTradeVO entity, AddressUtil addrUtils) {
+        String jibunAddr = AddressUtil.getJibunAddr(entity.getUmdNm(), entity.getJibun());
+        Map<String, Double> latLngMap = addrUtils.getLatLng(jibunAddr);
+        double lat = latLngMap.getOrDefault("lat", 0.0);
+        double lng = latLngMap.getOrDefault("lng", 0.0);
         return EstateApiIntegration.builder()
                 .sggCd(entity.getSggCd())
                 .sggNm(entity.getSggNm())
@@ -46,8 +54,21 @@ public class OfficetelTradeVO {
                 .buildingType(2)                         // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
                 .sourceApi(3) // 1: api_apartment_trade, 2: api_apartment_rental, 3: api_officetel_trade, 4: api_officetel_rental, 5: api_multihouse_trade, 6: api_multihouse_rental, 7: api_singlehouse_trade, 8: api_singlehouse_rental
                 .jibunAddr(jibunAddr)
-//                .latitude(entity.getLatitude())
-//                .longitude(entity.getLongitude())
+                .latitude(lat)
+                .longitude(lng)
+                .build();
+    }
+
+    public static EstateApiIntegrationSales toEstateApiIntegrationSales(OfficetelTradeVO entity) {
+        return EstateApiIntegrationSales.builder()
+//                .estateId()                       // mapper.xml 단에서 처리 필요 (estate_api_integration_tbl의 id)
+                .dealYear(entity.getDealYear())
+                .dealMonth(entity.getDealMonth())
+                .dealDay(entity.getDealDay())
+                .dealAmount(safeParseInt(entity.getDealAmount()))
+//                .deposit(safeParseInt(entity.getDeposit()))
+//                .monthlyRent(safeParseInt(entity.getMonthlyRent()))
+                .tradeType(1)                       // 거래 유형 (1: 매매, 2: 전월세)
                 .build();
     }
 }

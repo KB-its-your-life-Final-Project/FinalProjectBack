@@ -30,8 +30,7 @@ public interface TransactionMapper {
     void insertSingleHouseRentalBatch(@Param("list")List<SingleHouseRentalVO> singleHouseRentalList);
     void insertLawdCdBatch(@Param("list")List<LawdCdVO> lawdCdList);
 
-    // estate_api_integration
+    int findIdByJibunAddr(String jibunAddr);
     void insertEstateApiIntegrationBatch(@Param("list")List<EstateApiIntegration> integrationList);
-    // estate_api_integration_sales
-    void insetEstateApiIntegrationSales(EstateApiIntegrationSales item);
+    void insertEstateApiIntegrationSalesBatch(@Param("list")List<EstateApiIntegrationSales> integrationSalesList);
 }

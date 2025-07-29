@@ -1,5 +1,6 @@
 package com.lighthouse.transactions.entity;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class EstateApiIntegrationSales {
     private int id;             // 기본키
     private int estateId;       // estate_api_integration_tbl의 id

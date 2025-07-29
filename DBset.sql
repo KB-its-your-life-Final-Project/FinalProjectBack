@@ -202,3 +202,6 @@ ALTER TABLE api_building_register
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
+# jibun_addr UNIQUE KEY 설정
+ALTER TABLE estate_api_integration_tbl
+    ADD UNIQUE KEY unique_jibun_addr (jibun_addr);

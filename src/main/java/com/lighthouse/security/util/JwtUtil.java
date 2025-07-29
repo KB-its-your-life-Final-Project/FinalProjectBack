@@ -1,7 +1,5 @@
 package com.lighthouse.security.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +10,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-public class JwtProcessor {
+public class JwtUtil {
     static private final long ACCESS_TOKEN_VALID_MILLISECOND = 1000L * 60 * 10;             // 10분
     static private final long REFRESH_TOKEN_VALID_MILLISECOND = 1000L * 60 * 60 * 24 * 14;  // 2주
 

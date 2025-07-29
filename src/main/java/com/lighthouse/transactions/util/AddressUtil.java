@@ -1,18 +1,20 @@
 package com.lighthouse.transactions.util;
 
 import com.lighthouse.toCoord.service.AddressGeocodeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
-public class AddressUtils {
+public class AddressUtil {
     private final AddressGeocodeService geocodeService;
 
     @Autowired
-    public AddressUtils(AddressGeocodeService geocodeService) {
+    public AddressUtil(AddressGeocodeService geocodeService) {
         this.geocodeService = geocodeService;
     }
 
@@ -29,30 +31,13 @@ public class AddressUtils {
     /**
      * 위도, 경도 맵 생성
      */
-    public Map<String, Double> getLatLong(String jibunAddr) {
+    public Map<String, Double> getLatLng(String jibunAddr) {
         if (jibunAddr == null || jibunAddr.isBlank()) {
             return new HashMap<>() {{
-                put("latitude", 0.0);
-                put("longitude", 0.0);
+                put("lat", 0.0);
+                put("lng", 0.0);
             }};
         }
         return geocodeService.getCoordinates(jibunAddr);
     }
-
-    /**
-     * 위도(latitude) 반환
-     */
-    public Double getLatitude(String jibunAddr) {
-        Map<String, Double> coordinates = getLatLong(jibunAddr);
-        return coordinates.getOrDefault("latitude", 0.0);
-    }
-
-    /**
-     * 경도(longitude) 반환
-     */
-    public Double getLongitude(String jibunAddr) {
-        Map<String, Double> coordinates = getLatLong(jibunAddr);
-        return coordinates.getOrDefault("longitude", 0.0);
-    }
-
 }

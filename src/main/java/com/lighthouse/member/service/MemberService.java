@@ -2,24 +2,20 @@ package com.lighthouse.member.service;
 
 import com.lighthouse.member.dto.*;
 import com.lighthouse.member.service.external.*;
-import com.lighthouse.member.util.ClientIpUtils;
+import com.lighthouse.member.util.ClientIpUtil;
 import com.lighthouse.member.mapper.MemberMapper;
-import com.lighthouse.member.util.ValidateUtils;
+import com.lighthouse.member.util.ValidateUtil;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
-import com.lighthouse.security.entity.MemberToken;
 import com.lighthouse.security.mapper.MemberTokenMapper;
-import com.lighthouse.security.util.JwtCookieManager;
+import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.service.TokenService;
-import com.lighthouse.security.util.JwtProcessor;
+import com.lighthouse.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
 //import org.springframework.mail.javamail.MimeMessageHelper;
 //import javax.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,8 +43,8 @@ public class MemberService {
     private final KakaoUserClient kakaoUserClient;
     private final GoogleTokenClient googleTokenClient;
     private final GoogleUserClient googleUserClient;
-    private final JwtCookieManager jwtCookieManager;
-    private final JwtProcessor jwtProcessor;
+    private final JwtCookieUtil jwtCookieUtil;
+    private final JwtUtil jwtUtil;
     private final TokenService tokenService;
 
     // 모든 사용자 조회
@@ -90,10 +86,10 @@ public class MemberService {
     public MemberDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
         // accessToken 검증
-        String accessToken = jwtCookieManager.getAccessTokenFromRequest(req);
-        if (accessToken != null || !ValidateUtils.isEmpty(accessToken)) {
-            String subject = jwtProcessor.getSubjectFromToken(accessToken);
-            int createdType = jwtProcessor.getCreatedTypeFromToken(accessToken);
+        String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
+        if (accessToken != null || !ValidateUtil.isEmpty(accessToken)) {
+            String subject = jwtUtil.getSubjectFromToken(accessToken);
+            int createdType = jwtUtil.getCreatedTypeFromToken(accessToken);
             log.info("request에서 추출된 accessToken: {}", accessToken);
             log.info("accessToken에서 추출된 subject: {}", subject);
             log.info("accessToken에서 추출된 createdType: {}", createdType);
@@ -121,11 +117,11 @@ public class MemberService {
         }
         // accessToken 만료 -> refreshToken 검증
         log.info("accessToken 없음 {}", accessToken);
-        String refreshToken = jwtCookieManager.getRefreshTokenFromRequest(req);
-        if (refreshToken != null || !ValidateUtils.isEmpty(refreshToken)) {
+        String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
+        if (refreshToken != null || !ValidateUtil.isEmpty(refreshToken)) {
             // refreshToken 유효성 검사
-            String subject = jwtProcessor.getSubjectFromToken(refreshToken);
-            int createdType = jwtProcessor.getCreatedTypeFromToken(refreshToken);
+            String subject = jwtUtil.getSubjectFromToken(refreshToken);
+            int createdType = jwtUtil.getCreatedTypeFromToken(refreshToken);
             Member member = null;
             if (createdType == 1) {
                 member = memberMapper.findMemberByEmail(subject);
@@ -153,7 +149,7 @@ public class MemberService {
                 }
             }
             // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, subject, createdType);
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, subject, createdType);
             tokenService.saveRefreshToken(member.getId(), tokenDto);
             return MemberDTO.toUser(member);
         }
@@ -170,12 +166,12 @@ public class MemberService {
 
     // 이메일 유효성 검사
     public boolean isValidEmail(String email) {
-        return !ValidateUtils.isEmpty(email) && ValidateUtils.isValidEmailFormat(email);
+        return !ValidateUtil.isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
     }
 
     // 비밀번호 유효성 검사
     public boolean isValidPassword(String password) {
-        return !ValidateUtils.isEmpty(password) && ValidateUtils.isValidPasswordFormat(password);
+        return !ValidateUtil.isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
     }
 
     // 인증 번호 전송
@@ -212,7 +208,7 @@ public class MemberService {
         log.info("email: {}", dto.getEmail());
         log.info("name: {}", dto.getName());
         log.info("password: {}", dto.getPassword1());
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         Member member = dto.toVO();
         member.setPwd(passwordEncoder.encode(member.getPwd())); // 암호화
         member.setRegIp(clientIp);
@@ -238,11 +234,11 @@ public class MemberService {
         } else {
             log.info("비밀번호 일치");
             // IP주소 업데이트
-            String clientIp = ClientIpUtils.getClientIp(req);
+            String clientIp = ClientIpUtil.getClientIp(req);
             member.setRecentIp(clientIp);
             memberMapper.updateMember(member);
             // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, email, member.getCreatedType());
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, email, member.getCreatedType());
             tokenService.saveRefreshToken(member.getId(), tokenDto);
             return findMemberByEmail(member.getEmail());
         }
@@ -252,7 +248,7 @@ public class MemberService {
     @Transactional
     public MemberDTO loginOrRegisterByKakaoCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByKakaoCode() 실행 ======");
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         String kakaoAccessToken = kakaoTokenClient.getKakaoAccessToken(dto.getCode());
         String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
@@ -273,7 +269,7 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, kakaoUserId, member.getCreatedType());
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, kakaoUserId, member.getCreatedType());
         tokenService.saveRefreshToken(member.getId(), tokenDto);
 
         return findMemberByKakaoId(member.getKakaoId());
@@ -283,7 +279,7 @@ public class MemberService {
     @Transactional
     public MemberDTO loginOrRegisterByGoogleCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByGoogleCode() 실행 ======");
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         String googleAccessToken = googleTokenClient.getGoogleAccessToken(dto.getCode());
         Map googleUserInfoMap = googleUserClient.getGoogleUserInfo(googleAccessToken);
         String googleId = googleUserInfoMap.get("id").toString();
@@ -307,7 +303,7 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, googleId, member.getCreatedType());
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, googleId, member.getCreatedType());
         tokenService.saveRefreshToken(member.getId(), tokenDto);
 
         return findMemberByGoogleId(member.getGoogleId());
@@ -316,7 +312,7 @@ public class MemberService {
     // 로그아웃
     public boolean logout(HttpServletResponse resp) {
         try {
-            jwtCookieManager.clearTokensFromCookies(resp);
+            jwtCookieUtil.clearTokensFromCookies(resp);
             log.info("로그아웃 성공");
             return true;
         } catch (Exception e) {
