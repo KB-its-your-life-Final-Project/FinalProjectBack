@@ -138,7 +138,7 @@ public class SafeReportService {
                     }
                 }
                 
-                // API 호출 성공 시 DB에서 위반 여부와 층수/용도 모두 조회
+                // API 호출 성공 시 DB에 저장되었을 것이므로 DB에서 위반 여부와 층수/용도 모두 조회
                 if(result != null) {
                     violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
                     floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());

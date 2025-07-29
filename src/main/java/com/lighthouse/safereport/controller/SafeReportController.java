@@ -30,7 +30,7 @@ public class SafeReportController {
     public ResponseEntity<ApiResponse<SafeReportResponseDto>> receiveForm(@RequestBody SafeReportRequestDto dto){
         // 건축년도, 거래 금액, 전세가율 얻기
         RentalRatioAndBuildyear rentalRatioAndBuildyear = service.generateSafeReport(dto);
-        // 위반 여부와 층수/용도 정보 통합 조회
+        // 위반 여부와 층수/용도 정보 통합 조회 (건축물 대장 정보)
         SafeReportService.BuildingInfoResult buildingInfo = service.getBuildingInfo(dto);
 
         // 둘 다 없는 경우에만 404 에러 반환
