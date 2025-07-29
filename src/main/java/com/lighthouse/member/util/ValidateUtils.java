@@ -20,4 +20,9 @@ public class ValidateUtils {
     public static boolean isValidPasswordFormat(String password) {
         return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$");
     }
+
+    // IP 유효성 검사
+    public static boolean isValidIp(String ip) {
+        return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);
+    }
 }

@@ -3,13 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.member.mapper.MemberMapper">
-    <resultMap id="memberMap" type="MemberVO" autoMapping="true">
+    <resultMap id="memberMap" type="Member" autoMapping="true">
         <id property="id" column="id" />
     </resultMap>
 
     <select id="findAllMembers" resultMap="memberMap">
-        SELECT id, name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
-        FROM ${MEMBER_TBL}
+        SELECT *
+        FROM member_tbl
     </select>
 
     <select id="findMemberById" resultMap="memberMap">
@@ -18,22 +18,43 @@
         where id = #{id}
     </select>
 
-    <select id="findMemberByEmail" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByEmail" resultMap="memberMap">
         SELECT *
         FROM ${MEMBER_TBL}
         WHERE email = #{email}
     </select>
 
-    <select id="findMemberByKakaoId" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByKakaoId" resultMap="memberMap">
         SELECT *
         FROM ${MEMBER_TBL}
         WHERE kakao_id = #{kakaoId}
     </select>
 
-    <select id="findMemberByGoogleId" resultType="com.lighthouse.member.vo.MemberVO">
+    <select id="findMemberByGoogleId" resultMap="memberMap">
         SELECT *
         FROM ${MEMBER_TBL}
         WHERE google_id = #{googleId}
+    </select>
+
+    <select id="existsByEmail" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM member_tbl
+            WHERE email = #{email})
+    </select>
+
+    <select id="existsByKakaoId" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM member_tbl
+            WHERE kakao_id = #{kakaoId})
+    </select>
+
+    <select id="existsByGoogleId" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM member_tbl
+            WHERE google_id = #{googleId})
     </select>
 
     <insert id="insertMember">
@@ -45,7 +66,6 @@
     <update id="updateMember">
         UPDATE ${MEMBER_TBL}
         SET name        = #{name},
-            email       = #{email},
             pwd         = #{pwd},
             phone       = #{phone},
             age         = #{age},
