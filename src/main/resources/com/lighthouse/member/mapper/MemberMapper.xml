@@ -8,13 +8,8 @@
     </resultMap>
 
     <select id="findAllMembers" resultMap="memberMap">
-<<<<<<< HEAD
         SELECT *
         FROM member_tbl
-=======
-        SELECT id, name, email, pwd, kakao_user_id, phone, age, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete
-        FROM ${MEMBER_TBL}
->>>>>>> dev
     </select>
 
     <select id="findMemberById" resultMap="memberMap">
