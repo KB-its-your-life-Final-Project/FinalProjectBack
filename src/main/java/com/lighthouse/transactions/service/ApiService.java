@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ApiService {
-    @Value("${data.go.kr.api.key}")
+    @Value("${DATA_GO_KR_API_KEY}")
     private String apiKey;
     final private TransactionMapper mapper;
     final String BASE_URL = "https://apis.data.go.kr/1613000/";
