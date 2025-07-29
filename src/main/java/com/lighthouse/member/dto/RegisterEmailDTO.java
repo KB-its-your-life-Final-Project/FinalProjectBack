@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.lighthouse.member.vo.MemberVO;
+import com.lighthouse.member.entity.Member;
 
 @Data
 @NoArgsConstructor
@@ -12,15 +12,16 @@ import com.lighthouse.member.vo.MemberVO;
 @Builder
 public class RegisterEmailDTO {
     private String email;
-    private String verificationCode;
+//    private String verificationCode;
     private String name;
-    private String password;
+    private String password1;
+    private String password2;
 
-    public MemberVO toVO() {
-        return MemberVO.builder()
+    public Member toVO() {
+        return Member.builder()
                 .name(name)
                 .email(email)
-                .pwd(password)
+                .pwd(password1)
                 .kakaoId("")
                 .googleId("")
                 .phone("")
