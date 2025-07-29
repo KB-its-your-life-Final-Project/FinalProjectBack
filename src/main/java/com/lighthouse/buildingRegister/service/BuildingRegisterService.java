@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 
 @Service
@@ -32,22 +29,11 @@ public class BuildingRegisterService {
     private final BuildingRegisterPersistence buildingRegisterPersistence;
     private final AddressGeocodeService addressGeocodeService;
 
-    // 실패한 주소 캐시 (주소 -> 실패 시간)
-    private final Map<String, LocalDateTime> failedAddressCache = new ConcurrentHashMap<>();
-    @Value("${cache.failed.address.expiry.hours:168}") // 기본값 7일
-    private int cacheExpiryHours;
-
     /** address = 정확한 도로명 주소, type = (0=지상/1=지하/2=공중) */
     public BuildingResponseDTO getBuildingRegisterCommon(String address, String type) {
         // 주소 정규화
         String normalizedAddress = normalizeAddress(address);
         log.info("주소 정규화: {} -> {}", address, normalizedAddress);
-        
-        // 실패 캐시 확인
-        if (isRecentlyFailed(normalizedAddress)) {
-            log.info("최근 실패한 주소로 API 호출 건너뜀: {}", normalizedAddress);
-            return null;
-        }
         
         try {
             CodefUtil codef = new CodefUtil(id, password, publicKey);
@@ -70,15 +56,12 @@ public class BuildingRegisterService {
                 log.info("CODEF API 호출 성공 (type={}): {}", type, normalizedAddress);
             } catch (Exception e) {
                 log.error("CODEF 요청 에러 (type={}): {}", type, e.getMessage());
-                // 실패한 주소 캐시에 추가
-                addToFailedCache(normalizedAddress);
                 return null; // 예외를 던지지 않고 null 반환
             }
             
             // CODEF 응답 검증
             if(result == null || result.getBuildingRegisterVO() == null) {
                 log.warn("CODEF API 응답이 비어있음 (type={}): {}", type, normalizedAddress);
-                addToFailedCache(normalizedAddress);
                 return null;
             }
             
@@ -86,7 +69,6 @@ public class BuildingRegisterService {
             if(result.getBuildingRegisterVO().getResDocNo() == null || 
                result.getBuildingRegisterVO().getResDocNo().trim().isEmpty()) {
                 log.warn("CODEF API 응답에 필수 데이터가 없음 (type={}): {}", type, normalizedAddress);
-                addToFailedCache(normalizedAddress);
                 return null;
             }
             
@@ -103,14 +85,10 @@ public class BuildingRegisterService {
             result.getBuildingRegisterVO().setType("일반");
             buildingRegisterPersistence.insertBuildingRegister(result);
             
-            // 성공한 경우 캐시에서 제거
-            removeFromFailedCache(normalizedAddress);
-            
             return result; // 성공 시 결과 반환
             
         } catch (Exception e) {
             log.error("건축물 정보 처리 실패 (type={}): {}", type, e.getMessage());
-            addToFailedCache(normalizedAddress);
             return null; // 예외를 던지지 않고 null 반환
         }
     }
@@ -197,35 +175,5 @@ public class BuildingRegisterService {
         }
         
         return normalizedAddress;
-    }
-
-    // 실패한 주소 캐시에 추가
-    private void addToFailedCache(String address) {
-        failedAddressCache.put(address, LocalDateTime.now());
-        log.info("실패한 주소 캐시에 추가: {}", address);
-    }
-
-    // 실패한 주소 캐시에서 제거
-    private void removeFromFailedCache(String address) {
-        failedAddressCache.remove(address);
-        log.info("성공한 주소 캐시에서 제거: {}", address);
-    }
-
-    // 최근에 실패한 주소인지 확인
-    private boolean isRecentlyFailed(String address) {
-        LocalDateTime failedTime = failedAddressCache.get(address);
-        if (failedTime == null) {
-            return false;
-        }
-        
-        long hoursSinceFailure = ChronoUnit.HOURS.between(failedTime, LocalDateTime.now());
-        if (hoursSinceFailure >= cacheExpiryHours) {
-            // 만료된 캐시 제거
-            failedAddressCache.remove(address);
-            log.info("만료된 실패 캐시 제거: {}", address);
-            return false;
-        }
-        
-        return true;
     }
 }

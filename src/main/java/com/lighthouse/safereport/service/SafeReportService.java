@@ -5,8 +5,9 @@ import com.lighthouse.safereport.mapper.SafeReportMapper;
 import com.lighthouse.estate.mapper.EstateMapper;
 import com.lighthouse.estate.dto.RealEstateDTO;
 import com.lighthouse.estate.dto.RealEstateSalesDTO;
-import com.lighthouse.safereport.vo.BuildingTypeAndPurpose;
 import com.lighthouse.safereport.vo.RentalRatioAndBuildyear;
+import com.lighthouse.safereport.vo.ViolationStatusVO;
+import com.lighthouse.safereport.vo.FloorAndPurpose;
 import com.lighthouse.buildingRegister.service.BuildingRegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 
 @Slf4j
@@ -39,78 +36,41 @@ public class SafeReportService {
         if(realEstate == null) {
             return null;
         }
-        
+        // 건축 년도
+        Integer buildYear = realEstate.getBuildYear();
         // 2단계: 건물 ID 추출
         Integer estateId = realEstate.getId();
         
-        // 3단계: 해당 건물의 매매 정보 조회
-        List<RealEstateSalesDTO> salesList = estateMapper.getSalesByEstateId(estateId);
-        log.info("salesList: {}", salesList);
+        // 3단계: 해당 건물의 최근 매매 정보 1개 조회 (trade_type=1만)
+        RealEstateSalesDTO latestSale = safereportmapper.getSalesByEstateIdWithTradeType(estateId);
         
-        if(salesList == null || salesList.isEmpty()) {
-            return null;
+        // 4단계: 거래 금액 추출 (latestSale이 null이면 0으로 설정)
+        Integer dealAmount;
+        //해당 건물의 매매 기록이 없는 경우
+        if(latestSale == null) {
+            dealAmount = 0;
+            log.info("매매 정보 없음, dealAmount를 0으로 설정");
+        } else {
+            dealAmount = latestSale.getDealAmount();
+            log.info("매매 정보 있음, dealAmount: {}", dealAmount);
         }
         
-        // 4단계: 가장 최근 거래 중 dealAmount가 있는 데이터 선택
-        RealEstateSalesDTO latestSaleWithDealAmount = salesList.stream()
-            .filter(sale -> sale.getDealYear() != null && sale.getDealMonth() != null && sale.getDealDay() != null)
-            .filter(sale -> sale.getDealAmount() != null)
-            .sorted((a, b) -> {
-                int yearCompare = Integer.compare(b.getDealYear(), a.getDealYear());
-                if (yearCompare != 0) return yearCompare;
-                int monthCompare = Integer.compare(b.getDealMonth(), a.getDealMonth());
-                if (monthCompare != 0) return monthCompare;
-                return Integer.compare(b.getDealDay(), a.getDealDay());
-            })
-            .findFirst()
-            .orElse(null);
-        log.info("latestSaleWithDealAmount: {}", latestSaleWithDealAmount);
-
-        RealEstateSalesDTO latestSale = latestSaleWithDealAmount;
-
-        if (latestSale == null) {
-            // dealAmount가 있는 거래가 없으면, 가장 최근 거래(deposit만 있는 경우) 선택
-            latestSale = salesList.stream()
-                .filter(sale -> sale.getDealYear() != null && sale.getDealMonth() != null && sale.getDealDay() != null)
-                .sorted((a, b) -> {
-                    int yearCompare = Integer.compare(b.getDealYear(), a.getDealYear());
-                    if (yearCompare != 0) return yearCompare;
-                    int monthCompare = Integer.compare(b.getDealMonth(), a.getDealMonth());
-                    if (monthCompare != 0) return monthCompare;
-                    return Integer.compare(b.getDealDay(), a.getDealDay());
-                })
-                .findFirst()
-                .orElse(null);
-        }
-        log.info("최종 latestSale: {}", latestSale);
-
-        if (latestSale == null) {
-            return null;
-        }
-        
-        // 5단계: 건축년도 추출 (첫 번째 건물 정보 사용)
-        Integer buildYear = realEstate.getBuildYear();
-        
-        // 6단계: 거래 금액 추출 (dealAmount가 null이면 deposit 사용)
-        Integer dealAmount = latestSale.getDealAmount();
-        Integer deposit = latestSale.getDeposit();
-        int finalDealAmount = (dealAmount != null) ? dealAmount : (deposit != null ? deposit : 0);
-        log.info("buildYear: {}", buildYear);
-        log.info("dealAmount: {}, deposit: {}, finalDealAmount: {}", dealAmount, deposit, finalDealAmount);
-        
-        if(finalDealAmount == 0 || buildYear == null) {
-            return null;
-        }
-        
-        // 7단계: RentalRatioAndBuildyear 객체 생성
         RentalRatioAndBuildyear result = new RentalRatioAndBuildyear();
-        result.setDealAmount(finalDealAmount);
+        result.setDealAmount(dealAmount);
         result.setBuildYear(buildYear);
         
         // 비즈니스 로직 처리
         int budget = dto.getBudget();
-        double ratio = (budget / (double)finalDealAmount) * 100;
-        int ratioScore = (ratio <= 70) ? 0 : (ratio <= 80) ? 1 : (ratio <= 90) ? 2 : 3;
+        double ratio;
+        int ratioScore;
+        
+        if(dealAmount == 0) {
+            ratio = 0;
+            ratioScore = 0;
+        } else {
+            ratio = (budget / (double)dealAmount) * 100;
+            ratioScore = (ratio <= 70) ? 0 : (ratio <= 80) ? 1 : (ratio <= 90) ? 2 : 3;
+        }
 
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - buildYear;
@@ -123,53 +83,73 @@ public class SafeReportService {
         return result;
     }
 
-    
-    // 건출물 용도, 위반 여부 확인
-    public BuildingTypeAndPurpose generateSafeBuilding(SafeReportRequestDto dto) {
+   
+
+    // 위반 여부와 층수/용도 정보 통합 조회
+    public BuildingInfoResult getBuildingInfo(SafeReportRequestDto dto) {
         String address = dto.getRoadAddress();
-
-        // 1단계: DB에서 기존 데이터 확인
-        BuildingTypeAndPurpose safeBuilding = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
-        if(safeBuilding != null) {
-            return safeBuilding;
+        
+        // 1단계: DB에서 위반 여부 확인
+        ViolationStatusVO violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
+        List<FloorAndPurpose> floorAndPurposeList = null;
+        
+        if(violationStatus != null) {
+            // 위반 여부가 있으면 층수/용도도 바로 조회
+            floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());
+            log.info("DB에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
+            
+            return new BuildingInfoResult(violationStatus, floorAndPurposeList);
         }
-
-        // 2단계: DB에 데이터가 없으면 토지대장 API 병렬로 호출(type=1(일반주택), type=2(집합주택))
+        
+        // 2단계: DB에 데이터가 없으면 토지대장 API 병렬로 호출
         if(address != null && !address.trim().isEmpty()) {
             try {
                 log.info("토지대장 API 병렬 호출 시작: {}", address);
                 
-                // type=1과 type=2를 병렬로 호출
                 CompletableFuture<BuildingResponseDTO> type1Future = 
                     CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "1"));
                 
                 CompletableFuture<BuildingResponseDTO> type2Future = 
                     CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "2"));
                 
-                // 먼저 성공하는 결과 확인
                 BuildingResponseDTO firstSuccess = type1Future.applyToEither(type2Future, result -> result).get();
                 
                 if(firstSuccess != null) {
                     log.info("토지대장 API 호출 성공: {}", address);
                     
-                    // API 호출 성공 시 DB에서 데이터 조회
-                    BuildingTypeAndPurpose result = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
-                    if(result != null) {
-                        log.info("DB에서 데이터 조회 성공: {}", result);
-                        return result;
+                    // API 호출 성공 시 DB에서 위반 여부와 층수/용도 모두 조회
+                    violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
+                    floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());
+                    
+                    if(violationStatus != null || (floorAndPurposeList != null && !floorAndPurposeList.isEmpty())) {
+                        log.info("DB에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
+                        return new BuildingInfoResult(violationStatus, floorAndPurposeList);
                     } else {
-                        log.warn("API 호출 성공했지만 DB에 데이터 없음: {}", address);
+                        log.warn("토지대장에 건물 정보 없음: {}", address);
                     }
                 } else {
                     log.warn("토지대장 API 호출 실패: {}", address);
                 }
-
             } catch (Exception e) {
                 log.error("토지대장 API 병렬 호출 실패: {} - {}", address, e.getMessage());
             }
         }
-
-        log.warn("모든 시도 실패: {}", address);
-        return null;
+        
+        log.warn("건물 정보 조회 실패: {}", address);
+        return new BuildingInfoResult(null, null);
+    }
+    
+    // 건물 정보 결과를 담는 내부 클래스
+    public static class BuildingInfoResult {
+        private final ViolationStatusVO violationStatus;
+        private final List<FloorAndPurpose> floorAndPurposeList;
+        
+        public BuildingInfoResult(ViolationStatusVO violationStatus, List<FloorAndPurpose> floorAndPurposeList) {
+            this.violationStatus = violationStatus;
+            this.floorAndPurposeList = floorAndPurposeList;
+        }
+        
+        public ViolationStatusVO getViolationStatus() { return violationStatus; }
+        public List<FloorAndPurpose> getFloorAndPurposeList() { return floorAndPurposeList; }
     }
 }
