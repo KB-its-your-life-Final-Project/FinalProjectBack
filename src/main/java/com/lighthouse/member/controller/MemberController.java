@@ -21,7 +21,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${CORS_ORIGIN}", allowCredentials = "true")
+@CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
 public class MemberController {
     final MemberService memberService;
 
