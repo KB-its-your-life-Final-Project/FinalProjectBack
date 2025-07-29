@@ -20,9 +20,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -36,7 +38,7 @@ public class MemberService {
 
     private final MemberMapper memberMapper;
     private final MemberTokenMapper memberTokenMapper;
-//    private final JavaMailSender mailSender;
+    //    private final JavaMailSender mailSender;
 //    private final ConcurrentHashMap<String, String> verificationCodeStore = new ConcurrentHashMap<>();
 //    private final ConcurrentHashMap<String, LocalDateTime> codeTimestamps = new ConcurrentHashMap<>();
     private final PasswordEncoder passwordEncoder;
@@ -87,7 +89,7 @@ public class MemberService {
     // 로그인된 사용자 조회
     public MemberDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
-        // accessToken 쿠키 추출, 사용자 반환
+        // accessToken 검증
         String accessToken = jwtCookieManager.getAccessTokenFromRequest(req);
         if (accessToken != null || !ValidateUtils.isEmpty(accessToken)) {
             String subject = jwtProcessor.getSubjectFromToken(accessToken);
@@ -101,64 +103,63 @@ public class MemberService {
                 log.info("createdType: {}", createdType);
                 log.info("subject로 찾은 member: {}", member);
                 return MemberDTO.toUser(member);
-            // 카카오 로그인
+                // 카카오 로그인
             } else if (createdType == 2) {
                 Member member = memberMapper.findMemberByKakaoId(subject);
                 log.info("createdType: {}", createdType);
                 log.info("subject로 찾은 member: {}", member);
                 return MemberDTO.toUser(member);
-            // 구글 로그인
+                // 구글 로그인
             } else if (createdType == 3) {
                 Member member = memberMapper.findMemberByGoogleId(subject);
                 log.info("createdType: {}", createdType);
                 log.info("subject로 찾은 member: {}", member);
                 return MemberDTO.toUser(member);
-            } else {
-                log.info("올바르지 않은 createdType");
-                return null;
             }
+            log.info("올바르지 않은 createdType");
+            return null;
         }
-        // accessToken 만료
+        // accessToken 만료 -> refreshToken 검증
         log.info("accessToken 없음 {}", accessToken);
         String refreshToken = jwtCookieManager.getRefreshTokenFromRequest(req);
         if (refreshToken != null || !ValidateUtils.isEmpty(refreshToken)) {
-            // 토큰 유효성 검사
+            // refreshToken 유효성 검사
             String subject = jwtProcessor.getSubjectFromToken(refreshToken);
             int createdType = jwtProcessor.getCreatedTypeFromToken(refreshToken);
             Member member = null;
             if (createdType == 1) {
                 member = memberMapper.findMemberByEmail(subject);
                 int memberId = member.getId();
-                MemberToken memberToken = memberTokenMapper.findRefreshTokenByMemberId(memberId);
-                if (memberToken.getRefreshToken() != refreshToken) {
+                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
+                if (!isRefreshTokenValid) {
                     log.info("refreshToken값이 일치하지 않습니다");
                     return null;
                 }
             } else if (createdType == 2) {
                 member = memberMapper.findMemberByKakaoId(subject);
                 int memberId = member.getId();
-                MemberToken memberToken = memberTokenMapper.findRefreshTokenByMemberId(memberId);
-                if (memberToken.getRefreshToken() != refreshToken) {
+                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
+                if (!isRefreshTokenValid) {
                     log.info("refreshToken값이 일치하지 않습니다");
                     return null;
                 }
             } else if (createdType == 3) {
                 member = memberMapper.findMemberByGoogleId(subject);
                 int memberId = member.getId();
-                MemberToken memberToken = memberTokenMapper.findRefreshTokenByMemberId(memberId);
-                if (memberToken.getRefreshToken() != refreshToken) {
+                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
+                if (!isRefreshTokenValid) {
                     log.info("refreshToken값이 일치하지 않습니다");
                     return null;
                 }
             }
-            // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
+            // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장 (HttpOnly 쿠키, DB)
             TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, subject, createdType);
             tokenService.saveRefreshToken(member.getId(), tokenDto);
             return MemberDTO.toUser(member);
         }
         // refreshToken 만료
         log.info("refreshToken 없음 {}", refreshToken);
-            return null;
+        return null;
     }
 
     // 이메일 중복 확인
@@ -319,7 +320,7 @@ public class MemberService {
             log.info("로그아웃 성공");
             return true;
         } catch (Exception e) {
-            log.error("Access Token, Refresh Token 제거 실패", e);
+            log.error("accessToken, refreshToken 제거 실패", e);
             return false;
         }
     }

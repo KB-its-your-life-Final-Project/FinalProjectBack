@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
-public class  MemberController {
+@CrossOrigin(origins = "${CORS_ORIGIN}", allowCredentials = "true")
+public class MemberController {
     final MemberService memberService;
 
     // 모든 사용자 정보 조회
@@ -100,7 +101,6 @@ public class  MemberController {
         if (!memberService.isValidEmail(registerDto.getEmail())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
-
         // 비밀번호 형식 유효성 검사
         if (!memberService.isValidPassword(registerDto.getPassword1())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
@@ -138,16 +138,14 @@ public class  MemberController {
                     MemberDTO memberDto = memberService.loginByEmail(loginDto, req, resp);
                     if (memberDto == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
-                    } else {
-                        return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
                     }
+                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
                 } catch (Exception e) {
                     log.error("이메일 로그인 실패", e);
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_LOGIN_FAIL));
                 }
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             // 카카오 로그인
         } else if (loginDto.getCreatedType() == 2) {
             try {

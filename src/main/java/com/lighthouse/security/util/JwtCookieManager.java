@@ -4,6 +4,7 @@ import com.lighthouse.security.dto.TokenDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,10 +66,10 @@ public class JwtCookieManager {
         return new TokenDTO(accessToken, refreshToken, createdAt, expiresAt);
     }
 
-    public String getAccessTokenFromRequest (HttpServletRequest req) {
+    public String getAccessTokenFromRequest(HttpServletRequest req) {
         log.info("JwtCookieManager.getAccessTokenFromRequest 실행  ======");
         if (req.getCookies() == null) return null;
-        for (Cookie cookie: req.getCookies()) {
+        for (Cookie cookie : req.getCookies()) {
             if ("accessToken".equals(cookie.getName())) {
                 return cookie.getValue();
             }
@@ -76,10 +77,10 @@ public class JwtCookieManager {
         return null;
     }
 
-    public String getRefreshTokenFromRequest (HttpServletRequest req) {
+    public String getRefreshTokenFromRequest(HttpServletRequest req) {
         log.info("JwtCookieManager.getRefreshTokenFromRequest 실행 ======");
         if (req.getCookies() == null) return null;
-        for (Cookie cookie: req.getCookies()) {
+        for (Cookie cookie : req.getCookies()) {
             if ("refreshToken".equals(cookie.getName())) {
                 return cookie.getValue();
             }
@@ -87,7 +88,7 @@ public class JwtCookieManager {
         return null;
     }
 
-    public void clearTokensFromCookies (HttpServletResponse resp) {
+    public void clearTokensFromCookies(HttpServletResponse resp) {
         log.info("JwtCookieManager.clearTokensFromCookies 실행  ======");
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
