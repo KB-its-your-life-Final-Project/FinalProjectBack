@@ -13,13 +13,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @Slf4j
 @ActiveProfiles("local")
 class BuildingRegisterServiceTest {
+
     @Autowired
     BuildingRegisterService service;
 
@@ -34,4 +34,6 @@ class BuildingRegisterServiceTest {
     void getBuildingRegisterSet(){
         service.getBuildingRegisterSet("경기도 시흥시 하중로209번길 9 (하중동, 참이슬아파트)", "201동");
     }
+
+
 }

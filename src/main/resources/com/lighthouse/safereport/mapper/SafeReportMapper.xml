@@ -23,8 +23,8 @@
         FROM
             api_building_register A
         WHERE
-            A.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
-          AND A.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+            A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
+          AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
         LIMIT 1;
     </select>
 
@@ -42,8 +42,8 @@
             ON
                 A.id = B.register_id
         WHERE
-            A.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
-          AND A.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+            A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
+          AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
         ORDER BY B.res_floor ASC;
     </select>
 </mapper>

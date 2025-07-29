@@ -88,8 +88,15 @@ public class SafeReportService {
     // 위반 여부와 층수/용도 정보 통합 조회
     public BuildingInfoResult getBuildingInfo(SafeReportRequestDto dto) {
         String address = dto.getRoadAddress();
+        String dongName = dto.getDongName();
         
-        // 1단계: DB에서 위반 여부 확인
+        // 동 정보가 있으면 주소에 포함
+        String fullAddress = address;
+        if(dongName != null && !dongName.trim().isEmpty()) {
+            fullAddress = address + " (" + dongName + ")";
+        }
+        
+        // 1단계: DB에 이미 데이터 존재하는지 확인
         ViolationStatusVO violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
         List<FloorAndPurpose> floorAndPurposeList = null;
         
@@ -101,23 +108,38 @@ public class SafeReportService {
             return new BuildingInfoResult(violationStatus, floorAndPurposeList);
         }
         
-        // 2단계: DB에 데이터가 없으면 토지대장 API 병렬로 호출
-        if(address != null && !address.trim().isEmpty()) {
+        // 2단계: DB에 데이터가 없으면 토지대장 API 호출
+        if(fullAddress != null && !fullAddress.trim().isEmpty()) {
             try {
-                log.info("토지대장 API 병렬 호출 시작: {}", address);
+                log.info("토지대장 API 호출 시작: {}", fullAddress);
                 
-                CompletableFuture<BuildingResponseDTO> type1Future = 
-                    CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "1"));
+                // 먼저 집합건축물 대장 조회 시도
+                BuildingResponseDTO result = null;
+                try {
+                    log.info("집합건축물 대장 조회 시도: {}", fullAddress);
+                    result = buildingRegisterService.getBuildingRegisterSet(fullAddress, null);
+                    if(result != null) {
+                        log.info("집합건축물 대장 API 호출 성공: {}", fullAddress);
+                    }
+                } catch (Exception e) {
+                    log.warn("집합건축물 대장 API 호출 실패: {} - {}", fullAddress, e.getMessage());
+                }
                 
-                CompletableFuture<BuildingResponseDTO> type2Future = 
-                    CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "2"));
+                // 집합건축물 대장 조회 실패하면 일반 건축물 대장 조회
+                if(result == null) {
+                    try {
+                        log.info("일반 건축물 대장 조회 시도: {}", fullAddress);
+                        result = buildingRegisterService.getBuildingRegisterCommon(fullAddress, "0");
+                        if(result != null) {
+                            log.info("일반 건축물 대장 API 호출 성공: {}", fullAddress);
+                        }
+                    } catch (Exception e) {
+                        log.warn("일반 건축물 대장 API 호출 실패: {} - {}", fullAddress, e.getMessage());
+                    }
+                }
                 
-                BuildingResponseDTO firstSuccess = type1Future.applyToEither(type2Future, result -> result).get();
-                
-                if(firstSuccess != null) {
-                    log.info("토지대장 API 호출 성공: {}", address);
-                    
-                    // API 호출 성공 시 DB에서 위반 여부와 층수/용도 모두 조회
+                // API 호출 성공 시 DB에서 위반 여부와 층수/용도 모두 조회
+                if(result != null) {
                     violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
                     floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());
                     
@@ -125,17 +147,17 @@ public class SafeReportService {
                         log.info("DB에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
                         return new BuildingInfoResult(violationStatus, floorAndPurposeList);
                     } else {
-                        log.warn("토지대장에 건물 정보 없음: {}", address);
+                        log.warn("토지대장에 건물 정보 없음: {}", fullAddress);
                     }
                 } else {
-                    log.warn("토지대장 API 호출 실패: {}", address);
+                    log.warn("모든 토지대장 API 호출 실패: {}", fullAddress);
                 }
             } catch (Exception e) {
-                log.error("토지대장 API 병렬 호출 실패: {} - {}", address, e.getMessage());
+                log.error("토지대장 API 호출 중 예외 발생: {} - {}", fullAddress, e.getMessage());
             }
         }
         
-        log.warn("건물 정보 조회 실패: {}", address);
+        log.warn("건물 정보 조회 실패: {}", fullAddress);
         return new BuildingInfoResult(null, null);
     }
     

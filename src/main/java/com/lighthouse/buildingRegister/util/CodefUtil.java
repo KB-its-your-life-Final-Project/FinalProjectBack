@@ -75,12 +75,19 @@ public class CodefUtil {
                 List<BuildingResponseDTO.ReqDongNum> dongNumList = responseDto.getExtraInfo().getReqDongNumList();
                 String dong = requestDto.getDong();
                 String dongNum = null;
-                if (dongNumList != null) {
-                    for (BuildingResponseDTO.ReqDongNum reqDongNum : dongNumList) {
-                        if (reqDongNum.getReqDong().equals(dong)) {
-                            dongNum = reqDongNum.getCommDongNum();
-                            break;
+                if (dongNumList != null && !dongNumList.isEmpty()) {
+                    if (dong != null) {
+                        // dong이 있으면 매칭되는 동 찾기
+                        for (BuildingResponseDTO.ReqDongNum reqDongNum : dongNumList) {
+                            if (reqDongNum.getReqDong().equals(dong)) {
+                                dongNum = reqDongNum.getCommDongNum();
+                                break;
+                            }
                         }
+                    } else {
+                        // dong이 null이면 첫 번째 후보 동 선택
+                        dongNum = dongNumList.get(0).getCommDongNum();
+                        System.out.println("dong이 null이므로 첫 번째 후보 동 선택: " + dongNumList.get(0).getReqDong());
                     }
                 }
                 parameterMap.put("dongNum", dongNum);
@@ -117,7 +124,13 @@ public class CodefUtil {
                     return dongNumResult;
                 } else {
                     System.out.println("dongNum 실패: " + tryResultMap.get("message"));
-                    throw new RuntimeException("동번호 매칭에 실패했습니다.");
+                    // 2차 인증 취소인 경우 null 반환, 다른 실패는 예외 발생
+                    if ("CF-12102".equals(tryResultMap.get("code"))) {
+                        System.out.println("2차 인증이 취소되었습니다.");
+                        return null;
+                    } else {
+                        throw new RuntimeException("동번호 매칭에 실패했습니다: " + tryResultMap.get("message"));
+                    }
                 }
             }else if(responseDto.getMethod().equals("etc")) {
                 String reqAddress = null;
@@ -176,6 +189,51 @@ public class CodefUtil {
                                 System.out.println("reqDong " + addrResult.getBuildingRegisterVO().getReqDong());
                                 System.out.println("reqHo" + addrResult.getBuildingRegisterVO().getReqHo());
                                 return addrResult;
+                            } else if ("CF-03002".equals(tryResultMap.get("code"))) {
+                                // 1차 성공, 2차 인증 필요 - 해당 주소로 2차 인증 처리
+                                System.out.println("1차 성공, 2차 인증 필요: " + reqAddress);
+                                
+                                // 2차 인증 처리 (dongNum 방식)
+                                try {
+                                    // tryDataObj는 전체 응답 데이터이므로 BuildingResponseDTO로 파싱
+                                    String tryDataJson = objectMapper.writeValueAsString(tryDataObj);
+                                    BuildingResponseDTO tryResponse = objectMapper.readValue(tryDataJson, BuildingResponseDTO.class);
+                                    BuildingResponseDTO.ExtraInfo extraInfo = tryResponse.getExtraInfo();
+                                    
+                                    if (extraInfo.getReqDongNumList() != null && !extraInfo.getReqDongNumList().isEmpty()) {
+                                        // 첫 번째 후보 동 선택
+                                        String dongNum = extraInfo.getReqDongNumList().get(0).getCommDongNum();
+                                        System.out.println("첫 번째 후보 동 선택: " + extraInfo.getReqDongNumList().get(0).getReqDong());
+                                        
+                                        // 2차 인증 요청
+                                        parameterMap.put("dongNum", dongNum);
+                                        parameterMap.put("is2Way", true);
+                                        parameterMap.put("twoWayInfo", twoWayInfoMap);
+                                        
+                                        result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
+                                        System.out.println("2차 인증 결과: " + result);
+                                        
+                                        HashMap<String, Object> finalResponseMap = objectMapper.readValue(result, new TypeReference<>() {});
+                                        Object finalDataObj = finalResponseMap.get("data");
+                                        Object finalResultObj = finalResponseMap.get("result");
+                                        String finalJson = objectMapper.writeValueAsString(finalResultObj);
+                                        HashMap<String, Object> finalResultMap = objectMapper.readValue(finalJson, new TypeReference<>() {});
+                                        
+                                        if ("CF-00000".equals(finalResultMap.get("code"))) {
+                                            System.out.println("2차 인증 성공! 주소: " + reqAddress);
+                                            json = objectMapper.writeValueAsString(finalDataObj);
+                                            BuildingResponseDTO finalResult = objectMapper.readValue(json, BuildingResponseDTO.class);
+                                            return finalResult;
+                                        } else {
+                                            System.out.println("2차 인증 실패: " + finalResultMap.get("message"));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("2차 인증 처리 중 오류: " + e.getMessage());
+                                }
+                                
+                                // 2차 인증 실패 시 다음 주소로
+                                continue;
                             }
                             
                             // 실패한 경우 계속 시도
@@ -184,7 +242,7 @@ public class CodefUtil {
                         
                         // 모든 주소 시도 실패
                         System.out.println("모든 주소 시도 실패");
-                        throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
+                        return null; // 모든 주소 시도 실패 시 null 반환
                     } else {
                         // 정확한 매칭된 주소로 2차 인증 시도
                         parameterMap.put("reqAddress", reqAddress);
@@ -221,7 +279,13 @@ public class CodefUtil {
                             return exactMatchResult;
                         } else {
                             System.out.println("정확한 매칭 주소로도 실패: ");
-                            throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
+                            // 2차 인증 취소인 경우 null 반환, 다른 실패는 예외 발생
+                            if ("CF-12102".equals(tryResultMap.get("code"))) {
+                                System.out.println("2차 인증이 취소되었습니다.");
+                                return null;
+                            } else {
+                                throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
+                            }
                         }
                     }
                 }

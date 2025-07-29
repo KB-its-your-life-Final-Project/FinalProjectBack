@@ -33,23 +33,23 @@ public class SafeReportController {
         // 위반 여부와 층수/용도 정보 통합 조회
         SafeReportService.BuildingInfoResult buildingInfo = service.getBuildingInfo(dto);
 
-        if (rentalRatioAndBuildyear == null) {
-            log.warn("부동산 정보 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
+        // 둘 다 없는 경우에만 404 에러 반환
+        boolean hasRentalInfo = rentalRatioAndBuildyear != null;
+        boolean hasBuildingInfo = buildingInfo != null && 
+                                 (buildingInfo.getViolationStatus() != null || 
+                                  (buildingInfo.getFloorAndPurposeList() != null && !buildingInfo.getFloorAndPurposeList().isEmpty()));
+        
+        if (!hasRentalInfo && !hasBuildingInfo) {
+            log.warn("모든 정보 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
             return ResponseEntity.status(404)
                     .body(ApiResponse.error(ErrorCode.BUILDINGINFO_NOT_FOUND));
         }
 
-        if (buildingInfo.getViolationStatus() == null && 
-            (buildingInfo.getFloorAndPurposeList() == null || buildingInfo.getFloorAndPurposeList().isEmpty())) {
-            log.warn("토지 대장 정보 없음 (위반 여부/용도): lat={}, lng={}", dto.getLat(), dto.getLng());
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(ErrorCode.SAFEBUILDING_NOT_FOUND));
-        }
-        
+        // 부분 데이터라도 있으면 성공 응답
         SafeReportResponseDto responseDto = new SafeReportResponseDto(
             rentalRatioAndBuildyear, 
-            buildingInfo.getViolationStatus(), 
-            buildingInfo.getFloorAndPurposeList()
+            buildingInfo != null ? buildingInfo.getViolationStatus() : null, 
+            buildingInfo != null ? buildingInfo.getFloorAndPurposeList() : null
         );
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, responseDto));
     }

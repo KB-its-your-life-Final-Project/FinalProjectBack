@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.HashMap;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -66,8 +65,8 @@ public class BuildingRegisterService {
             }
             
             // 필수 필드 검증
-            if(result.getBuildingRegisterVO().getResDocNo() == null || 
-               result.getBuildingRegisterVO().getResDocNo().trim().isEmpty()) {
+            if(result.getBuildingRegisterVO().getCommAddrRoadName() == null || 
+               result.getBuildingRegisterVO().getCommAddrRoadName().trim().isEmpty()) {
                 log.warn("CODEF API 응답에 필수 데이터가 없음 (type={}): {}", type, normalizedAddress);
                 return null;
             }
@@ -81,8 +80,11 @@ public class BuildingRegisterService {
                 log.warn("주소 좌표 변환 실패 (type={}): {}", type, normalizedAddress);
             }
             
-            // DB 저장
+            // 건물 유형 설정 (일반 주택)
             result.getBuildingRegisterVO().setType("일반");
+            log.info("건물 유형 설정: 일반 (type={})", type);
+            
+            // DB 저장
             buildingRegisterPersistence.insertBuildingRegister(result);
             
             return result; // 성공 시 결과 반환
@@ -93,7 +95,7 @@ public class BuildingRegisterService {
         }
     }
     /** address = 정확한 도로명 주소, dong = (ex. 101동...) 동 이름이 존재한다면 넣고 없다면 null */
-    public void getBuildingRegisterSet(String address, String dong) {
+    public BuildingResponseDTO getBuildingRegisterSet(String address, String dong) {
         CodefUtil codef = new CodefUtil(id, password, publicKey);
         BuildingRequestDTO buildingRequestDTO = null;
         BuildingResponseDTO result = null;
@@ -110,14 +112,14 @@ public class BuildingRegisterService {
             }
         } catch (Exception e) {
             log.error("RSA 암호화 에러",e);
-            throw new RuntimeException("RSA 암호화 에러",e);
+            return null; // 예외를 던지지 않고 null 반환
         }
         String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
         try {
             result = codef.request(productUrl, buildingRequestDTO);
         } catch (Exception e) {
             log.error("CODEF 요청 에러",e);
-            throw new RuntimeException("CODEF 요청 에러",e);
+            return null; // 예외를 던지지 않고 null 반환
         }
         // DB 저장 전에 위/경도 변환
         if(result != null) {
@@ -129,10 +131,13 @@ public class BuildingRegisterService {
                 log.warn("주소 좌표 변환 실패: {}", address);
             }
         }
-        // DB 저장
-        if(result == null) return;
+        // 건물 유형 설정 (집합 주택)
         result.getBuildingRegisterVO().setType("집합");
+        log.info("건물 유형 설정: 집합 (address={})", address);
+        
         buildingRegisterPersistence.insertBuildingRegister(result);
+        
+        return result; // 결과 반환
     }
 
     // 토지 대장 요청할 때 지역명 안 맞는 문제로 호출 불가 -> 지역명 매칭
