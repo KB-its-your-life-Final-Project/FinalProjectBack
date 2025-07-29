@@ -37,7 +37,7 @@ class SafeReportServiceTest {
         dbData.setDealAmount(25000); // 예: 80% 비율 → ratioScore = 1
         dbData.setBuildYear(2015);   // 예: 9년차 → ageScore = 1
 
-        when(mockMapper.selectByCoord(lat, lng)).thenReturn(dbData);
+//        when(mockMapper.selectByCoord(lat, lng)).thenReturn(dbData);
 
         // when
         RentalRatioAndBuildyear result = service.generateSafeReport(dto);
@@ -57,7 +57,7 @@ class SafeReportServiceTest {
         dto.setLng(127.0);
         dto.setBudget(15000);
 
-        when(mockMapper.selectByCoord(37.0, 127.0)).thenReturn(null);
+//        when(mockMapper.selectByCoord(37.0, 127.0)).thenReturn(null);
 
         // when
         RentalRatioAndBuildyear result = service.generateSafeReport(dto);

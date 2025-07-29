@@ -1,5 +1,6 @@
 package com.lighthouse.transactions.vo;
 
+import com.lighthouse.transactions.entity.EstateApiIntegration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SingleHouseRentalVO {
-    private int sggCd;                // 지역코드
+    private int sggCd;               // 지역코드
     private String umdNm;            // 법정동
-    private String houseType;          // 주택유형(단독/다가구)
+    private String houseType;        // 주택유형(단독/다가구)
     private double totalFloorAr;     // 연면적
     private int dealYear;            // 계약년도
     private int dealMonth;           // 계약월
@@ -26,4 +27,23 @@ public class SingleHouseRentalVO {
     private String useRRRight;       // 갱신요구권사용
     private String preDeposit;       // 종전계약보증금
     private String preMonthlyRent;   // 종전계약월세
+
+    public static EstateApiIntegration toEstateApiIntegration(SingleHouseRentalVO entity) {
+        return EstateApiIntegration.builder()
+                .sggCd(entity.getSggCd())
+//                .sggNm(entity.getSggNm())
+                .umdNm(entity.getUmdNm())
+//                .jibun(entity.getJibun())
+//                .buildingName(entity.getBuildingName())
+//                .mhouseType(entity.getMhouseType())
+                .shouseType(entity.getHouseType())
+                .buildYear(entity.getBuildYear())
+                .buildingType(4)                        // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
+//                .sourceTable(entity.getSourceTable())
+//                .originalId(entity.getOriginalId())
+//                .jibunAddr(entity.getJibunAddr())
+//                .latitude(entity.getLatitude())
+//                .longitude(entity.getLongitude())
+                .build();
+    }
 }

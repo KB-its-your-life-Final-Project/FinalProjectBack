@@ -1,5 +1,7 @@
 package com.lighthouse.transactions.mapper;
 
+import com.lighthouse.transactions.entity.EstateApiIntegration;
+import com.lighthouse.transactions.entity.EstateApiIntegrationSales;
 import com.lighthouse.transactions.vo.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +28,9 @@ public interface TransactionMapper {
     void insertSingleHouseTradeBatch(@Param("list")List<SingleHouseTradeVO> singleHouseTradeList);
     void insertSingleHouseRentalBatch(@Param("list")List<SingleHouseRentalVO> singleHouseRentalList);
     void insertLawdCdBatch(@Param("list")List<LawdCdVO> lawdCdList);
+
+    // estate_api_integration
+    void insertEstateApiIntegrationBatch(List<EstateApiIntegration> integrationList);
+    // estate_api_integration_sales
+    void insetEstateApiIntegrationSales(EstateApiIntegrationSales item);
 }

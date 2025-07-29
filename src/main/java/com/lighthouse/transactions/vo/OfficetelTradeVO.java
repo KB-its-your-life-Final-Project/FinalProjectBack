@@ -1,5 +1,6 @@
 package com.lighthouse.transactions.vo;
 
+import com.lighthouse.transactions.entity.EstateApiIntegration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,4 +30,23 @@ public class OfficetelTradeVO {
     private String estateAgentSggNm;   // 중개사소재지(시군구 단위)
     private String slerGbn;            // 거래주체정보_매도자
     private String buyerGbn;           // 거래주체정보_매수자
+
+    public static EstateApiIntegration toEstateApiIntegration(OfficetelTradeVO entity) {
+        return EstateApiIntegration.builder()
+                .sggCd(entity.getSggCd())
+                .sggNm(entity.getSggNm())
+                .umdNm(entity.getUmdNm())
+                .jibun(entity.getJibun())
+                .buildingName(entity.getOffiNm())
+//                .mhouseType(entity.getMhouseType())
+//                .shouseType(entity.getShouseType())
+                .buildYear(entity.getBuildYear())
+                .buildingType(2)                         // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
+//                .sourceTable(entity.getSourceTable())
+//                .originalId(entity.getOriginalId())
+//                .jibunAddr(entity.getJibunAddr())
+//                .latitude(entity.getLatitude())
+//                .longitude(entity.getLongitude())
+                .build();
+    }
 }

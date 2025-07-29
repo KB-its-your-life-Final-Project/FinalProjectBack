@@ -84,6 +84,13 @@ class ApiServiceTest {
         int dealYmd = 202412;
         service.insertSingleHouseRental(lawdCd, dealYmd);
     }
+    @Test
+    @DisplayName("아파트 매매 estate_api_integration_tbl 삽입 테스트")
+    void insertApartmentTradesToEstateApiIntegrationTest() {
+        int lawdCd = 48310;
+        int dealYmd = 202412;
+        service.insertApartmentTradesToEstateApiIntegration(lawdCd, dealYmd);
+    }
 
     @Test
     @DisplayName("법정동코드 조회 테스트")

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.lighthouse.transactions.dto.TransactionApiDTO;
+import com.lighthouse.transactions.entity.EstateApiIntegration;
 import com.lighthouse.transactions.mapper.TransactionMapper;
 import com.lighthouse.transactions.vo.*;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,8 @@ public class ApiService {
                 log.warn("❌ {} API 실패 - 코드: {}, 메시지: {}", logPrefix, response.getHeader().getResultCode(), response.getHeader().getResultMsg());
                 return;
             }
-            handler.save(response.getBody().getItems());
+            handler.save(response.getBody().getItems()); // = mapper.insertApartmentTradeBatch(itemList);
+            log.info("{} 데이터 저장: {}", logPrefix, response.getBody().getItems());
         } catch (Exception e) {
             log.error("❌ {} 데이터 요청 실패", logPrefix, e);
         }
@@ -94,6 +96,29 @@ public class ApiService {
     public void insertSingleHouseRental(int lawdCd, int dealYmd) {
         insertCommon("/RTMSDataSvcSHRent/getRTMSDataSvcSHRent",
                 lawdCd, dealYmd, SingleHouseRentalVO.class, mapper::insertSingleHouseRentalBatch, "단독/다가구 전월세");
+    }
+
+    // estate_api_integration_tbl
+    public void insertApartmentTradesToEstateApiIntegration(int lawdCd, int dealYmd) {
+        insertToEstateIntegration("/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade",
+                lawdCd, dealYmd, ApartmentTradeVO.class,
+                ApartmentTradeVO::toEstateApiIntegration, "아파트 매매", 1, 1);
+    }
+
+    private <T> void insertToEstateIntegration(String endpoint, int lawdCd, int dealYmd, Class<T> clazz,
+                                               java.util.function.Function<T, EstateApiIntegration> mapperFunc,
+                                               String logPrefix, int sourceTableCode, int buildingType) {
+        insertCommon(endpoint, lawdCd, dealYmd, clazz,
+                list -> mapper.insertEstateApiIntegrationBatch(
+                        list.stream().map(vo -> {
+                            EstateApiIntegration e = mapperFunc.apply(vo);
+                            e.setSourceTable(sourceTableCode);
+                            e.setBuildingType(buildingType);
+                            return e;
+                        }).toList()
+                ),
+                logPrefix
+        );
     }
 
     private List<LawdCdVO> parseRowFromJson(String jsonResponse) {
