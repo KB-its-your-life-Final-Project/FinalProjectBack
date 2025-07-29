@@ -203,7 +203,7 @@ public class CodefUtil {
                         parameterMap.put("twoWayInfo", twoWayInfoMap);
                         
                         result = codef.requestCertification(productUrl, EasyCodefServiceType.DEMO, parameterMap);
-                        System.out.println("정확한 매칭 주소로 2차 인증 결과: " + result);
+                        System.out.println("정확한 매칭 주소로 2차 인증 결과: " );
                         
                         HashMap<String, Object> tryResponseMap = objectMapper.readValue(result, new TypeReference<>() {});
                         Object tryDataObj = tryResponseMap.get("data");
@@ -220,7 +220,7 @@ public class CodefUtil {
                             System.out.println("reqHo" + exactMatchResult.getBuildingRegisterVO().getReqHo());
                             return exactMatchResult;
                         } else {
-                            System.out.println("정확한 매칭 주소로도 실패: " + tryResultMap.get("message"));
+                            System.out.println("정확한 매칭 주소로도 실패: ");
                             throw new RuntimeException("해당 주소에 대한 건축물 정보를 찾을 수 없습니다.");
                         }
                     }

@@ -39,11 +39,11 @@ public class SafeReportController {
         }
 
         if (typeAndPurpose == null) {
-            log.warn("건물 정보 없음 (위반 여부/용도): lat={}, lng={}", dto.getLat(), dto.getLng());
+            log.warn("토지 대장 정보 없음 (위반 여부/용도): lat={}, lng={}", dto.getLat(), dto.getLng());
             return ResponseEntity.status(404)
                     .body(ApiResponse.error(ErrorCode.SAFEBUILDING_NOT_FOUND)); // 적절한 에러코드 사용
         }
-        SafeReportResponseDto responseDto = new SafeReportResponseDto(rentalRatioAndBuildyear, typeAndPurpose);
+        SafeReportResponseDto responseDto = new SafeReportResponseDto(rentalRatioAndBuildyear, null);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, responseDto));
 
     }

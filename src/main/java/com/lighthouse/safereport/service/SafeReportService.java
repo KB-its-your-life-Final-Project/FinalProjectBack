@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 
 @Slf4j
 @Service
@@ -24,7 +30,7 @@ public class SafeReportService {
     private final EstateMapper estateMapper;
     private final BuildingRegisterService buildingRegisterService;
 
-    // 건물의 건축연도 점수수, 깡통 전세 점수 계산
+    // 건물의 건축연도 점수, 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
         // 1단계: 위도/경도로 건물 정보 조회
         RealEstateDTO realEstate = estateMapper.getRealEstateByLocation(dto.getLat(), dto.getLng());
@@ -116,43 +122,54 @@ public class SafeReportService {
         result.setScore(ratioScore);
         return result;
     }
+
+    
     // 건출물 용도, 위반 여부 확인
     public BuildingTypeAndPurpose generateSafeBuilding(SafeReportRequestDto dto) {
+        String address = dto.getRoadAddress();
+
+        // 1단계: DB에서 기존 데이터 확인
         BuildingTypeAndPurpose safeBuilding = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
-        if(safeBuilding == null){
-            if(dto.getRoadAddress() != null && !dto.getRoadAddress().trim().isEmpty()){
-                try{
-                    // 1단계: type=1 (일반)으로 시도
-                    System.out.println("1단계 시도: type=1 (일반)");
-                    buildingRegisterService.getBuildingRegisterCommon(dto.getRoadAddress(), "1");
-                    safeBuilding = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
+        if(safeBuilding != null) {
+            return safeBuilding;
+        }
 
-                    if(safeBuilding == null){
-                        // 2단계: type=2 (집합)으로 시도
-                        System.out.println("1단계 실패, 2단계 시도: type=2 (집합)");
-                        buildingRegisterService.getBuildingRegisterCommon(dto.getRoadAddress(), "2");
-                        safeBuilding = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
-
-                        if(safeBuilding == null){
-                            log.warn("type=1, type=2 모두 실패: {}", dto.getRoadAddress());
-                            return new BuildingTypeAndPurpose("정보없음", "정보없음");
-                        } else {
-                            log.info("type=2 (집합)으로 성공: {}", dto.getRoadAddress());
-                        }
+        // 2단계: DB에 데이터가 없으면 토지대장 API 병렬로 호출(type=1(일반주택), type=2(집합주택))
+        if(address != null && !address.trim().isEmpty()) {
+            try {
+                log.info("토지대장 API 병렬 호출 시작: {}", address);
+                
+                // type=1과 type=2를 병렬로 호출
+                CompletableFuture<BuildingResponseDTO> type1Future = 
+                    CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "1"));
+                
+                CompletableFuture<BuildingResponseDTO> type2Future = 
+                    CompletableFuture.supplyAsync(() -> buildingRegisterService.getBuildingRegisterCommon(address, "2"));
+                
+                // 먼저 성공하는 결과 확인
+                BuildingResponseDTO firstSuccess = type1Future.applyToEither(type2Future, result -> result).get();
+                
+                if(firstSuccess != null) {
+                    log.info("토지대장 API 호출 성공: {}", address);
+                    
+                    // API 호출 성공 시 DB에서 데이터 조회
+                    BuildingTypeAndPurpose result = safereportmapper.getViolateAndPurpose(dto.getLat(), dto.getLng());
+                    if(result != null) {
+                        log.info("DB에서 데이터 조회 성공: {}", result);
+                        return result;
                     } else {
-                        log.info("type=1 (일반)으로 성공: {}", dto.getRoadAddress());
+                        log.warn("API 호출 성공했지만 DB에 데이터 없음: {}", address);
                     }
-                }catch(Exception e){
-                    log.error("API 호출 실패: {} - {}", dto.getRoadAddress(), e.getMessage());
-                    return new BuildingTypeAndPurpose("정보없음", "정보없음");
+                } else {
+                    log.warn("토지대장 API 호출 실패: {}", address);
                 }
-            }else{
-                log.warn("도로명 주소가 없어서 찾을 수 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
-                return new BuildingTypeAndPurpose("정보없음", "정보없음");
+
+            } catch (Exception e) {
+                log.error("토지대장 API 병렬 호출 실패: {} - {}", address, e.getMessage());
             }
         }
-        return safeBuilding;
+
+        log.warn("모든 시도 실패: {}", address);
+        return null;
     }
-
-
 }
