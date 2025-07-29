@@ -26,7 +26,8 @@ public enum ErrorCode implements ResponseCode{
     UNAUTHORIZED(1016, "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
 
     // SafeReport
-    SAFEREPORT_NOT_FOUND(2001, "해당 위도/경도에 대한 건물 데이터가 없습니다.", HttpStatus.NOT_FOUND);
+    BUILDINGINFO_NOT_FOUND(2001,"건물 건축 년도 또는 거래 금액 정보가 없습니다.", HttpStatus.NOT_FOUND),
+    SAFEBUILDING_NOT_FOUND(2001, "건물 위반 정보 또는 용도 정보가 없습니다.", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

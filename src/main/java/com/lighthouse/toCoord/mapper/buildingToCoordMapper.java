@@ -1,10 +1,10 @@
-package com.batch.toCoord.mapper;
+package com.lighthouse.toCoord.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface toCoordMapper {
+public interface buildingToCoordMapper {
     // 지번 주소만 조회
     List<String> selectAlljibunAddr();
 
