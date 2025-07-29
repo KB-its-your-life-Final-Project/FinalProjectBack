@@ -2,6 +2,8 @@
 
 package com.lighthouse.transactions.controller;
 
+import com.lighthouse.transactions.dto.TransactionRequestDTO;
+import com.lighthouse.transactions.dto.TransactionResponseDTO;
 import com.lighthouse.transactions.service.TransactionDetailService;
 
 import com.lighthouse.transactions.vo.TransactionGraphVO;
@@ -16,14 +18,13 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionDetailController {
-    @Autowired
     private final TransactionDetailService transactionDetailService;
 
-    @GetMapping
-    public List<TransactionGraphVO> transactionGraph() {
 
-        return transactionDetailService.transactionGraph();
+    @PostMapping("/")
+    public List<TransactionResponseDTO> getFilteredData(@RequestBody TransactionRequestDTO request) {
 
+        return transactionDetailService.getFilteredTransactions(request);
 
     }
 }

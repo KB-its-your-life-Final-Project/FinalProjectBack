@@ -8,5 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/transactions")
 @Slf4j
 public class TransactionsController {
+//전체 데이터를 불러올 때
 
 }

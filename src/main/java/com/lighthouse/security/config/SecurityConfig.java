@@ -43,7 +43,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    // autowired를 쓴 이유? 생성자 주입으로 한다면 상호 참조가 되어 에러.
     @Autowired
     private JwtUsernamePasswordAuthenticationFilter jwtUsernamePasswordAuthenticationFilter;
 
@@ -56,7 +55,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
-
 
     @Bean
     public CorsFilter corsFilter() {

@@ -3,7 +3,41 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <!-- Mybatis 관련 설정 작성하기 * 아래 순서 중요, 바뀌면 안됨! -->
+    <!-- Mybatis 관련 설정 작성하기 * 아래 순서 중요, 바뀌면 안됨! -->    
+    <properties>
+        <property name="ALARM_TBL" value="alarm_tbl"/>
+        <property name="ALL_REAL_ESTATE" value="all_real_estate"/>
+        <property name="ALL_REAL_ESTATE_SALES" value="all_real_estate_sales"/>
+        <property name="API_BUILDING_REGISTER" value="api_building_register"/>
+        <property name="API_BUILDING_REGISTER_AUTH_STATUS" value="api_building_register_auth_status"/>
+        <property name="API_BUILDING_REGISTER_BUILDING_STATUS" value="api_building_register_building_status"/>
+        <property name="API_BUILDING_REGISTER_CHANGE" value="api_building_register_change"/>
+        <property name="API_BUILDING_REGISTER_DETAIL" value="api_building_register_detail"/>
+        <property name="API_BUILDING_REGISTER_LICENSE_CLASS" value="api_building_register_license_class"/>
+        <property name="API_BUILDING_REGISTER_OWNER" value="api_building_register_owner"/>
+        <property name="API_BUILDING_REGISTER_PARKING_LOT_STATUS" value="api_building_register_parking_lot_status"/>
+        <property name="API_LAWD_CD" value="api_lawd_cd"/>
+        <property name="BUILDING_REGISTRY" value="building_registry"/>
+        <property name="BUILDING_REGISTRY_USE_FOR" value="building_registry_use_for"/>
+        <property name="ESTATE_API_INTEGRATION_SALES_TBL" value="estate_api_integration_sales_tbl"/>
+        <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl"/>
+        <property name="KMA_GRID" value="kma_grid"/>
+        <property name="LEGAL_DICTIONARY_SELECT_TBL" value="legal_dictionary_select_tbl"/>
+        <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
+        <property name="LIKE_UMD_NM_TBL" value="like_umd_nm_tbl"/>
+        <property name="LOCATHIGH_CD" value="locathigh_cd"/>
+        <property name="MEMBER_HISTORY_TBL" value="member_history_tbl"/>
+        <property name="MEMBER_TBL" value="member_tbl"/>
+        <property name="MEMBER_TOKEN_TBL" value="member_token_tbl"/>
+        <property name="MYHOME_TBL" value="myhome_tbl"/>
+        <property name="RECENT_APT_SEARCH_TBL" value="recent_apt_search_tbl"/>
+        <property name="SAFE_REPORT_TBL" value="safe_report_tbl"/>
+        <property name="SAFE_REPORT_UNIFIED" value="safe_report_unified"/>
+        <property name="TBL_MEMBER" value="tbl_member"/>
+        <property name="TBL_MEMBER_AUTH" value="tbl_member_auth"/>
+        <property name="WEATHER" value="weather"/>
+    </properties>
+
     <!-- SqlSessionTemplate 관련 설정 -->
     <settings>
         <!-- snake 표기 -> camel 표기 자동 변환 -->
@@ -14,6 +48,8 @@
         <package name="com.lighthouse.member.vo" />
         <package name="com.lighthouse.security.vo" />
         <package name="com.lighthouse.transactions.vo" />
-        <package name="com.lighthouse.buildingRegister.vo "/>
+        <package name="com.lighthouse.buildingRegister.vo" />
+        <package name="com.lighthouse.safereport.vo" />
+        <package name="com.lighthouse.toCoord.vo" />
     </typeAliases>
 </configuration>
