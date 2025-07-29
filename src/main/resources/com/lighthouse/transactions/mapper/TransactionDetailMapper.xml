@@ -17,8 +17,8 @@
             s.monthly_rent AS monthlyRent,
             s.trade_type AS tradeType,
             e.building_name AS buildingName
-        FROM all_real_estate_sales s
-                 JOIN all_real_estate e ON s.estate_id = e.id
+        FROM estate_api_integration_sales_tbl s
+                 JOIN estate_api_integration_tbl e ON s.estate_id = e.id
     </select>
 
 </mapper>
