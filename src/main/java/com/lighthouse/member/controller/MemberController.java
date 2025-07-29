@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -105,7 +106,7 @@ public class  MemberController {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
         }
         // 비밀번호1과 비밀번호2 일치 여부 검사
-        if (registerDto.getPassword1() != registerDto.getPassword2()) {
+        if (!Objects.equals(registerDto.getPassword1(), registerDto.getPassword2())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));
         }
         try {

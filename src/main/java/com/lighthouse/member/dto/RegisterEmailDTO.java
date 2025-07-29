@@ -12,7 +12,7 @@ import com.lighthouse.member.entity.Member;
 @Builder
 public class RegisterEmailDTO {
     private String email;
-    private String verificationCode;
+//    private String verificationCode;
     private String name;
     private String password1;
     private String password2;
