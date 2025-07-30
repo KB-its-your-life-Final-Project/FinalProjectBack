@@ -23,10 +23,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import static com.lighthouse.transactions.util.ParseUtil.getEstateParams;
+import static com.lighthouse.transactions.util.ParseUtil.parseRowFromJson;
 
 
 @Service
@@ -115,32 +117,32 @@ public class ApiService {
                 lawdCd, dealYmd, SingleHouseRentalVO.class, mapper::insertSingleHouseRentalBatch, "단독/다가구 전월세");
     }
 
-    // estate_api_integration_tbl
-    private <T extends JibunAddressProvider> void insertEstateApiIntegrationCommon(
+    // estate_api_integration_tbl, estate_api_integration_sales_tbl
+    private <T> void insertEstateApiIntegrationCommon(
             String endpoint, int lawdCd, int dealYmd, Class<T> clazz,
             BiFunction<T, AddressUtil, EstateApiIntegration> mapperFunc,
             Function<T, EstateApiIntegrationSales> salesMapperFunc,
             String logPrefix) {
         insertCommon(endpoint, lawdCd, dealYmd, clazz, voList -> {
-                    List<EstateApiIntegration> integrationList = voList.stream()
-                            .map(vo -> mapperFunc.apply(vo, addrUtils))
-                            .toList();
-
-                    List<EstateApiIntegrationSales> integrationSalesList = voList.stream()
-                            .map(vo -> {
-                                String jibunAddr = vo.getJibunAddr();
-                                // findIdByJibunAddr 호출하여 id 조회
-                                int estateId = mapper.findIdByJibunAddr(jibunAddr);
-                                EstateApiIntegrationSales salesEntity = salesMapperFunc.apply(vo);
-                                salesEntity.setEstateId(estateId);
-                                return salesEntity;
-                            })
-                            .toList();
-                    mapper.insertEstateApiIntegrationBatch(integrationList);
-                    mapper.insertEstateApiIntegrationSalesBatch(integrationSalesList);
-                },
-                logPrefix
-        );
+            Set<EstateApiIntegration> integrationSet = new HashSet<>();
+            Set<EstateApiIntegrationSales> salesSet = new HashSet<>();
+            // estate_api_integration_tbl 삽입
+            for (T vo : voList) {
+                EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
+                integrationSet.add(estate);
+            }
+            mapper.insertEstateApiIntegrationBatch(new ArrayList<>(integrationSet));
+            // estate_api_integration_sales_tbl 삽입
+            for (T vo : voList) {
+                EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
+                EstateApiIntegrationSales salesEstate = salesMapperFunc.apply(vo);
+                // estateId 추출
+                int estateId = mapper.findIdByUniqueCombination(getEstateParams(estate));
+                salesEstate.setEstateId(estateId);
+                salesSet.add(salesEstate);
+            }
+            mapper.insertEstateApiIntegrationSalesBatch(new ArrayList<>(salesSet));
+        }, logPrefix);
     }
 
     @Transactional
@@ -213,27 +215,6 @@ public class ApiService {
                 SingleHouseRentalVO::toEstateApiIntegration,
                 SingleHouseRentalVO::toEstateApiIntegrationSales,
                 "단독/다가구 전월세");
-    }
-
-    private List<LawdCdVO> parseRowFromJson(String jsonResponse) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-
-            JsonNode root = objectMapper.readTree(jsonResponse);
-            JsonNode rows = root.path("StanReginCd").get(1).path("row");
-
-            if (rows.isMissingNode() || !rows.isArray()) {
-                return Collections.emptyList();
-            }
-
-            return objectMapper.readValue(rows.toString(), new TypeReference<>() {
-            });
-
-        } catch (Exception e) {
-            log.error("❌ JSON 파싱 실패", e);
-            return Collections.emptyList();
-        }
     }
 
     public void insertLawdCd(int pageNo, int numOfRows) {

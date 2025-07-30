@@ -338,10 +338,14 @@
         </foreach>
     </insert>
 
-    <select id="findIdByJibunAddr" parameterType="string">
+    <select id="findIdByUniqueCombination" parameterType="map" resultType="java.lang.Integer">
         SELECT id
         FROM estate_api_integration_tbl
-        WHERE jibun_addr = #{jibunAddr}
+        WHERE mhouse_type = #{mhouseType}
+          AND shouse_type = #{shouseType}
+          AND build_year = #{buildYear}
+          AND building_type = #{buildingType}
+          AND jibun_addr = #{jibunAddr}
     </select>
 
     <insert id="insertEstateApiIntegrationBatch" parameterType="list">

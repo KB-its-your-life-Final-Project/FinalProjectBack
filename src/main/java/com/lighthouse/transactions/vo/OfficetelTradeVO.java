@@ -48,8 +48,8 @@ public class OfficetelTradeVO {
                 .umdNm(entity.getUmdNm())
                 .jibun(entity.getJibun())
                 .buildingName(entity.getOffiNm())
-//                .mhouseType(entity.getMhouseType())
-//                .shouseType(entity.getShouseType())
+                .mhouseType("")
+                .shouseType("")
                 .buildYear(entity.getBuildYear())
                 .buildingType(2)                         // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
                 .sourceApi(3) // 1: api_apartment_trade, 2: api_apartment_rental, 3: api_officetel_trade, 4: api_officetel_rental, 5: api_multihouse_trade, 6: api_multihouse_rental, 7: api_singlehouse_trade, 8: api_singlehouse_rental
@@ -61,7 +61,7 @@ public class OfficetelTradeVO {
 
     public static EstateApiIntegrationSales toEstateApiIntegrationSales(OfficetelTradeVO entity) {
         return EstateApiIntegrationSales.builder()
-//                .estateId()                       // mapper.xml 단에서 처리 필요 (estate_api_integration_tbl의 id)
+//                .estateId()                       // Service 단에서 처리 (estate_api_integration_tbl의 id)
                 .dealYear(entity.getDealYear())
                 .dealMonth(entity.getDealMonth())
                 .dealDay(entity.getDealDay())

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * 부동산 거래 내역 통합 테이블
  */
@@ -22,4 +24,24 @@ public class EstateApiIntegrationSales {
     private int deposit;        // 보증 금액 (만원)
     private int monthlyRent;    // 월세 금액 (만원)
     private int tradeType;      // 거래 유형 (1: 매매, 2: 전월세)
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EstateApiIntegrationSales that = (EstateApiIntegrationSales) o;
+        return estateId == that.estateId &&
+                dealYear == that.dealYear &&
+                dealMonth == that.dealMonth &&
+                dealDay == that.dealDay &&
+                dealAmount == that.dealAmount &&
+                deposit == that.deposit &&
+                monthlyRent == that.monthlyRent &&
+                tradeType == that.tradeType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(estateId, dealYear, dealMonth, dealDay, dealAmount, deposit, monthlyRent, tradeType);
+    }
 }

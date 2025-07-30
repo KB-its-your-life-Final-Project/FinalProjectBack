@@ -80,12 +80,12 @@ class ApiServiceTest {
         service.insertSingleHouseRental(lawdCd, dealYmd);
     }
 
-    // estate_api_integration_tbl 삽입 테스트
+    // estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트
     @Test
     @DisplayName("아파트 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
     void insertAptTradesToEstApiIntgTest() {
         int lawdCd = 48310;
-        int dealYmd = 202502;
+        int dealYmd = 202501;
         service.insertAptTradesToEstApiIntg(lawdCd, dealYmd);
     }
     @Test
@@ -127,14 +127,14 @@ class ApiServiceTest {
     @DisplayName("단독/다가구 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
     void insertSHTradesToEstApiIntgTest() {
         int lawdCd = 48310;
-        int dealYmd = 202502;
+        int dealYmd = 202505;
         service.insertSHTradesToEstApiIntg(lawdCd, dealYmd);
     }
     @Test
     @DisplayName("단독/다가구 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
     void insertSHRentalsToEstApiIntgTest() {
         int lawdCd = 48310;
-        int dealYmd = 202502;
+        int dealYmd = 202411;
         service.insertSHRentalsToEstApiIntg(lawdCd, dealYmd);
     }
 

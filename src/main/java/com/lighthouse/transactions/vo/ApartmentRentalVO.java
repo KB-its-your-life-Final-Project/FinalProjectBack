@@ -19,7 +19,7 @@ import static com.lighthouse.transactions.util.ParseUtil.safeParseInt;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public abstract class ApartmentRentalVO implements JibunAddressProvider{
+public class ApartmentRentalVO {
     private int sggCd;                // 지역코드
     private String umdNm;             // 법정동
     private String aptNm;             // 단지명
@@ -38,24 +38,19 @@ public abstract class ApartmentRentalVO implements JibunAddressProvider{
     private String preDeposit;        // 종전계약 보증금
     private String preMonthlyRent;    // 종전계약 월세
 
-    @Override
-    public String getJibunAddr() {
-        return AddressUtil.getJibunAddr(this.getUmdNm(), this.getJibun());
-    }
-
     public static EstateApiIntegration toEstateApiIntegration(ApartmentRentalVO entity, AddressUtil addrUtils) {
-        String jibunAddr = entity.getJibunAddr();
+        String jibunAddr = AddressUtil.getJibunAddr(entity.getUmdNm(), entity.getJibun());
         Map<String, Double> latLngMap = addrUtils.getLatLng(jibunAddr);
         double lat = latLngMap.getOrDefault("lat", 0.0);
         double lng = latLngMap.getOrDefault("lng", 0.0);
         return EstateApiIntegration.builder()
                 .sggCd(entity.getSggCd())
-//                .sggNm(entity.getSggNm())
+                .sggNm("")
                 .umdNm(entity.getUmdNm())
                 .jibun(entity.getJibun())
                 .buildingName(entity.getAptNm())
-//                .mhouseType(entity.getMhouseType())
-//                .shouseType(entity.getShouseType())
+                .mhouseType("")
+                .shouseType("")
                 .buildYear(entity.getBuildYear())
                 .buildingType(1) // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
                 .sourceApi(2) // 1: api_apartment_trade, 2: api_apartment_rental, 3: api_officetel_trade, 4: api_officetel_rental, 5: api_multihouse_trade, 6: api_multihouse_rental, 7: api_singlehouse_trade, 8: api_singlehouse_rental
@@ -67,7 +62,7 @@ public abstract class ApartmentRentalVO implements JibunAddressProvider{
 
     public static EstateApiIntegrationSales toEstateApiIntegrationSales(ApartmentRentalVO entity) {
         return EstateApiIntegrationSales.builder()
-//                .estateId()                       // mapper.xml 단에서 처리 필요 (estate_api_integration_tbl의 id)
+//                .estateId()                       // Service 단에서 처리 (estate_api_integration_tbl의 id)
                 .dealYear(entity.getDealYear())
                 .dealMonth(entity.getDealMonth())
                 .dealDay(entity.getDealDay())

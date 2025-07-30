@@ -45,11 +45,11 @@ public class SingleHouseTradeVO {
         double lng = latLngMap.getOrDefault("lng", 0.0);
         return EstateApiIntegration.builder()
                 .sggCd(entity.getSggCd())
-//                .sggNm(entity.getSggNm())
+                .sggNm("")
                 .umdNm(entity.getUmdNm())
                 .jibun(entity.getJibun())
-//                .buildingName(entity.getBuildingName())
-//                .mhouseType(entity.getMhouseType())
+                .buildingName("")
+                .mhouseType("")
                 .shouseType(entity.getHouseType())
                 .buildYear(entity.getBuildYear())
                 .buildingType(4)                        // 건물 유형 (1: 아파트, 2: 오피스텔, 3: 연립, 4: 단독)
@@ -62,7 +62,7 @@ public class SingleHouseTradeVO {
 
     public static EstateApiIntegrationSales toEstateApiIntegrationSales(SingleHouseTradeVO entity) {
         return EstateApiIntegrationSales.builder()
-//                .estateId()                       // mapper.xml 단에서 처리 필요 (estate_api_integration_tbl의 id)
+//                .estateId()                       // Service 단에서 처리 (estate_api_integration_tbl의 id)
                 .dealYear(entity.getDealYear())
                 .dealMonth(entity.getDealMonth())
                 .dealDay(entity.getDealDay())
