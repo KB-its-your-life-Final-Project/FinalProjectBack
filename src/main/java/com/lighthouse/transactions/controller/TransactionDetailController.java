@@ -21,11 +21,9 @@ import java.util.List;
 public class TransactionDetailController {
     private final TransactionDetailService transactionDetailService;
 
-
     @PostMapping("/detail")
     public List<TransactionResponseDTO> getFilteredData(@RequestBody TransactionRequestDTO request) {
         log.info("요청 들어옴: {}", request);
         return transactionDetailService.getFilteredTransactions(request);
-
     }
 }
