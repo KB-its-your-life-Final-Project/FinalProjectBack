@@ -116,9 +116,11 @@ public class BuildingRegisterService {
         }
         String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
         try {
+            log.info("CODEF API 호출 시작: {}", productUrl);
             result = codef.request(productUrl, buildingRequestDTO);
+            log.info("CODEF API 호출 완료: {}", productUrl);
         } catch (Exception e) {
-            log.error("CODEF 요청 에러",e);
+            log.error("CODEF 요청 에러: {}", e.getMessage(), e);
             return null; // 예외를 던지지 않고 null 반환
         }
         // DB 저장 전에 위/경도 변환
@@ -132,10 +134,14 @@ public class BuildingRegisterService {
             }
         }
         // 건물 유형 설정 (집합 주택)
-        result.getBuildingRegisterVO().setType("집합");
-        log.info("건물 유형 설정: 집합 (address={})", address);
-        
-        buildingRegisterPersistence.insertBuildingRegister(result);
+        if(result != null && result.getBuildingRegisterVO() != null) {
+            result.getBuildingRegisterVO().setType("집합");
+            log.info("건물 유형 설정: 집합 (address={})", address);
+            
+            buildingRegisterPersistence.insertBuildingRegister(result);
+        } else {
+            log.warn("집합건축물 대장 조회 결과가 null입니다: {}", address);
+        }
         
         return result; // 결과 반환
     }
