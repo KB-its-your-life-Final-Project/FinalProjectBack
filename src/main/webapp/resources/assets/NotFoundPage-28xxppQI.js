@@ -1,0 +1,1 @@
+import{_ as o,c as t,o as s,a}from"./index-Cr3oa366.js";const n={},c={class:"NotFoundPage"};function r(_,e){return s(),t("div",c,e[0]||(e[0]=[a("h1",null,"요청하신 주소가 유효하지 않습니다.",-1)]))}const f=o(n,[["render",r],["__scopeId","data-v-51280f13"]]);export{f as default};

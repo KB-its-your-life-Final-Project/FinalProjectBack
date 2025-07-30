@@ -1,0 +1,58 @@
+[1mdiff --git a/src/main/java/com/lighthouse/member/util/ClientIpUtils.java b/src/main/java/com/lighthouse/member/util/ClientIpUtils.java[m
+[1mindex 89ccdc8..89bc351 100644[m
+[1m--- a/src/main/java/com/lighthouse/member/util/ClientIpUtils.java[m
+[1m+++ b/src/main/java/com/lighthouse/member/util/ClientIpUtils.java[m
+[36m@@ -1,7 +1,6 @@[m
+ package com.lighthouse.member.util;[m
+ [m
+ import lombok.extern.slf4j.Slf4j;[m
+[31m-[m
+ import javax.servlet.http.HttpServletRequest;[m
+ [m
+ @Slf4j[m
+[36m@@ -14,28 +13,23 @@[m [mpublic class ClientIpUtils {[m
+         // Proxy / Load Balancer를 통해 전달된 경우[m
+         String ip = req.getHeader("X-Forwarded-For");[m
+         log.info("X-Forwarded-For: {}", ip);[m
+[31m-        if (isValidIp(ip)) {[m
+[32m+[m[32m        if (ValidateUtils.isValidIp(ip)) {[m
+             return ip.split(",")[0].trim();[m
+         }[m
+ [m
+         // 일부 Proxy 서버의 헤더[m
+         ip = req.getHeader("Proxy-Client-IP");[m
+         log.info("Proxy-Client-IP: {}", ip);[m
+[31m-        if (isValidIp(ip)) { return ip; }[m
+[32m+[m[32m        if (ValidateUtils.isValidIp(ip)) { return ip; }[m
+ [m
+         // WebLogic 같은 WAS 환경의 헤더[m
+         ip = req.getHeader("WL-Proxy-Client-IP");[m
+         log.info("WL-Proxy-Client-IP: {}", ip);[m
+[31m-        if (isValidIp(ip)) { return ip; }[m
+[32m+[m[32m        if (ValidateUtils.isValidIp(ip)) { return ip; }[m
+ [m
+         // 위 헤더들이 없을 경우 기본 remote 주소에서 추출[m
+         ip = req.getRemoteAddr();[m
+         log.info("RemoteAddr: {}", ip);[m
+         return ip;[m
+     }[m
+[31m-[m
+[31m-    // IP 유효성 검사 함수[m
+[31m-    private static boolean isValidIp (String ip) {[m
+[31m-        return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);[m
+[31m-    }[m
+ }[m
+[1mdiff --git a/src/main/java/com/lighthouse/member/util/ValidateUtils.java b/src/main/java/com/lighthouse/member/util/ValidateUtils.java[m
+[1mindex b14a7a5..3cfda5a 100644[m
+[1m--- a/src/main/java/com/lighthouse/member/util/ValidateUtils.java[m
+[1m+++ b/src/main/java/com/lighthouse/member/util/ValidateUtils.java[m
+[36m@@ -20,4 +20,9 @@[m [mpublic class ValidateUtils {[m
+     public static boolean isValidPasswordFormat(String password) {[m
+         return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$");[m
+     }[m
+[32m+[m
+[32m+[m[32m    // IP 유효성 검사[m
+[32m+[m[32m    public static boolean isValidIp(String ip) {[m
+[32m+[m[32m        return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);[m
+[32m+[m[32m    }[m
+ }[m

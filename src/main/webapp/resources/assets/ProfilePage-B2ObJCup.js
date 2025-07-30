@@ -1,0 +1,1 @@
+import{_ as o,c as a,o as s,a as c}from"./index-Cr3oa366.js";const t={},r={class:"profilePage"};function n(_,e){return s(),a("div",r,e[0]||(e[0]=[c("h1",null,"프로필 화면",-1)]))}const l=o(t,[["render",n],["__scopeId","data-v-859c1dac"]]);export{l as default};

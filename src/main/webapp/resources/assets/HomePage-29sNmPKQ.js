@@ -1,0 +1,1 @@
+import{_ as o,c as a,o as s,a as t}from"./index-Cr3oa366.js";const c={},n={class:"HomePage"};function r(_,e){return s(),a("div",n,e[0]||(e[0]=[t("h1",null,"홈 화면",-1)]))}const l=o(c,[["render",r],["__scopeId","data-v-6a9cb10d"]]);export{l as default};

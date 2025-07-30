@@ -10,19 +10,22 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.lighthouse")
 @ComponentScan(
-        basePackages = "com.lighthouse",
+        basePackages = {"com.lighthouse"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
+//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
         }
 )
 public class RootConfig {
@@ -71,11 +74,9 @@ public class RootConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
         sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
+        sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:/com/lighthouse/**/*.xml"));
         sqlSessionFactory.setDataSource(dataSource());
 
-        // MyBatis 설정 파일 경로
-        sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
-        
         // Mapper XML 파일 위치 추가
         sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:com/lighthouse/**/mapper/*.xml"));
 
@@ -86,5 +87,25 @@ public class RootConfig {
         return new DataSourceTransactionManager(dataSource());
     }
 
+    @Value("${MAIL_HOST}") String mailHost;
+    @Value("${MAIL_PORT}") int mailPort;
+    @Value("${MAIL_USERNAME}") String mailUsername;
+    @Value("${MAIL_APP_PASSWORD}") String mailAppPassword;
+    @Value("${MAIL_SSL_TRUST}") String mailSmtpSslTrust;
 
+    @Bean
+    public JavaMailSender mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailAppPassword);
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.trust", mailSmtpSslTrust);
+
+        return mailSender;
+    }
 }

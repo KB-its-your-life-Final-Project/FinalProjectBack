@@ -1,0 +1,14 @@
+package com.lighthouse.safereport.dto;
+
+import lombok.Data;
+
+@Data
+public class SafeReportRequestDto {
+    private String buildingName;
+    private String roadAddress;
+    private String jibunAddress;
+    private String dongName;
+    private double lat;
+    private double lng;
+    private Integer budget;
+}

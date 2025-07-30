@@ -1,12 +1,27 @@
 package com.lighthouse.member.mapper;
 
-import com.lighthouse.member.dto.MemberDTO;
-import com.lighthouse.member.vo.MemberVO;
+import com.lighthouse.member.entity.Member;
 
 import java.util.List;
 
 public interface MemberMapper {
-    MemberVO findById(Number id);
+    List<Member> findAllMembers(); // 모든 사용자 조회
 
-    List<MemberVO> findAll();
+    Member findMemberById(int id); // 아이디로 사용자 조회
+
+    Member findMemberByEmail(String email); //  이메일로 사용자 조회
+
+    Member findMemberByKakaoId(String kakaoId); // 카카오 회원ID로 사용자 조회
+
+    Member findMemberByGoogleId(String googleId); // 구글 ID로 사용자 조회
+
+    Boolean existsByEmail(String email); // 이메일로 사용자 존재 여부 확인
+
+    Boolean existsByKakaoId(String kakaoId); // 카카오 회원ID로 사용자 존재 여부 확인
+
+    Boolean existsByGoogleId(String googleId); // 구글ID로 사용자 존재 여부 확인
+
+    int insertMember(Member member); // 사용자 정보 추가
+
+    int updateMember(Member member); // 사용자 정보 수정
 }
