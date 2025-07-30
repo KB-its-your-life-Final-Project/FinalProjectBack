@@ -14,14 +14,14 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtCookieManager {
-    private final JwtProcessor jwtProcessor;
+    private final JwtUtil jwtUtil;
 
-    public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject, int createdType) {
+    public TokenDTO setTokensToCookies(HttpServletResponse resp, int subject) {
         log.info("JwtCookieManager.setTokensToCookies 실행  ======");
 
         // Access Token, Refresh Token 생성
-        String accessToken = jwtProcessor.generateAccessToken(subject, createdType);
-        String refreshToken = jwtProcessor.generateRefreshToken(subject, createdType);
+        String accessToken = jwtUtil.generateAccessToken(subject);
+        String refreshToken = jwtUtil.generateRefreshToken(subject);
         log.info("JwtCookieManager: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)
@@ -58,8 +58,8 @@ public class JwtCookieManager {
         log.info("JwtCookieManager: 응답 객체 resp: " + resp);
 
         // 발급 시간과 만료 시간 추출
-        Date createdAt = jwtProcessor.getIssuedAt(refreshToken);
-        Date expiresAt = jwtProcessor.getExpiration(refreshToken);
+        Date createdAt = jwtUtil.getIssuedAt(refreshToken);
+        Date expiresAt = jwtUtil.getExpiration(refreshToken);
 
         log.info("RefreshToken createdAt: {}", createdAt);
         log.info("RefreshToken expiresAt: {}", expiresAt);

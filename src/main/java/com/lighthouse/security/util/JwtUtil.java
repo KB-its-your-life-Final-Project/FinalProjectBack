@@ -1,7 +1,5 @@
 package com.lighthouse.security.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +10,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-public class JwtProcessor {
+public class JwtUtil {
     static private final long ACCESS_TOKEN_VALID_MILLISECOND = 1000L * 60 * 10;             // 10분
     static private final long REFRESH_TOKEN_VALID_MILLISECOND = 1000L * 60 * 60 * 24 * 14;  // 2주
 
@@ -25,22 +23,21 @@ public class JwtProcessor {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String subject, int createdType, long validTime) {
+    public String generateToken(int subject, long validTime) {
         return Jwts.builder()
-                .setSubject(subject)
-                .claim("createdType", createdType)  // 추가 데이터: 회원 가입 유형
+                .setSubject(String.valueOf(subject))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + validTime))
                 .signWith(key)
                 .compact();
     }
 
-    public String generateAccessToken(String subject, int createdType) {
-        return generateToken(subject, createdType, ACCESS_TOKEN_VALID_MILLISECOND);
+    public String generateAccessToken(int subject) {
+        return generateToken(subject, ACCESS_TOKEN_VALID_MILLISECOND);
     }
 
-    public String generateRefreshToken(String subject, int createdType) {
-        return generateToken(subject, createdType, REFRESH_TOKEN_VALID_MILLISECOND);
+    public String generateRefreshToken(int subject) {
+        return generateToken(subject, REFRESH_TOKEN_VALID_MILLISECOND);
     }
 
     // JWT Subject(Member) 추출- 해석 불가인 경우 예외 발생
