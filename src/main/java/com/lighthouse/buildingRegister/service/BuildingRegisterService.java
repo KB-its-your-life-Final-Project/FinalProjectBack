@@ -51,10 +51,21 @@ public class BuildingRegisterService {
             String productUrl = "/v1/kr/public/lt/eais/general-buildings";
             
             try {
+                log.info("CODEF API 호출 시작: {}", productUrl);
+                log.info("요청 파라미터: address={}, userId={}, type={}", buildingRequestDTO.getAddress(), buildingRequestDTO.getUserId(), type);
+                
+                long startTime = System.currentTimeMillis();
                 result = codef.request(productUrl, buildingRequestDTO);
+                long endTime = System.currentTimeMillis();
+                
+                log.info("CODEF API 호출 완료 (소요시간: {}ms): {}", (endTime - startTime), productUrl);
                 log.info("CODEF API 호출 성공 (type={}): {}", type, normalizedAddress);
             } catch (Exception e) {
-                log.error("CODEF 요청 에러 (type={}): {}", type, e.getMessage());
+                if (e.getMessage() != null && e.getMessage().contains("타임아웃")) {
+                    log.warn("CODEF API 타임아웃 (type={}): {} - {}", type, normalizedAddress, e.getMessage());
+                } else {
+                    log.error("CODEF 요청 에러 (type={}): {} - {}", type, normalizedAddress, e.getMessage(), e);
+                }
                 return null; // 예외를 던지지 않고 null 반환
             }
             
@@ -117,10 +128,19 @@ public class BuildingRegisterService {
         String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
         try {
             log.info("CODEF API 호출 시작: {}", productUrl);
+            log.info("요청 파라미터: address={}, userId={}", buildingRequestDTO.getAddress(), buildingRequestDTO.getUserId());
+            
+            long startTime = System.currentTimeMillis();
             result = codef.request(productUrl, buildingRequestDTO);
-            log.info("CODEF API 호출 완료: {}", productUrl);
+            long endTime = System.currentTimeMillis();
+            
+            log.info("CODEF API 호출 완료 (소요시간: {}ms): {}", (endTime - startTime), productUrl);
         } catch (Exception e) {
-            log.error("CODEF 요청 에러: {}", e.getMessage(), e);
+            if (e.getMessage() != null && e.getMessage().contains("타임아웃")) {
+                log.warn("CODEF API 타임아웃: {} - {}", address, e.getMessage());
+            } else {
+                log.error("CODEF 요청 에러: {} - {}", address, e.getMessage(), e);
+            }
             return null; // 예외를 던지지 않고 null 반환
         }
         // DB 저장 전에 위/경도 변환
