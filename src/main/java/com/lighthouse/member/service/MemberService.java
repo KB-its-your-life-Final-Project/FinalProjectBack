@@ -8,7 +8,7 @@ import com.lighthouse.member.util.ValidateUtils;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
 import com.lighthouse.security.mapper.MemberTokenMapper;
-import com.lighthouse.security.util.JwtCookieManager;
+import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.service.TokenService;
 import com.lighthouse.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class MemberService {
     private final KakaoUserClient kakaoUserClient;
     private final GoogleTokenClient googleTokenClient;
     private final GoogleUserClient googleUserClient;
-    private final JwtCookieManager jwtCookieManager;
+    private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
 
@@ -86,7 +86,7 @@ public class MemberService {
     public MemberDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
         // accessToken 검증
-        String accessToken = jwtCookieManager.getAccessTokenFromRequest(req);
+        String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
         if (accessToken != null) {
             String subject = jwtUtil.getSubjectFromToken(accessToken);
             log.info("request에서 추출된 accessToken: {}", accessToken);
@@ -98,7 +98,7 @@ public class MemberService {
         }
         // accessToken 만료 -> refreshToken 검증
         log.info("accessToken 없음 {}", accessToken);
-        String refreshToken = jwtCookieManager.getRefreshTokenFromRequest(req);
+        String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
         if (refreshToken != null) {
             // refreshToken 유효성 검사
             String subject = jwtUtil.getSubjectFromToken(refreshToken);
@@ -109,7 +109,7 @@ public class MemberService {
                 return null;
             }
             // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, memberIdFromToken);
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
             tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
             Member member = memberMapper.findMemberById(memberIdFromToken);
             return MemberDTO.toUser(member);
@@ -201,7 +201,7 @@ public class MemberService {
             // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
             int memberId = member.getId();
             log.info("Token sub로 사용할 memberId: {}", memberId);
-            TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, memberId);
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
             tokenService.saveRefreshToken(memberId, tokenDto);
             return findMemberByEmail(member.getEmail());
         }
@@ -233,7 +233,7 @@ public class MemberService {
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, memberId);
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
 
         return findMemberByKakaoId(member.getKakaoId());
@@ -268,7 +268,7 @@ public class MemberService {
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
-        TokenDTO tokenDto = jwtCookieManager.setTokensToCookies(resp, memberId);
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
 
         return findMemberByGoogleId(member.getGoogleId());
@@ -277,7 +277,7 @@ public class MemberService {
     // 로그아웃
     public boolean logout(HttpServletResponse resp) {
         try {
-            jwtCookieManager.clearTokensFromCookies(resp);
+            jwtCookieUtil.clearTokensFromCookies(resp);
             log.info("로그아웃 성공");
             return true;
         } catch (Exception e) {
