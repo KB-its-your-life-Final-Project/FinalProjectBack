@@ -2,9 +2,9 @@ package com.lighthouse.member.service;
 
 import com.lighthouse.member.dto.*;
 import com.lighthouse.member.service.external.*;
-import com.lighthouse.member.util.ClientIpUtils;
+import com.lighthouse.member.util.ClientIpUtil;
 import com.lighthouse.member.mapper.MemberMapper;
-import com.lighthouse.member.util.ValidateUtils;
+import com.lighthouse.member.util.ValidateUtil;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
 import com.lighthouse.security.mapper.MemberTokenMapper;
@@ -127,12 +127,12 @@ public class MemberService {
 
     // 이메일 유효성 검사
     public boolean isValidEmail(String email) {
-        return !ValidateUtils.isEmpty(email) && ValidateUtils.isValidEmailFormat(email);
+        return !ValidateUtil.isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
     }
 
     // 비밀번호 유효성 검사
     public boolean isValidPassword(String password) {
-        return !ValidateUtils.isEmpty(password) && ValidateUtils.isValidPasswordFormat(password);
+        return !ValidateUtil.isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
     }
 
     // 인증 번호 전송
@@ -169,7 +169,7 @@ public class MemberService {
         log.info("email: {}", dto.getEmail());
         log.info("name: {}", dto.getName());
         log.info("password: {}", dto.getPassword1());
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         Member member = dto.toVO();
         member.setPwd(passwordEncoder.encode(member.getPwd())); // 암호화
         member.setRegIp(clientIp);
@@ -195,7 +195,7 @@ public class MemberService {
         } else {
             log.info("비밀번호 일치");
             // IP주소 업데이트
-            String clientIp = ClientIpUtils.getClientIp(req);
+            String clientIp = ClientIpUtil.getClientIp(req);
             member.setRecentIp(clientIp);
             memberMapper.updateMember(member);
             // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
@@ -211,7 +211,7 @@ public class MemberService {
     @Transactional
     public MemberDTO loginOrRegisterByKakaoCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByKakaoCode() 실행 ======");
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         String kakaoAccessToken = kakaoTokenClient.getKakaoAccessToken(dto.getCode());
         String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
@@ -243,7 +243,7 @@ public class MemberService {
     @Transactional
     public MemberDTO loginOrRegisterByGoogleCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByGoogleCode() 실행 ======");
-        String clientIp = ClientIpUtils.getClientIp(req);
+        String clientIp = ClientIpUtil.getClientIp(req);
         String googleAccessToken = googleTokenClient.getGoogleAccessToken(dto.getCode());
         Map googleUserInfoMap = googleUserClient.getGoogleUserInfo(googleAccessToken);
         String googleId = googleUserInfoMap.get("id").toString();

@@ -47,6 +47,7 @@
     <typeAliases>
         <package name="com.lighthouse.member.entity" />
         <package name="com.lighthouse.security.entity" />
+        <package name="com.lighthouse.transactions.entity" />
         <package name="com.lighthouse.transactions.vo" />
     </typeAliases>
 </configuration>
