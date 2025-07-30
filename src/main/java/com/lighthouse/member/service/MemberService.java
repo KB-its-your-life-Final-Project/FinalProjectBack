@@ -87,74 +87,35 @@ public class MemberService {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
         // accessToken 검증
         String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
-        if (accessToken != null || !ValidateUtil.isEmpty(accessToken)) {
+        if (accessToken != null) {
             String subject = jwtUtil.getSubjectFromToken(accessToken);
-            int createdType = jwtUtil.getCreatedTypeFromToken(accessToken);
             log.info("request에서 추출된 accessToken: {}", accessToken);
-            log.info("accessToken에서 추출된 subject: {}", subject);
-            log.info("accessToken에서 추출된 createdType: {}", createdType);
-            // 이메일 로그인
-            if (createdType == 1) {
-                Member member = memberMapper.findMemberByEmail(subject);
-                log.info("createdType: {}", createdType);
-                log.info("subject로 찾은 member: {}", member);
-                return MemberDTO.toUser(member);
-                // 카카오 로그인
-            } else if (createdType == 2) {
-                Member member = memberMapper.findMemberByKakaoId(subject);
-                log.info("createdType: {}", createdType);
-                log.info("subject로 찾은 member: {}", member);
-                return MemberDTO.toUser(member);
-                // 구글 로그인
-            } else if (createdType == 3) {
-                Member member = memberMapper.findMemberByGoogleId(subject);
-                log.info("createdType: {}", createdType);
-                log.info("subject로 찾은 member: {}", member);
-                return MemberDTO.toUser(member);
-            }
-            log.info("올바르지 않은 createdType");
-            return null;
+            log.info("accessToken에서 추출된 subject(memberId): {}", subject);
+            int memberIdFromToken = Integer.parseInt(subject);
+            Member member = memberMapper.findMemberById(memberIdFromToken);
+            log.info("subject로 찾은 member: {}", member);
+            return MemberDTO.toUser(member);
         }
         // accessToken 만료 -> refreshToken 검증
         log.info("accessToken 없음 {}", accessToken);
         String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
-        if (refreshToken != null || !ValidateUtil.isEmpty(refreshToken)) {
+        if (refreshToken != null) {
             // refreshToken 유효성 검사
             String subject = jwtUtil.getSubjectFromToken(refreshToken);
-            int createdType = jwtUtil.getCreatedTypeFromToken(refreshToken);
-            Member member = null;
-            if (createdType == 1) {
-                member = memberMapper.findMemberByEmail(subject);
-                int memberId = member.getId();
-                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
-                if (!isRefreshTokenValid) {
-                    log.info("refreshToken값이 일치하지 않습니다");
-                    return null;
-                }
-            } else if (createdType == 2) {
-                member = memberMapper.findMemberByKakaoId(subject);
-                int memberId = member.getId();
-                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
-                if (!isRefreshTokenValid) {
-                    log.info("refreshToken값이 일치하지 않습니다");
-                    return null;
-                }
-            } else if (createdType == 3) {
-                member = memberMapper.findMemberByGoogleId(subject);
-                int memberId = member.getId();
-                boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberId, refreshToken);
-                if (!isRefreshTokenValid) {
-                    log.info("refreshToken값이 일치하지 않습니다");
-                    return null;
-                }
+            int memberIdFromToken = Integer.parseInt(subject);
+            boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
+            if (!isRefreshTokenValid) {
+                log.info("refreshToken값이 일치하지 않습니다");
+                return null;
             }
             // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, subject, createdType);
-            tokenService.saveRefreshToken(member.getId(), tokenDto);
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
+            tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
+            Member member = memberMapper.findMemberById(memberIdFromToken);
             return MemberDTO.toUser(member);
         }
         // refreshToken 만료
-        log.info("refreshToken 없음 {}", refreshToken);
+        log.info("refreshToken 없음");
         return null;
     }
 
@@ -238,8 +199,10 @@ public class MemberService {
             member.setRecentIp(clientIp);
             memberMapper.updateMember(member);
             // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, email, member.getCreatedType());
-            tokenService.saveRefreshToken(member.getId(), tokenDto);
+            int memberId = member.getId();
+            log.info("Token sub로 사용할 memberId: {}", memberId);
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
+            tokenService.saveRefreshToken(memberId, tokenDto);
             return findMemberByEmail(member.getEmail());
         }
     }
@@ -269,8 +232,9 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, kakaoUserId, member.getCreatedType());
-        tokenService.saveRefreshToken(member.getId(), tokenDto);
+        int memberId = member.getId();
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
+        tokenService.saveRefreshToken(memberId, tokenDto);
 
         return findMemberByKakaoId(member.getKakaoId());
     }
@@ -303,8 +267,9 @@ public class MemberService {
         }
 
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
-        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, googleId, member.getCreatedType());
-        tokenService.saveRefreshToken(member.getId(), tokenDto);
+        int memberId = member.getId();
+        TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
+        tokenService.saveRefreshToken(memberId, tokenDto);
 
         return findMemberByGoogleId(member.getGoogleId());
     }

@@ -16,12 +16,12 @@ import java.util.Date;
 public class JwtCookieUtil {
     private final JwtUtil jwtUtil;
 
-    public TokenDTO setTokensToCookies(HttpServletResponse resp, String subject, int createdType) {
+    public TokenDTO setTokensToCookies(HttpServletResponse resp, int subject) {
         log.info("JwtCookieUtil.setTokensToCookies 실행  ======");
 
         // Access Token, Refresh Token 생성
-        String accessToken = jwtUtil.generateAccessToken(subject, createdType);
-        String refreshToken = jwtUtil.generateRefreshToken(subject, createdType);
+        String accessToken = jwtUtil.generateAccessToken(subject);
+        String refreshToken = jwtUtil.generateRefreshToken(subject);
         log.info("JwtCookieUtil: accessToken, refreshToken 발급: {}, {}", accessToken, refreshToken);
 
         // Access Token 쿠키 설정 (HttpOnly, 경로, 만료시간)

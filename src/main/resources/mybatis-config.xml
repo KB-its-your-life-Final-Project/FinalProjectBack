@@ -49,8 +49,5 @@
         <package name="com.lighthouse.security.entity" />
         <package name="com.lighthouse.transactions.entity" />
         <package name="com.lighthouse.transactions.vo" />
-        <package name="com.lighthouse.buildingRegister.vo" />
-        <package name="com.lighthouse.safereport.vo" />
-        <package name="com.lighthouse.toCoord.vo" />
     </typeAliases>
 </configuration>
