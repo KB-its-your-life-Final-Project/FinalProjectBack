@@ -5,10 +5,10 @@ import lombok.Data;
 
 /**
  * 부동산 건물 정보 DTO
- * all_real_estate 테이블의 데이터를 담는 객체
+ * estate_api_integration_tbl의 데이터를 담는 객체
  */
 @Data
-public class RealEstateDTO {
+public class EstateDTO {
     
     private Integer id;
     private Integer sggCd;

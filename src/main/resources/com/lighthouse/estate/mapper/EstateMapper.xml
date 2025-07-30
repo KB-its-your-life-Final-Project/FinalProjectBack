@@ -3,9 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.estate.mapper.EstateMapper">
+    <resultMap id="estateMap" type="com.lighthouse.estate.dto.EstateDTO" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+    <resultMap id="estateMapSales" type="com.lighthouse.estate.dto.EstateSalesDTO" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
 
         <!-- 위도/경도에 해당하는 건물 정보 조회 (단일 건물) -->
-    <select id="getRealEstateByLocation" resultType="com.lighthouse.estate.dto.RealEstateDTO">
+    <select id="getEstateByLatLng" resultMap="estateMap">
         SELECT
             *
         FROM
@@ -14,12 +20,14 @@
             latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
           AND longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
           <!-- 현재는 real_estate와 real_estate_saelse가 1:다가 아닌 다:다라서 limit 적용했습니다. -->
-        LIMIT 1
-        
+    </select>
+
+    <select id="getALLEstateByLatLng" resultMap="estateMap">
+
     </select>
 
     <!-- 건물 ID로 매매 정보 조회 -->
-    <select id="getSalesByEstateId" resultType="com.lighthouse.estate.dto.RealEstateSalesDTO">
+    <select id="getSalesByEstateId" resultMap="estateMapSales">
         SELECT
             *
         FROM
@@ -29,7 +37,7 @@
     </select>
 
     <!-- 지도 사각형 영역 내 건물들 정보 조회 (다건 조회)-->
-    <select id="getAllRealEstateByLocation" resultType="com.lighthouse.estate.dto.RealEstateDTO">
+    <select id="getEstateBySqaure" resultMap="estateMap">
         SELECT
             *
         FROM

@@ -3,8 +3,9 @@ package com.lighthouse.safereport.service;
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.mapper.SafeReportMapper;
 import com.lighthouse.estate.mapper.EstateMapper;
-import com.lighthouse.estate.dto.RealEstateDTO;
-import com.lighthouse.estate.dto.RealEstateSalesDTO;
+import com.lighthouse.estate.service.EstateService;
+import com.lighthouse.estate.dto.EstateDTO;
+import com.lighthouse.estate.dto.EstateSalesDTO;
 import com.lighthouse.safereport.vo.RentalRatioAndBuildyear;
 import com.lighthouse.safereport.vo.ViolationStatusVO;
 import com.lighthouse.safereport.vo.FloorAndPurpose;
@@ -24,13 +25,13 @@ import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 @RequiredArgsConstructor
 public class SafeReportService {
     private final SafeReportMapper safereportmapper;
-    private final EstateMapper estateMapper;
+    private final EstateService estateService;
     private final BuildingRegisterService buildingRegisterService;
 
     // 건물의 건축연도 점수, 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
         // 1단계: 위도/경도로 건물 정보 조회
-        RealEstateDTO realEstate = estateMapper.getRealEstateByLocation(dto.getLat(), dto.getLng());
+        EstateDTO realEstate = estateService.getEstateByLatLng(dto.getLat(), dto.getLng());
         log.info("realEstate: {}", realEstate);
         
         if(realEstate == null) {
@@ -42,7 +43,7 @@ public class SafeReportService {
         Integer estateId = realEstate.getId();
         
         // 3단계: 해당 건물의 최근 매매 정보 1개 조회 (trade_type=1만)
-        RealEstateSalesDTO latestSale = safereportmapper.getSalesByEstateIdWithTradeType(estateId);
+        EstateSalesDTO latestSale = safereportmapper.getSalesByEstateIdWithTradeType(estateId);
         
         // 4단계: 거래 금액 추출 (latestSale이 null이면 0으로 설정)
         Integer dealAmount;
