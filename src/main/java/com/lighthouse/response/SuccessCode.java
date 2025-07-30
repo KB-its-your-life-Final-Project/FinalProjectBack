@@ -19,8 +19,10 @@ public enum SuccessCode implements ResponseCode{
 	MEMBER_LOGOUT_SUCCESS(1010, "로그아웃 성공"),
 	
 	// SafeReport
-	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공");
+	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
 
+	// localinfo
+	LOCALINFO_FETCH_SUCCESS(3000, "지역 정보 조회 성공");
 	private final int code;
 	private final String message;
 }
