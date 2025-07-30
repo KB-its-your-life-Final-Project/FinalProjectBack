@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lighthouse.localinfo.mapper.LocalInfoMapper">
+
+    <select id="findByLocataddnm" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
+        SELECT
+            region_cd    AS regionCd,
+            grid_x       AS gridX,
+            grid_y       AS gridY,
+            locatadd_nm  AS locataddNm,  locatadd_nm  AS region       FROM
+            api_lawd_cd
+        WHERE
+            locatadd_nm = #{locataddnm}
+            LIMIT 1
+    </select>
+
+    <select id="searchByKeyword" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
+        SELECT
+            region_cd    AS regionCd,
+            grid_x       AS gridX,
+            grid_y       AS gridY,
+            locatadd_nm  AS locataddNm,  locatadd_nm  AS region       FROM
+            api_lawd_cd
+        WHERE
+            locatadd_nm LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY
+            CASE
+                WHEN locatadd_nm LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN locatadd_nm LIKE CONCAT('%', #{keyword}) THEN 2
+                ELSE 3
+                END,
+            LENGTH(locatadd_nm)
+            LIMIT 10
+    </select>
+
+    <select id="findByRegionCd" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
+        SELECT
+            region_cd    AS regionCd,
+            grid_x       AS gridX,
+            grid_y       AS gridY,
+            locatadd_nm  AS locataddNm,
+            locatadd_nm  AS region
+        FROM
+            api_lawd_cd
+        WHERE
+            region_cd = #{regionCd}
+            LIMIT 1
+    </select>
+
+</mapper>
