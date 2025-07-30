@@ -11,7 +11,6 @@ import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.*;
 
 
 public class CodefUtil {
@@ -52,37 +51,8 @@ public class CodefUtil {
     }
 
     public BuildingResponseDTO request(String productUrl, BuildingRequestDTO requestDto) throws Exception {
-        return requestWithTimeout(productUrl, requestDto, 15); // 30초 타임아웃
-    }
-    
-    public BuildingResponseDTO requestWithTimeout(String productUrl, BuildingRequestDTO requestDto, int timeoutSeconds) throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<BuildingResponseDTO> future = executor.submit(() -> {
-            try {
-                return requestInternal(productUrl, requestDto);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        
-        try {
-            System.out.println("CODEF API 호출 시작 (타임아웃: " + timeoutSeconds + "초): " + productUrl);
-            return future.get(timeoutSeconds, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            System.out.println("CODEF API 호출 타임아웃 (" + timeoutSeconds + "초 초과): " + productUrl);
-            future.cancel(true);
-            throw new RuntimeException("API 호출 타임아웃: " + timeoutSeconds + "초 초과", e);
-        } catch (Exception e) {
-            System.out.println("CODEF API 호출 실패: " + e.getMessage());
-            throw e;
-        } finally {
-            executor.shutdownNow();
-        }
-    }
-    
-    private BuildingResponseDTO requestInternal(String productUrl, BuildingRequestDTO requestDto) throws Exception {
         HashMap<String, Object> parameterMap = requestDto.toMap();
-
+        System.out.println("CODEF API 호출 시작");
         String result = codef.requestProduct(productUrl, EasyCodefServiceType.DEMO, parameterMap);
         
         System.out.println("CODEF API 응답 받음: " + (result != null ? result.substring(0, Math.min(200, result.length())) + "..." : "null"));
