@@ -12,12 +12,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 
-@Service
 @RequiredArgsConstructor
+@Service
+
 public class TransactionDetailService {
-    private TransactionDetailMapper transactionDetailMapper;
+    private final TransactionDetailMapper transactionDetailMapper;
 
     public List<TransactionResponseDTO> getFilteredTransactions(TransactionRequestDTO request) {
+        // 느림 방지를 위헤 처음에는 1년치로 뜨고, 전체 누르면 전체 조회 가능
+        if (request.getStartDate() == null || request.getEndDate() == null) {
+            LocalDate now = LocalDate.now();
+            request.setEndDate(now.toString());
+            request.setStartDate(now.minusYears(1).toString());
+        }
+
         List<TransactionGraphVO> rawList = transactionDetailMapper.findDate(request);
 
         return rawList.stream()
@@ -25,8 +33,8 @@ public class TransactionDetailService {
                     String date = String.format("%04d-%02d-%02d", vo.getDealYear(), vo.getDealMonth(), vo.getDealDay());
                     String type = vo.getTradeType() == 1 ? "매매" : "전월세";
                     int price = (vo.getTradeType() == 1)
-                            ? vo.getDealAmount() / 10000
-                            : (vo.getDeposit() != null ? vo.getDeposit() / 10000 : 0);
+                            ? vo.getDealAmount()
+                            : (vo.getDeposit() != null ? vo.getDeposit() : 0);
 
                     return TransactionResponseDTO.builder()
                             .date(date)

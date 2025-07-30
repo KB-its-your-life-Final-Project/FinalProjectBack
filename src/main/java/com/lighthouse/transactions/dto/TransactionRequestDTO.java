@@ -7,7 +7,8 @@ import lombok.Data;
 public class TransactionRequestDTO {
 
     private String buildingName;
-    private String tradeType;
+    private Integer tradeType;
     private String startDate;
     private String endDate;
+
 }
