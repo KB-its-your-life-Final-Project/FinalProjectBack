@@ -1,8 +1,0 @@
-{
-  "scripts": {
-    "generate-api": "swagger-typescript-api generate -p http://localhost:8080/v2/api-docs -o ./src/api/generated.ts --name ApiClient --axios"
-  },
-  "devDependencies": {
-    "swagger-typescript-api": "^13.2.7"
-  }
-}
