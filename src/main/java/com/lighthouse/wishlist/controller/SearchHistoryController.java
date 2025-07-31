@@ -3,6 +3,7 @@ package com.lighthouse.wishlist.controller;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
 import com.lighthouse.security.util.JwtUtil;
+import com.lighthouse.wishlist.dto.SearchHistoryRequestDTO;
 import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
 import com.lighthouse.wishlist.service.SearchHistoryService;
 import io.swagger.annotations.Api;
@@ -23,10 +24,10 @@ public class SearchHistoryController {
     private final SearchHistoryService service;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Void>> saveSearchHistory(@RequestBody String keyword, @RequestHeader("Authorization") String authHeader){
+    public ResponseEntity<ApiResponse<Void>> saveSearchHistory(@RequestBody SearchHistoryRequestDTO dto, @RequestHeader("Authorization") String authHeader){
         String token = authHeader.substring(7);
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
-        service.saveSearchHistory(memberId, keyword);
+        service.saveSearchHistory(memberId, dto.getKeyword());
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SEARCH_HISTORY_SAVE_SUCCESS));
     }
 

@@ -1,6 +1,7 @@
 package com.lighthouse.wishlist.controller;
 
 import com.lighthouse.security.util.JwtUtil;
+import com.lighthouse.wishlist.dto.SearchHistoryRequestDTO;
 import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
 import com.lighthouse.wishlist.service.SearchHistoryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ public class SearchHistoryControllerTest {
     void testSaveSearchHistory() throws Exception {
         // Given
         String keyword = "아파트";
+        SearchHistoryRequestDTO dto = new SearchHistoryRequestDTO(keyword);
         String fakeToken = "Bearer faketoken123";
         String tokenWithoutBearer = "faketoken123";
         Long memberId = 100L;
@@ -35,7 +37,7 @@ public class SearchHistoryControllerTest {
         when(jwtUtil.getSubjectFromToken(tokenWithoutBearer)).thenReturn(String.valueOf(memberId));
 
         // When
-        var response = controller.saveSearchHistory(keyword, fakeToken);
+        var response = controller.saveSearchHistory(dto, fakeToken);
 
         // Then
         verify(service).saveSearchHistory(eq(memberId), eq(keyword));
