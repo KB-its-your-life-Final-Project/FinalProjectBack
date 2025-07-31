@@ -92,7 +92,7 @@
         WHERE
             A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
           AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
-        ORDER BY B.res_floor ASC;
+        ORDER BY B.res_floor;
     </select>
 
 </mapper>
