@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NewsDTO {
+public class YouthContentDTO {
     private String bbsSn;          // 게시판 일련번호
     private String pstSn;          // 게시물 일련번호
     private String pstSeSn;        // 게시물 구분 일련번호
-    private String pstSeNm;        // 게시물 유형 이름 (예: 취업지원, 기타 등)
+    private String pstSeNm;        // 게시물 유형 이름 (취업지원, 직업훈련, 대외활동, 청년뉴스, 청년인터뷰, 정책소식, 소식, 쉬운 용어 풀이, 기타 등)
     private String pstTtl;         // 게시물 제목
     private String pstWholCn;      // 게시물 전체 내용 (링크 포함)
     private String pstInqCnt;      // 게시물 조회수

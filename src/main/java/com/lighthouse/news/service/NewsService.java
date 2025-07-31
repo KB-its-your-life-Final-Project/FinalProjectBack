@@ -1,7 +1,7 @@
 package com.lighthouse.news.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lighthouse.news.dto.NewsDTO;
+import com.lighthouse.news.dto.YouthContentDTO;
 import com.lighthouse.news.dto.YouthContentResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,20 +23,20 @@ public class NewsService {
     @Value("${YOUTH_CONTENT_API_KEY}")
     private String apiKey;
 
-    public List<NewsDTO> getNews() {
+    public List<YouthContentDTO> getNews() {
         log.info("NewsService.getNews() 실행 ======");
         try {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(YOUTH_CONTENT_URL)
                     .queryParam("apiKeyNm", apiKey)         // 인가코드
                     .queryParam("pageNum", 1)        // 페이지 번호
-                    .queryParam("pageSize", "10")    // 페이지 크기 (표시할 게시물 개수)
+                    .queryParam("pageSize", "100")   // 페이지 크기 (표시할 게시물 개수)
                     .queryParam("rtnType", "json");  // 호출 문서
             String uri = uriBuilder.toUriString();
             String jsonResponse = restTemplate.getForObject(uri, String.class);
             YouthContentResponseDTO response = objectMapper.readValue(jsonResponse, YouthContentResponseDTO.class);
-            List<NewsDTO> newsDtoList =  response.getResult().getYouthPolicyList();
-            log.info("newsDtoList: {}", newsDtoList);
-            return newsDtoList;
+            List<YouthContentDTO> youthContentDtoList =  response.getResult().getYouthPolicyList();
+            log.info("youthContentDtoList: {}", youthContentDtoList);
+            return youthContentDtoList;
         } catch (Exception e) {
             log.error("온통 청년 API 호출 중 예외 발생", e);
             throw new RuntimeException("온통 청년 API 호출 실패", e);

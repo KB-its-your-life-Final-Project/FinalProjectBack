@@ -1,7 +1,7 @@
 package com.lighthouse.news.controller;
 
 
-import com.lighthouse.news.dto.NewsDTO;
+import com.lighthouse.news.dto.YouthContentDTO;
 import com.lighthouse.news.service.NewsService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
@@ -25,8 +25,8 @@ public class NewsController {
     final NewsService newsService;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<NewsDTO>>> getNews() {
-        List<NewsDTO> dtos = newsService.getNews();
+    public ResponseEntity<ApiResponse<List<YouthContentDTO>>> getNews() {
+        List<YouthContentDTO> dtos = newsService.getNews();
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.NEWS_YOUTH_CONTENT_FETCH_SUCCESS, dtos));
     }
 }

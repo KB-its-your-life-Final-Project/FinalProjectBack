@@ -15,7 +15,7 @@ public class YouthContentResponseDTO {
     public class YouthResult {
         private Pagging pagging;
         @JsonProperty("youthPolicyList")
-        private List<NewsDTO> youthPolicyList;
+        private List<YouthContentDTO> youthPolicyList;
     }
 
     @Data
