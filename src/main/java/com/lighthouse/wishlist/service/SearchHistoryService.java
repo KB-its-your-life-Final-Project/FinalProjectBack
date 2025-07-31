@@ -22,7 +22,7 @@ public class SearchHistoryService {
         searchHistory.setMemberId(memberId);
         searchHistory.setKeyword(keyword);
         int result = mapper.saveSearchHistory(searchHistory);
-        if(result != 0){
+        if(result != 1){
             throw new CustomException(ErrorCode.SEARCH_HISTORY_PROCESS_FAIL);
         }
         log.info("save search history. member id : {}, keyword: {}", memberId, keyword);
