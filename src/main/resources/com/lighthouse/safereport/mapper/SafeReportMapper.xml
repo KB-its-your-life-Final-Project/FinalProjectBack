@@ -13,37 +13,6 @@
             estate_id = #{estateId}
             AND trade_type = 1
         ORDER BY deal_year DESC, deal_month DESC, deal_day DESC
-        LIMIT 1;
-    </select>
-
-    <!-- 위반 여부만 조회 -->
-    <select id="getViolationStatus" resultType="com.lighthouse.safereport.vo.ViolationStatusVO">
-        SELECT
-            A.res_violation_status AS violationStatus
-        FROM
-            api_building_register A
-        WHERE
-            A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
-          AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
-        LIMIT 1;
-    </select>
-
-    <!-- 층수와 용도 정보 모두 조회 (여러 행 가능) -->
-    <select id="getFloorAndPurposeList" resultType="com.lighthouse.safereport.vo.FloorAndPurpose">
-        SELECT
-            B.res_floor AS resFloor,
-            B.res_use_type AS resUseType,
-            B.res_structure AS resStructure,
-            B.res_area AS resArea
-        FROM
-            api_building_register A
-                LEFT JOIN
-            api_building_register_building_status B
-            ON
-                A.id = B.register_id
-        WHERE
-            A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
-          AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
-        ORDER BY B.res_floor ASC;
+        LIMIT 1;<!-- 최근 매매 데이터만 조회 -->
     </select>
 </mapper>

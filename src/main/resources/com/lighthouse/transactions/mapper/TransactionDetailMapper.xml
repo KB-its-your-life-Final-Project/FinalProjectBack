@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.lighthouse.transactions.mapper.TransactionDetailMapper">
+<select id="findDate" resultType="com.lighthouse.transactions.vo.TransactionGraphVO">
+    SELECT
+    s.id,
+    s.estate_id AS estateId,
+    s.deal_year AS dealYear,
+    s.deal_month AS dealMonth,
+    s.deal_day AS dealDay,
+    s.deal_amount AS dealAmount,
+    s.deposit,
+    s.monthly_rent AS monthlyRent,
+    s.trade_type AS tradeType,
+    e.building_name AS buildingName
+    FROM estate_api_integration_sales_tbl s
+    JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+    WHERE 1=1
+    <if test="tradeType != null">
+        AND s.trade_type = #{tradeType}
+    </if>
+
+    <if test="startDate != null and startDate != ''">
+        AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[>=]]> #{startDate}
+    </if>
+    <if test="endDate != null and endDate != ''">
+        AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
+    </if>
+    <if test="buildingName != null and buildingName != ''">
+        AND e.building_name = #{buildingName}
+    </if>
+</select>
+        </mapper>

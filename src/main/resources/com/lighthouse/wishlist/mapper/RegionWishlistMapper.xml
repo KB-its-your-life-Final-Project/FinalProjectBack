@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.wishlist.mapper.RegionWishlistMapper">
+
+    <insert id="saveLikeRegion" parameterType="LikeRegion">
+        INSERT INTO ${LIKE_REGION_TBL} (
+            member_id, sido_cd, ssg_cd, umd_cd, is_like, umd_nm
+        ) VALUES (
+             #{memberId}, #{sidoCd}, #{ssgCd}, #{umdCd}, #{isLike}, #{umdNm}
+        )
+    </insert>
+    <update id="updateLikeRegion" parameterType="LikeRegion">
+        UPDATE ${LIKE_REGION_TBL}
+        SET
+            is_like = #{isLike},
+            update_date = NOW()
+        WHERE
+            member_id = #{memberId}
+          AND sido_cd = #{sidoCd}
+          AND ssg_cd = #{ssgCd}
+          AND umd_cd = #{umdCd}
+    </update>
+    <select id="findByMemberIdAndRegionCd" resultType="LikeRegion">
+        SELECT member_id, sido_cd,ssg_cd,umd_cd, is_like
+        FROM ${LIKE_REGION_TBL}
+        WHERE member_id = #{memberId}
+          AND sido_cd = #{sidoCd}
+          AND ssg_cd = #{ssgCd}
+          AND umd_cd = #{umdCd}
+    </select>
+    <select id="findRegionsByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.SeparatedRegionDTO">
+        SELECT sido_cd, ssg_cd, umd_cd, umd_nm
+        FROM ${LIKE_REGION_TBL}
+        WHERE member_id = #{memberId}
+          AND is_like = 1
+    </select>
+</mapper>

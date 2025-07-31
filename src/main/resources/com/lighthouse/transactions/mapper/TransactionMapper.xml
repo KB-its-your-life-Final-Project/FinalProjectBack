@@ -175,7 +175,7 @@
 
     <!-- bulk insert 버전 -->
     <insert id="insertApartmentTradeBatch" parameterType="list">
-        INSERT INTO apartment_trade_0715 (
+        INSERT INTO api_apartment_trade_0715 (
         umd_nm, sgg_cd, apt_dong, apt_nm, build_year,
         cdeal_day, cdeal_type, deal_amount,
         deal_day, deal_month, deal_year,
@@ -198,7 +198,7 @@
     </insert>
 
     <insert id="insertApartmentRentalBatch" parameterType="list">
-        INSERT INTO apartment_rental_0715 (
+        INSERT INTO api_apartment_rental_0715 (
         sgg_cd, umd_nm, apt_nm, jibun, exclu_use_ar,
         deal_year, deal_month, deal_day,
         deposit, monthly_rent, floor, build_year,
@@ -217,7 +217,7 @@
     </insert>
 
     <insert id="insertMultiHouseTradeBatch" parameterType="list">
-        INSERT INTO multihouse_trade_0715 (
+        INSERT INTO api_multihouse_trade_0715 (
         sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
         exclu_use_ar, land_ar,
         deal_year, deal_month, deal_day, deal_amount,
@@ -238,7 +238,7 @@
     </insert>
 
     <insert id="insertMultiHouseRentalBatch" parameterType="list">
-        INSERT INTO multihouse_rental_0715 (
+        INSERT INTO api_multihouse_rental_0715 (
         sgg_cd, umd_nm, mhouse_nm, jibun, build_year,
         exclu_use_ar, deal_year, deal_month, deal_day,
         deposit, monthly_rent, floor,
@@ -257,7 +257,7 @@
     </insert>
 
     <insert id="insertOfficetelTradeBatch" parameterType="list">
-        INSERT INTO officetel_trade_0715 (
+        INSERT INTO api_officetel_trade_0715 (
         sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
         exclu_use_ar, deal_year, deal_month, deal_day,
         deal_amount, floor, build_year,
@@ -278,7 +278,7 @@
     </insert>
 
     <insert id="insertOfficetelRentalBatch" parameterType="list">
-        INSERT INTO officetel_rental_0715 (
+        INSERT INTO api_officetel_rental_0715 (
         sgg_cd, sgg_nm, umd_nm, jibun, offi_nm,
         exclu_use_ar, deal_year, deal_month, deal_day,
         deposit, monthly_rent, floor, build_year,
@@ -297,7 +297,7 @@
     </insert>
 
     <insert id="insertSingleHouseTradeBatch" parameterType="list">
-        INSERT INTO singlehouse_trade_0715 (
+        INSERT INTO api_singlehouse_trade_0715 (
         sgg_cd, umd_nm, house_type, jibun,
         total_floor_ar, plottage_ar,
         deal_year, deal_month, deal_day,
@@ -320,7 +320,7 @@
     </insert>
 
     <insert id="insertSingleHouseRentalBatch" parameterType="list">
-        INSERT INTO singlehouse_rental_0715 (
+        INSERT INTO api_singlehouse_rental_0715 (
         sgg_cd, umd_nm, total_floor_ar,
         deal_year, deal_month, deal_day,
         deposit, monthly_rent, build_year,
@@ -334,6 +334,46 @@
             #{item.deposit}, #{item.monthlyRent}, #{item.buildYear},
             #{item.contractTerm}, #{item.contractType}, #{item.useRRRight},
             #{item.preDeposit}, #{item.preMonthlyRent}, #{item.houseType}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findIdByUniqueCombination" parameterType="map" resultType="java.lang.Integer">
+        SELECT id
+        FROM estate_api_integration_tbl
+        WHERE mhouse_type = #{mhouseType}
+          AND shouse_type = #{shouseType}
+          AND build_year = #{buildYear}
+          AND building_type = #{buildingType}
+          AND jibun_addr = #{jibunAddr}
+    </select>
+
+    <insert id="insertEstateApiIntegrationBatch" parameterType="list">
+        INSERT IGNORE INTO estate_api_integration_tbl (
+        sgg_cd, sgg_nm, umd_nm, jibun,
+        building_name, mhouse_type, shouse_type,
+        build_year, building_type, source_api,
+        jibun_addr, latitude, longitude
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.sggCd}, #{item.sggNm}, #{item.umdNm}, #{item.jibun},
+            #{item.buildingName}, #{item.mhouseType}, #{item.shouseType},
+            #{item.buildYear}, #{item.buildingType}, #{item.sourceApi},
+            #{item.jibunAddr}, #{item.latitude}, #{item.longitude}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertEstateApiIntegrationSalesBatch" parameterType="list">
+        INSERT INTO estate_api_integration_sales_tbl (
+        estate_id, deal_year, deal_month, deal_day,
+        deal_amount, deposit, monthly_rent, trade_type
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.estateId}, #{item.dealYear}, #{item.dealMonth}, #{item.dealDay},
+            #{item.dealAmount}, #{item.deposit}, #{item.monthlyRent}, #{item.tradeType}
             )
         </foreach>
     </insert>

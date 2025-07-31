@@ -31,7 +31,6 @@ public class BuildingRegisterService {
     public BuildingResponseDTO getBuildingRegisterCommon(String address, String type) {
         // 주소 정규화
         String normalizedAddress = normalizeAddress(address);
-        log.info("주소 정규화: {} -> {}", address, normalizedAddress);
         
         try {
             CodefUtil codef = new CodefUtil(id, password, publicKey);
@@ -81,7 +80,16 @@ public class BuildingRegisterService {
                 return null;
             }
             
-            // DB 저장 전에 위/경도 변환
+            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
+            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
+            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
+            if(resUserAddr != null && commAddrLotNumber != null) {
+                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
+                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
+                log.info("지번 주소 설정: {}", jibunAddr);
+            }
+            
+            // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
                 Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(normalizedAddress);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
@@ -109,10 +117,11 @@ public class BuildingRegisterService {
         CodefUtil codef = new CodefUtil(id, password, publicKey);
         BuildingRequestDTO buildingRequestDTO = null;
         BuildingResponseDTO result = null;
+        String normalizedAddress = normalizeAddress(address);
         try {
             /** 요청 파라미터 설정 - 각 상품별 파라미터를 설정(https://developer.codef.io/products) */
             buildingRequestDTO = BuildingRequestDTO.builder()
-                    .address(address)
+                    .address(normalizedAddress)
                     .userId(privateId)
                     .userPassword(EasyCodefUtil.encryptRSA(privatePassword,codef.getCodef().getPublicKey()))
                     .build();
@@ -136,30 +145,39 @@ public class BuildingRegisterService {
             log.info("CODEF API 호출 완료 (소요시간: {}ms): {}", (endTime - startTime), productUrl);
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("타임아웃")) {
-                log.warn("CODEF API 타임아웃: {} - {}", address, e.getMessage());
+                log.warn("CODEF API 타임아웃: {} - {}", normalizedAddress, e.getMessage());
             } else {
-                log.error("CODEF 요청 에러: {} - {}", address, e.getMessage(), e);
+                log.error("CODEF 요청 에러: {} - {}", normalizedAddress, e.getMessage(), e);
             }
             return null; // 예외를 던지지 않고 null 반환
         }
-        // DB 저장 전에 위/경도 변환
-        if(result != null) {
+        // jibun_addr 설정 및 위/경도 변환
+        if(result != null && result.getBuildingRegisterVO() != null) {
+            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
+            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
+            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
+            if(resUserAddr != null && commAddrLotNumber != null) {
+                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
+                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
+                log.info("지번 주소 설정: {}", jibunAddr);
+            }
+            
+            // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
                 Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(address);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
                 result.getBuildingRegisterVO().setLongitude(coords.get("lng"));
             } catch (Exception e) {
-                log.warn("주소 좌표 변환 실패: {}", address);
+                log.warn("주소 좌표 변환 실패: {}", normalizedAddress);
             }
-        }
-        // 건물 유형 설정 (집합 주택)
-        if(result != null && result.getBuildingRegisterVO() != null) {
+            
+            // 건물 유형 설정 (집합 주택)
             result.getBuildingRegisterVO().setType("집합");
-            log.info("건물 유형 설정: 집합 (address={})", address);
+            log.info("건물 유형 설정: 집합 (address={})", normalizedAddress);
             
             buildingRegisterPersistence.insertBuildingRegister(result);
         } else {
-            log.warn("집합건축물 대장 조회 결과가 null입니다: {}", address);
+            log.warn("집합건축물 대장 조회 결과가 null입니다: {}", normalizedAddress);
         }
         
         return result; // 결과 반환
