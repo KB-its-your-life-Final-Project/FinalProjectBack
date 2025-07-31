@@ -87,9 +87,20 @@ public class CodefUtil {
                             }
                         }
                     } else {
-                        // dong이 null이면 첫 번째 후보 동 선택
-                        dongNum = dongNumList.get(0).getCommDongNum();
-                        System.out.println("dong이 null이므로 첫 번째 후보 동 선택: " + dongNumList.get(0).getReqDong());
+                        // dong이 null이면 "상가"가 포함되지 않은 첫 번째 후보 동 선택
+                        for (BuildingResponseDTO.ReqDongNum reqDongNum : dongNumList) {
+                            String dongName = reqDongNum.getReqDong();
+                            if (dongName != null && !dongName.contains("상가")) {
+                                dongNum = reqDongNum.getCommDongNum();
+                                System.out.println("dong이 null이므로 '상가'가 포함되지 않은 후보 동 선택: " + dongName);
+                                break;
+                            }
+                        }
+                        // "상가"가 포함되지 않은 동이 없으면 첫 번째 동 선택
+                        if (dongNum == null && !dongNumList.isEmpty()) {
+                            dongNum = dongNumList.get(0).getCommDongNum();
+                            System.out.println("'상가'가 포함되지 않은 동이 없어 첫 번째 후보 동 선택: " + dongNumList.get(0).getReqDong());
+                        }
                     }
                 }
                 parameterMap.put("dongNum", dongNum);
@@ -203,9 +214,21 @@ public class CodefUtil {
                                     BuildingResponseDTO.ExtraInfo extraInfo = tryResponse.getExtraInfo();
                                     
                                     if (extraInfo.getReqDongNumList() != null && !extraInfo.getReqDongNumList().isEmpty()) {
-                                        // 첫 번째 후보 동 선택
-                                        String dongNum = extraInfo.getReqDongNumList().get(0).getCommDongNum();
-                                        System.out.println("첫 번째 후보 동 선택: " + extraInfo.getReqDongNumList().get(0).getReqDong());
+                                        // "상가"가 포함되지 않은 첫 번째 후보 동 선택
+                                        String dongNum = null;
+                                        for (BuildingResponseDTO.ReqDongNum reqDongNum : extraInfo.getReqDongNumList()) {
+                                            String dongName = reqDongNum.getReqDong();
+                                            if (dongName != null && !dongName.contains("상가")) {
+                                                dongNum = reqDongNum.getCommDongNum();
+                                                System.out.println("'상가'가 포함되지 않은 후보 동 선택: " + dongName);
+                                                break;
+                                            }
+                                        }
+                                        // "상가"가 포함되지 않은 동이 없으면 첫 번째 동 선택
+                                        if (dongNum == null) {
+                                            dongNum = extraInfo.getReqDongNumList().get(0).getCommDongNum();
+                                            System.out.println("'상가'가 포함되지 않은 동이 없어 첫 번째 후보 동 선택: " + extraInfo.getReqDongNumList().get(0).getReqDong());
+                                        }
                                         
                                         // 2차 인증 요청
                                         parameterMap.put("dongNum", dongNum);

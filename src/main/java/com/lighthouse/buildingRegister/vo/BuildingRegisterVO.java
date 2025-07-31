@@ -29,5 +29,8 @@ public class BuildingRegisterVO {
     // 여기부터는 집합 건축물에서만 해당
     private String reqDong;                 // 요청한 동
     private String reqHo;                   // N호/N가구/N세대
+    
+    // 지번 주소 (res_user_addr + commAddrLotNumber 조합)
+    private String jibunAddr;               // 지번 주소
 }
 

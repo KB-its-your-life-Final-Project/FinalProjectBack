@@ -81,7 +81,16 @@ public class BuildingRegisterService {
                 return null;
             }
             
-            // DB 저장 전에 위/경도 변환
+            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
+            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
+            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
+            if(resUserAddr != null && commAddrLotNumber != null) {
+                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
+                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
+                log.info("지번 주소 설정: {}", jibunAddr);
+            }
+            
+            // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
                 Map<String, Double> coords = addressGeocodeService.getCoordinates(normalizedAddress);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
@@ -143,8 +152,18 @@ public class BuildingRegisterService {
             }
             return null; // 예외를 던지지 않고 null 반환
         }
-        // DB 저장 전에 위/경도 변환
-        if(result != null) {
+        // jibun_addr 설정 및 위/경도 변환
+        if(result != null && result.getBuildingRegisterVO() != null) {
+            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
+            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
+            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
+            if(resUserAddr != null && commAddrLotNumber != null) {
+                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
+                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
+                log.info("지번 주소 설정: {}", jibunAddr);
+            }
+            
+            // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
                 Map<String, Double> coords = addressGeocodeService.getCoordinates(normalizedAddress);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
@@ -152,9 +171,8 @@ public class BuildingRegisterService {
             } catch (Exception e) {
                 log.warn("주소 좌표 변환 실패: {}", normalizedAddress);
             }
-        }
-        // 건물 유형 설정 (집합 주택)
-        if(result != null && result.getBuildingRegisterVO() != null) {
+            
+            // 건물 유형 설정 (집합 주택)
             result.getBuildingRegisterVO().setType("집합");
             log.info("건물 유형 설정: 집합 (address={})", normalizedAddress);
             
