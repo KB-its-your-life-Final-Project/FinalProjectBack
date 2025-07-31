@@ -126,17 +126,7 @@ public class WeatherService {
                             }
                         }
                         break;
-                    // PTY (강수 형태) 파싱 로직은 WeatherVO에 해당 필드가 없으므로 제외합니다.
-                    // case "PTY": // 강수 형태 (0:없음, 1:비, 2:비/눈, 3:눈, 4:소나기)
-                    //     if (latestFcstTime == null || fcstTime.compareTo(latestFcstTime) >= 0) {
-                    //         latestFcstTime = fcstTime;
-                    //         try {
-                    //             weatherVO.setPrecipitationType(mapPtyCodeToType(Integer.parseInt(fcstValue)));
-                    //         } catch (NumberFormatException e) {
-                    //             log.warn("PTY 값 파싱 오류: {}", fcstValue);
-                    //         }
-                    //     }
-                    //     break;
+
                     case "TMX": // 일 최고 기온
                         if (weatherVO.getMaxTemperature() == null) {
                             try {
@@ -185,23 +175,24 @@ public class WeatherService {
     private String getBaseTimeForShortTermForecast(LocalDateTime now) {
         LocalTime nowTime = now.toLocalTime();
         if (nowTime.isBefore(LocalTime.of(2, 10))) {
-            return "2300";
+            return "2300";  // 전날 23:00
         } else if (nowTime.isBefore(LocalTime.of(5, 10))) {
-            return "0200";
+            return "0200";  // 당일 02:00
         } else if (nowTime.isBefore(LocalTime.of(8, 10))) {
-            return "0500";
+            return "0500";  // 당일 05:00
         } else if (nowTime.isBefore(LocalTime.of(11, 10))) {
-            return "0800";
+            return "0800";  // 당일 08:00  ← 이 부분이 중요!
         } else if (nowTime.isBefore(LocalTime.of(14, 10))) {
-            return "1100";
+            return "1100";  // 당일 11:00
         } else if (nowTime.isBefore(LocalTime.of(17, 10))) {
-            return "1400";
+            return "1400";  // 당일 14:00
         } else if (nowTime.isBefore(LocalTime.of(20, 10))) {
-            return "1700";
+            return "1700";  // 당일 17:00
         } else if (nowTime.isBefore(LocalTime.of(23, 10))) {
-            return "2000";
+            return "2000";  // 당일 20:00
         } else {
-            return "2300";
+            return "2300";  // 당일 23:00
         }
     }
+
 }
