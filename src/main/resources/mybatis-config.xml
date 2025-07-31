@@ -36,6 +36,9 @@
         <property name="TBL_MEMBER" value="tbl_member"/>
         <property name="TBL_MEMBER_AUTH" value="tbl_member_auth"/>
         <property name="WEATHER" value="weather"/>
+        <property name="LIKE_REGION_TBL" value="like_umd_nm_tbl"/>
+        <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
+        <property name="ESTATE_SEARCH_HISTORY_TBL" value="recent_apt_search_tbl"/>
     </properties>
 
     <!-- SqlSessionTemplate 관련 설정 -->
@@ -49,5 +52,6 @@
         <package name="com.lighthouse.security.entity" />
         <package name="com.lighthouse.transactions.entity" />
         <package name="com.lighthouse.transactions.vo" />
+        <package name="com.lighthouse.wishlist.entity"/>
     </typeAliases>
 </configuration>
