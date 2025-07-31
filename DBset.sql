@@ -206,7 +206,6 @@ DELETE FROM api_building_register WHERE id = 29;
 DELETE FROM api_building_register_building_status
 WHERE register_id=29;
 
-SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 
 SELECT
     *
