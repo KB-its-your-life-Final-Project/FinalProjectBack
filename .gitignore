@@ -28,3 +28,6 @@ Thumbs.db
 
 # DB test
 DBset.sql
+
+# test config
+src/test/resources/application-test.properties

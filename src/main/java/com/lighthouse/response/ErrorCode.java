@@ -27,7 +27,10 @@ public enum ErrorCode implements ResponseCode{
 
     // SafeReport
     BUILDINGINFO_NOT_FOUND(2001,"건물 건축 년도 또는 거래 금액 정보가 없습니다.", HttpStatus.NOT_FOUND),
-    SAFEBUILDING_NOT_FOUND(2001, "건물 위반 정보 또는 용도 정보가 없습니다.", HttpStatus.NOT_FOUND);
+    SAFEBUILDING_NOT_FOUND(2001, "건물 위반 정보 또는 용도 정보가 없습니다.", HttpStatus.NOT_FOUND),
+
+    // Estate
+	ESTATE_NOT_FOUND(4001, "건물에 대한 정보가 없습니다.", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

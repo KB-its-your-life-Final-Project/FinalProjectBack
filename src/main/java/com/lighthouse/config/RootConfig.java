@@ -20,12 +20,20 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(basePackages = "com.lighthouse")
+@MapperScan(basePackages = {
+    "com.lighthouse.buildingRegister.mapper",
+    "com.lighthouse.estate.mapper", 
+    "com.lighthouse.member.mapper",
+    "com.lighthouse.safereport.mapper",
+    "com.lighthouse.security.mapper",
+    "com.lighthouse.toCoord.mapper",
+    "com.lighthouse.transactions.mapper",
+    "com.lighthouse.coord.mapper"
+})
 @ComponentScan(
         basePackages = {"com.lighthouse"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class),
-//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.lighthouse\\.security\\..*")
         }
 )
 public class RootConfig {
@@ -54,6 +62,15 @@ public class RootConfig {
     @Value("${jdbc.username}") String username;
     @Value("${jdbc.password}") String password;
 
+    // HikariCP 타임아웃 설정 추가
+    @Value("${jdbc.connection-timeout}") int connectionTimeout;
+    @Value("${jdbc.max-lifetime}") int maxLifetime;
+    @Value("${jdbc.idle-timeout}") int idleTimeout;
+
+    // 개발용 추가 설정
+    @Value("${jdbc.maximum-pool-size}") int maximumPoolSize;
+    @Value("${jdbc.minimum-idle}") int minimumIdle;
+
     private final ApplicationContext applicationContext;
 
     public RootConfig(ApplicationContext applicationContext) {
@@ -67,6 +84,16 @@ public class RootConfig {
         config.setJdbcUrl(url);
         config.setUsername(username);
         config.setPassword(password);
+
+        // HikariCP 타임아웃 설정 적용
+        config.setConnectionTimeout(connectionTimeout);
+        config.setMaxLifetime(maxLifetime);
+        config.setIdleTimeout(idleTimeout);
+
+        // 개발용 추가 설정 적용
+        config.setMaximumPoolSize(maximumPoolSize);
+        config.setMinimumIdle(minimumIdle);
+
         return new HikariDataSource(config);
     }
 

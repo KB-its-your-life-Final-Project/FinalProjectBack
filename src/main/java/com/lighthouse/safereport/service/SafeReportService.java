@@ -2,7 +2,6 @@ package com.lighthouse.safereport.service;
 
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.mapper.SafeReportMapper;
-import com.lighthouse.estate.mapper.EstateMapper;
 import com.lighthouse.estate.service.EstateService;
 import com.lighthouse.estate.dto.EstateDTO;
 import com.lighthouse.estate.dto.EstateSalesDTO;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 
 @Slf4j

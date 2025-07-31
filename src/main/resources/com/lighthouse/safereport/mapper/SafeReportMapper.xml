@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
 <!-- trade_type=1인 매매 데이터만 조회 -->
-    <select id="getSalesByEstateIdWithTradeType" resultType="com.lighthouse.estate.dto.RealEstateSalesDTO">
+    <select id="getSalesByEstateIdWithTradeType" resultType="com.lighthouse.estate.dto.EstateSalesDTO">
         SELECT
             *
         FROM

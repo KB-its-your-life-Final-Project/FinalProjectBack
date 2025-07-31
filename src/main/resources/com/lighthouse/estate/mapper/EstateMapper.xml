@@ -3,10 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.estate.mapper.EstateMapper">
-    <resultMap id="estateMap" type="com.lighthouse.estate.dto.EstateDTO" autoMapping="true">
+    <resultMap id="estateMap" type="com.lighthouse.estate.entity.Estate" autoMapping="true">
         <id property="id" column="id" />
     </resultMap>
-    <resultMap id="estateMapSales" type="com.lighthouse.estate.dto.EstateSalesDTO" autoMapping="true">
+    <resultMap id="estateMapSales" type="com.lighthouse.estate.entity.EstateSales" autoMapping="true">
         <id property="id" column="id" />
     </resultMap>
 

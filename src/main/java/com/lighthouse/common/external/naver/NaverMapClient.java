@@ -1,30 +1,31 @@
-package com.lighthouse.toCoord.service;
+package com.lighthouse.common.external.naver;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 
-@Service //AddressToCoordinate.java에서 주입받아 사용하기
-public class AddressGeocodeService {
-
+@Slf4j
+@Component
+public class NaverMapClient {
     @Value("${NAVER_CLIENT_ID}")
     private String clientId;
     @Value("${NAVER_API_KEY}")
     private String clientSecret;
 
+    
     // HTTP 요청 보냄
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public Map<String, Object> getInfoOfAddress(String address) {
 
-    public Map<String, Double> getCoordinates(String address) {
-        try{
+        try {
             //네이버 지도 API의 주소-> 좌표 변환 API 호출
             String url = "https://maps.apigw.ntruss.com/map-geocode/v2/geocode?query=" + address;
 
@@ -64,13 +65,12 @@ public class AddressGeocodeService {
                 throw new RuntimeException("API 호출 실패: " + response.getStatusCode());
             }
 
-            Map<String, Object> first = addresses.get(0);
+            Map<String, Object> data = addresses.get(0);
 
-            double lat = Double.parseDouble((String) first.get("y"));
-            double lng = Double.parseDouble((String) first.get("x"));
-
-            return Map.of("lat", lat, "lng", lng);
-        }catch (Exception e) {
+            return data;
+        } 
+        catch (Exception e) {
+            log.warn("주소 변환 실패: {}", e.getMessage());
             throw new RuntimeException("주소 변환 실패: " + e.getMessage(), e);
         }
 

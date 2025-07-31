@@ -21,7 +21,18 @@ public class CommonExceptionAdvice {
     }
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<String> handleException(Exception e) {
-        log.error("서버 오류 발생 {}", e.getMessage());
+
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        String functionName = "unknown";
+        
+        if (stackTrace.length > 0) {
+            functionName = stackTrace[0].getMethodName();
+            log.error("Failed to run {}: {}", functionName, e.getMessage());
+        }
+        else {
+            log.error("서버 오류 발생 {}", e.getMessage());
+        }
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Content-Type","text/plain;charset=UTF-8")

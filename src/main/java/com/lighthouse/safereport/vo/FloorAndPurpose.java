@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class FloorAndPurpose {
     private String resFloor;      // 층수
-    private String resUseType;    // 용도
+    private String resUserType;    // 용도
     private String resStructure;  // 구조
     private String resArea;       // 면적
 }
