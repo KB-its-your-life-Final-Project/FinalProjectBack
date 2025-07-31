@@ -16,6 +16,7 @@ public class LocalInfoService {
 
     private final LocalInfoMapper localInfoMapper;
     private final WeatherService weatherService;
+    private final PopulationService populationService;
     private final WeatherMapper weatherMapper;
 
     /**

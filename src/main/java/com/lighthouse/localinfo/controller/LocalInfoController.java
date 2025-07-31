@@ -1,10 +1,12 @@
 package com.lighthouse.localinfo.controller;
 
 import com.lighthouse.localinfo.dto.LocalInfoResponseDTO;
+import com.lighthouse.localinfo.dto.PopulationDTO;
 import com.lighthouse.localinfo.dto.ReverseGeocodeResponseDTO;
 import com.lighthouse.localinfo.dto.WeatherDTO;
 import com.lighthouse.localinfo.service.LocalInfoService;
 import com.lighthouse.localinfo.service.ReverseGeocodeService;
+import com.lighthouse.localinfo.service.PopulationService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/localinfo")
@@ -26,6 +29,7 @@ public class LocalInfoController {
 
     private final LocalInfoService localInfoService;
     private final ReverseGeocodeService reverseGeocodeService; // NaverMapsService 주입
+    private final PopulationService populationService;
 
 
     /**
@@ -89,4 +93,23 @@ public class LocalInfoController {
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, addressInfo));
     }
+
+    @GetMapping("/population")
+    @ApiOperation(value = "법정동코드로 인구 조회", notes = "법정동코드(regionCd)로 해당 지역의 인구 정보를 조회합니다.")
+    public ResponseEntity<ApiResponse<PopulationDTO>> getPopulationByRegionCd(
+            @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
+            @RequestParam("regionCd") String regionCd) {
+
+        PopulationDTO populationInfo = populationService.getPopulationByRegionCd(regionCd); // <-- Optional<PopulationDTO> 대신 PopulationDTO로 받음
+
+        if (populationInfo == null) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(ErrorCode.REGION_NOT_FOUND),
+                    ErrorCode.REGION_NOT_FOUND.getStatus()
+            );
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, populationInfo));
+    }
+
 }
