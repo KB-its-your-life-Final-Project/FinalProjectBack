@@ -202,24 +202,14 @@ ALTER TABLE api_building_register
     ADD COLUMN latitude DOUBLE COMMENT '위도',
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
-DELETE FROM api_building_register WHERE id = 29;
+
+DELETE FROM api_building_register WHERE id = 14;
 DELETE FROM api_building_register_building_status
-WHERE register_id=29;
+WHERE register_id=14;
 
+SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 
-SELECT
-    *
-FROM
-    estate_api_integration_sales_tbl
-WHERE
-    estate_id = 940;
-
-SELECT
-    *
-FROM
-    estate_api_integration_sales_tbl
-WHERE
-    estate_id = 940
-  AND trade_type = 1
-ORDER BY deal_year DESC, deal_month DESC, deal_day DESC
-LIMIT 1;
+# UNIQUE KEY 설정
+ALTER TABLE `estate_api_integration_tbl`
+ADD CONSTRAINT unique_combination
+UNIQUE (mhouse_type, shouse_type, build_year, building_type, jibun_addr);

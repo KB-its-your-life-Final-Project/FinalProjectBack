@@ -3,7 +3,7 @@ package com.lighthouse.member.util;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ValidateUtils {
+public class ValidateUtil {
     // 공백/빈값 여부 검사
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();
