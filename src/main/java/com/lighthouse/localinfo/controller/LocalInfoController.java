@@ -1,9 +1,7 @@
 package com.lighthouse.localinfo.controller;
 
-import com.lighthouse.localinfo.dto.LocalInfoResponseDTO;
-import com.lighthouse.localinfo.dto.PopulationDTO;
-import com.lighthouse.localinfo.dto.ReverseGeocodeResponseDTO;
-import com.lighthouse.localinfo.dto.WeatherDTO;
+import com.lighthouse.localinfo.dto.*;
+import com.lighthouse.localinfo.service.FacilityService;
 import com.lighthouse.localinfo.service.LocalInfoService;
 import com.lighthouse.localinfo.service.ReverseGeocodeService;
 import com.lighthouse.localinfo.service.PopulationService;
@@ -30,6 +28,7 @@ public class LocalInfoController {
     private final LocalInfoService localInfoService;
     private final ReverseGeocodeService reverseGeocodeService; // NaverMapsService 주입
     private final PopulationService populationService;
+    private final FacilityService facilityService;
 
 
     /**
@@ -110,6 +109,28 @@ public class LocalInfoController {
         }
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, populationInfo));
+    }
+    /**
+     * [신규] 법정동코드로 편의시설 (예: 자전거 대수) 정보를 조회하는 API
+     * @param regionCd 조회할 지역의 법정동 코드
+     * @return 해당 법정동의 편의시설 개수 정보
+     */
+    @GetMapping("/facilities-count") // 새로운 엔드포인트 이름
+    @ApiOperation(value = "법정동코드로 편의시설 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 편의시설(예: 자전거 대수) 정보를 조회합니다.")
+    public ResponseEntity<ApiResponse<FacilityDTO>> getFacilityCountsByRegionCd(
+            @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
+            @RequestParam("regionCd") String regionCd) {
+
+        Optional<FacilityDTO> facilityInfoOptional = facilityService.getFacilityCountsByRegionCd(regionCd);
+
+        if (facilityInfoOptional.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(ErrorCode.REGION_NOT_FOUND), // 편의시설 없음 에러코드 따로 정의 가능
+                    ErrorCode.REGION_NOT_FOUND.getStatus()
+            );
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, facilityInfoOptional.get()));
     }
 
 }
