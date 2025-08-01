@@ -11,5 +11,5 @@ public class SafetyDTO {
     private String regionCd;
     private String regionName;
     private String locataddNm;
-    private Long totalSafetyBellCount;
+    private Long totalCount;
 }
