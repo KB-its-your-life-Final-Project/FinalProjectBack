@@ -22,7 +22,7 @@ public enum SuccessCode implements ResponseCode{
 	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
 
 	// News
-	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공");
+	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공"),
 	
 	// WishList
 	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),
