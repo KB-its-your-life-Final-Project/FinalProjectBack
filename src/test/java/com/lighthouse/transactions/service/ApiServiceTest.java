@@ -185,9 +185,9 @@ class ApiServiceTest {
             log.info("법정동코드: {}, 연월: {}", lawdCd, dealYmd);
             for (ApiNameCall api: apiList) {
                 try {
-                    log.info("{} 호출 ---", api.apiName);
+                    log.info("{} 호출", api.apiName);
                     api.apiCall.accept(lawdCd, dealYmd);
-                    log.info("{} 완료!", api.apiName);
+                    log.info("{} 완료", api.apiName);
                 } catch (Exception e) {
                     log.error("{} 실패 - 법정동코드: {}, 연월: {}", api.apiName, lawdCd, dealYmd, e);
                     throw e;

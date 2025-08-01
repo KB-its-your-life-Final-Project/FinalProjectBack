@@ -27,7 +27,13 @@ public enum ErrorCode implements ResponseCode{
 
     // SafeReport
     BUILDINGINFO_NOT_FOUND(2001,"건물 건축 년도 또는 거래 금액 정보가 없습니다.", HttpStatus.NOT_FOUND),
-    SAFEBUILDING_NOT_FOUND(2001, "건물 위반 정보 또는 용도 정보가 없습니다.", HttpStatus.NOT_FOUND);
+    SAFEBUILDING_NOT_FOUND(2001, "건물 위반 정보 또는 용도 정보가 없습니다.", HttpStatus.NOT_FOUND),
+
+    // wishlist
+    WISHLIST_PROCESS_FAIL(3001, "찜 처리에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    WISHLIST_NOT_FOUND(3002,"해당 찜 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    WISHLIST_BAD_REQUEST(3003,"잘못된 인자가 포함된 요청입니다.", HttpStatus.BAD_REQUEST),
+    SEARCH_HISTORY_PROCESS_FAIL(3004, "검색 기록 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int code;
     private final String message;

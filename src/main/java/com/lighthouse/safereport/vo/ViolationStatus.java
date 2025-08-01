@@ -9,6 +9,6 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ViolationStatusVO {
+public class ViolationStatus {
     private String violationStatus;  // 위반건축물일 경우 "위반건축물"
 } 
