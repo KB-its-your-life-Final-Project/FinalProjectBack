@@ -6,17 +6,17 @@ import com.lighthouse.estate.mapper.EstateMapper;
 import com.lighthouse.estate.dto.RealEstateDTO;
 import com.lighthouse.estate.dto.RealEstateSalesDTO;
 import com.lighthouse.safereport.vo.RentalRatioAndBuildyear;
-import com.lighthouse.safereport.vo.ViolationStatusVO;
+import com.lighthouse.safereport.vo.ViolationStatus;
 import com.lighthouse.safereport.vo.FloorAndPurpose;
 import com.lighthouse.buildingRegister.service.BuildingRegisterService;
+import com.lighthouse.buildingRegister.mapper.BuildingRegisterMapper;
+import com.lighthouse.buildingRegister.vo.BuildingRegisterVO;
+import com.lighthouse.buildingRegister.vo.BuildingRegisterWithStatusVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 
 @Slf4j
@@ -26,6 +26,7 @@ public class SafeReportService {
     private final SafeReportMapper safereportmapper;
     private final EstateMapper estateMapper;
     private final BuildingRegisterService buildingRegisterService;
+    private final BuildingRegisterMapper buildingRegisterMapper;
 
     // 건물의 건축연도 점수, 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
@@ -42,7 +43,9 @@ public class SafeReportService {
         Integer estateId = realEstate.getId();
         
         // 3단계: 해당 건물의 최근 매매 정보 1개 조회 (trade_type=1만)
+        log.info("매매 정보 조회 시작 - estateId: {}", estateId);
         RealEstateSalesDTO latestSale = safereportmapper.getSalesByEstateIdWithTradeType(estateId);
+        log.info("매매 정보 조회 결과 - latestSale: {}", latestSale);
         
         // 4단계: 거래 금액 추출 (latestSale이 null이면 0으로 설정)
         Integer dealAmount;
@@ -59,7 +62,7 @@ public class SafeReportService {
         result.setDealAmount(dealAmount);
         result.setBuildYear(buildYear);
         
-        // 비즈니스 로직 처리
+        // 역전세율 계산
         int budget = dto.getBudget();
         double ratio;
         int ratioScore;
@@ -96,16 +99,10 @@ public class SafeReportService {
             fullAddress = address + " (" + dongName + ")";
         }
         
-        // 1단계: DB에 이미 데이터 존재하는지 확인
-        ViolationStatusVO violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
-        List<FloorAndPurpose> floorAndPurposeList = null;
-        
-        if(violationStatus != null) {
-            // 위반 여부가 있으면 층수/용도도 바로 조회
-            floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());
-            log.info("DB에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
-            
-            return new BuildingInfoResult(violationStatus, floorAndPurposeList);
+        // 1단계: DB에서 토지대장 데이터터 조회
+        BuildingInfoResult dbResult = getBuildingInfoFromDB(dto.getLat(), dto.getLng());
+        if(dbResult != null) {
+            return dbResult;
         }
         
         // 2단계: DB에 데이터가 없으면 토지대장 API 호출
@@ -138,14 +135,11 @@ public class SafeReportService {
                     }
                 }
                 
-                // API 호출 성공 시 DB에 저장되었을 것이므로 DB에서 위반 여부와 층수/용도 모두 조회
+                // API 호출 성공 시 DB에 저장되었을 것이므로 DB에서 다시 조회
                 if(result != null) {
-                    violationStatus = safereportmapper.getViolationStatus(dto.getLat(), dto.getLng());
-                    floorAndPurposeList = safereportmapper.getFloorAndPurposeList(dto.getLat(), dto.getLng());
-                    
-                    if(violationStatus != null || (floorAndPurposeList != null && !floorAndPurposeList.isEmpty())) {
-                        log.info("DB에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
-                        return new BuildingInfoResult(violationStatus, floorAndPurposeList);
+                    BuildingInfoResult dbResultAfterApi = getBuildingInfoFromDB(dto.getLat(), dto.getLng());
+                    if(dbResultAfterApi != null) {
+                        return dbResultAfterApi;
                     } else {
                         log.warn("토지대장에 건물 정보 없음: {}", fullAddress);
                     }
@@ -161,17 +155,53 @@ public class SafeReportService {
         return new BuildingInfoResult(null, null);
     }
     
+    // DB에서 토지대장 정보 조회
+    private BuildingInfoResult getBuildingInfoFromDB(double lat, double lng) {
+        BuildingRegisterVO building = buildingRegisterMapper.getBuildingRegisterByLocation(lat, lng);
+        List<BuildingRegisterWithStatusVO> buildingsWithStatus = buildingRegisterMapper.getBuildingRegisterWithStatusByLocation(lat, lng);
+        
+        ViolationStatus violationStatus = null;
+        List<FloorAndPurpose> floorAndPurposeList = null;
+        
+        if(building != null) {
+            violationStatus = new ViolationStatus();
+            violationStatus.setViolationStatus(building.getResViolationStatus());
+            log.info("BuildingRegisterMapper에서 위반여부 조회 성공: {}", violationStatus);
+        }
+        
+        if(buildingsWithStatus != null && !buildingsWithStatus.isEmpty()) {
+            floorAndPurposeList = buildingsWithStatus.stream()
+                .map(buildingStatus -> {
+                    FloorAndPurpose floorAndPurpose = new FloorAndPurpose();
+                    floorAndPurpose.setResFloor(buildingStatus.getResFloor());
+                    floorAndPurpose.setResUseType(buildingStatus.getResUseType());
+                    floorAndPurpose.setResStructure(buildingStatus.getResStructure());
+                    floorAndPurpose.setResArea(buildingStatus.getResArea());
+                    return floorAndPurpose;
+                })
+                .toList();
+            log.info("BuildingRegisterMapper에서 층수/용도 조회 성공: {}", floorAndPurposeList);
+        }
+        
+        if(violationStatus != null || (floorAndPurposeList != null && !floorAndPurposeList.isEmpty())) {
+            log.info("BuildingRegisterMapper에서 건물 정보 조회 성공 - 위반여부: {}, 층수/용도: {}", violationStatus, floorAndPurposeList);
+            return new BuildingInfoResult(violationStatus, floorAndPurposeList);
+        }
+        
+        return null;
+    }
+    
     // 건물 정보 결과를 담는 내부 클래스
     public static class BuildingInfoResult {
-        private final ViolationStatusVO violationStatus;
+        private final ViolationStatus violationStatus;
         private final List<FloorAndPurpose> floorAndPurposeList;
         
-        public BuildingInfoResult(ViolationStatusVO violationStatus, List<FloorAndPurpose> floorAndPurposeList) {
+        public BuildingInfoResult(ViolationStatus violationStatus, List<FloorAndPurpose> floorAndPurposeList) {
             this.violationStatus = violationStatus;
             this.floorAndPurposeList = floorAndPurposeList;
         }
         
-        public ViolationStatusVO getViolationStatus() { return violationStatus; }
+        public ViolationStatus getViolationStatus() { return violationStatus; }
         public List<FloorAndPurpose> getFloorAndPurposeList() { return floorAndPurposeList; }
     }
 }

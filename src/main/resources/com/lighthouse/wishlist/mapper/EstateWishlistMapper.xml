@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.wishlist.mapper.EstateWishlistMapper">
+
+    <insert id="saveLikeEstate" parameterType="LikeEstate">
+        INSERT INTO ${LIKE_ESTATE_TBL} (
+            member_id, estate_id, is_like
+        ) VALUES (
+            #{memberId}, #{estateId}, #{isLike}
+        )
+    </insert>
+    <update id="updateLikeEstate" parameterType="LikeEstate">
+        UPDATE ${LIKE_ESTATE_TBL}
+        SET
+            is_like = #{isLike},
+            update_date = NOW()
+        WHERE
+            member_id = #{memberId}
+            AND estate_id = #{estateId}
+    </update>
+    <select id="findByMemberIdAndEstateId" resultType="LikeEstate">
+        SELECT member_id, estate_id, is_like
+        FROM ${LIKE_ESTATE_TBL}
+        WHERE member_id = #{memberId}
+          AND estate_id = #{estateId}
+    </select>
+    <select id="findEstatesByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.EstateWishlistResponseDTO">
+        SELECT le.estate_id, ea.building_name
+        FROM ${LIKE_ESTATE_TBL} le
+                 JOIN ${ESTATE_API_INTEGRATION_TBL} ea ON le.estate_id = ea.id
+        WHERE le.member_id = #{memberId}
+          AND le.is_like = 1
+    </select>
+</mapper>

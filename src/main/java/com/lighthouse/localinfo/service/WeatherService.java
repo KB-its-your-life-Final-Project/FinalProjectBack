@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class WeatherService {
 
-    @Value("${data.go.kr.api.key}")
+    @Value("${DATA_GO_KR_API_KEY}")
     private String apiKey;
 
     private final String BASE_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";

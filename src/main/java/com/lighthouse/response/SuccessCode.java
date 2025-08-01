@@ -21,8 +21,15 @@ public enum SuccessCode implements ResponseCode{
 	// SafeReport
 	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
 
+	// WishList
+	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),
+	WISHLIST_SAVE_SUCCESS(3002, "찜 목록 추가 성공"),
+	WISHLIST_DELETE_SUCCESS(3003, "찜 목록 삭제 성공"),
+	SEARCH_HISTORY_SAVE_SUCCESS(3004,"검색 기록 저장 성공"),
+	SEARCH_HISTORY_GETLIST_SUCCESS(3005,"검색 기록 조회 성공"),
+
 	// localinfo
-	LOCALINFO_FETCH_SUCCESS(3000, "지역 정보 조회 성공");
+	LOCALINFO_FETCH_SUCCESS(4000, "지역 정보 조회 성공");
 	private final int code;
 	private final String message;
 }
