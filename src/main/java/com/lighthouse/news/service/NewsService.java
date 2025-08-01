@@ -38,8 +38,8 @@ public class NewsService {
             log.info("youthContentDtoList: {}", youthContentDtoList);
             return youthContentDtoList;
         } catch (Exception e) {
-            log.error("온통 청년 API 호출 중 예외 발생", e);
-            throw new RuntimeException("온통 청년 API 호출 실패", e);
+            log.error("온통청년(청년콘텐츠) API 호출 중 예외 발생", e);
+            throw new RuntimeException("온통청년(청년콘텐츠) API 호출 실패", e);
         }
     }
  }
