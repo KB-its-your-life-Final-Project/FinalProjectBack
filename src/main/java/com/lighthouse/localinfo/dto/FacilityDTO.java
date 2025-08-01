@@ -16,5 +16,4 @@ public class FacilityDTO {
     // 추가?
     // private Long totalConvenienceStoreCount; // 총 편의점 수
     // private Long totalRestaurantCount;       // 총 식당 수
-    // private Long totalCctvCount;             // 총 CCTV 수
 }

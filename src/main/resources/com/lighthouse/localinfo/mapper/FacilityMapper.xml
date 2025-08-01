@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.lighthouse.localinfo.mapper.FacilityMapper">
 
     <select id="findFacilityDetailsByRegionCd" resultType="com.lighthouse.localinfo.dto.FacilityDTO">
         SELECT
-            sb.region_cd    AS regionCd,
-            sb.region       AS regionName,   -- api_lawd_cd에서 가져온 지역 이름
-            sb.locatadd_nm  AS locataddNm,   -- api_lawd_cd에서 가져온 풀 주소명
-            -- 자전거 대수 계산 (서브쿼리 또는 LEFT JOIN 사용)
-            (SELECT COUNT(*) FROM share_bicycle sb WHERE sb.region_cd AS totalBicycleCount
-        -- 추가적인 편의시설 카운트가 있다면 여기에 서브쿼리로
-        -- , (SELECT COUNT(*) FROM convenience_store cs WHERE cs.region_cd = al.region_cd) AS totalConvenienceStoreCount
-        -- , (SELECT COUNT(*) FROM restaurant r WHERE r.region_cd = al.region_cd) AS totalRestaurantCount
-            WHERE
-            sb.region_cd = #{regionCd}
+            region_cd AS regionCd,
+            COUNT(*) AS totalBicycleCount
+        FROM
+            share_bicycle
+        WHERE
+            region_cd = #{regionCd}
+        GROUP BY
+            region_cd
             LIMIT 1
     </select>
 

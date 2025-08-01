@@ -1,10 +1,7 @@
 package com.lighthouse.localinfo.controller;
 
 import com.lighthouse.localinfo.dto.*;
-import com.lighthouse.localinfo.service.FacilityService;
-import com.lighthouse.localinfo.service.LocalInfoService;
-import com.lighthouse.localinfo.service.ReverseGeocodeService;
-import com.lighthouse.localinfo.service.PopulationService;
+import com.lighthouse.localinfo.service.*;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
@@ -29,7 +26,8 @@ public class LocalInfoController {
     private final ReverseGeocodeService reverseGeocodeService; // NaverMapsService 주입
     private final PopulationService populationService;
     private final FacilityService facilityService;
-
+    private final HospitalService hospitalService;
+    private final SafetyService safetyService;
 
     /**
      * 키워드로 지역 목록을 검색하는 API
@@ -128,9 +126,42 @@ public class LocalInfoController {
                     ApiResponse.error(ErrorCode.REGION_NOT_FOUND), // 편의시설 없음 에러코드 따로 정의 가능
                     ErrorCode.REGION_NOT_FOUND.getStatus()
             );
-        }
+
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, facilityInfoOptional.get()));
+
+    @GetMapping("/hospitals-count")
+    @ApiOperation(value = "법정동코드로 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 편의시설(예: 자전거 대수) 정보를 조회합니다.")
+    public ResponseEntity<ApiResponse<HospitalDTO>> getHospitalCountsByRegionCd(
+            @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
+            @RequestParam("regionCd") String regionCd) {
+
+        Optional<HospitalDTO> hosptialInfoOptional = hospitalService.getHospitalCountsByRegionCd(regionCd);
+
+        if (hosptialInfoOptional.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(ErrorCode.REGION_NOT_FOUND),
+                    ErrorCode.REGION_NOT_FOUND.getStatus()
+            );
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, hosptialInfoOptional.get()));
+
+        }
+
+    @GetMapping("/safety-count")
+    @ApiOperation(value = "법정동코드로 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 편의시설(예: 자전거 대수) 정보를 조회합니다.");
+    public ResponseEntity<ApiResponse<SafatyDTO>> getSafetyCountsByRegionCd(
+            @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
+            @RequestParam("regionCd") String regionCd) {
+
+        Optional<SafatyDTO> safetyInfoOptional = safetyService.getSafetyCountsByRegionCd(regionCd);
+
+        if (safetyInfoOptional.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(ErrorCode.REGION_NOT_FOUND),
+                    ErrorCode.REGION_NOT_FOUND.getStatus()
+            );
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, safetyInfoOptional.get()));
     }
 
-}
