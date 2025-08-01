@@ -43,6 +43,7 @@ public class LocalInfoController {
         List<LocalInfoResponseDTO> regions = localInfoService.searchRegions(keyword);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, regions));
     }
+
     /**
      * 지역명으로 날씨 정보를 조회하는 API (이 API를 통해 날씨 API 호출을 확인합니다.)
      * @param regionCd 전체 지역 주소명
@@ -108,6 +109,7 @@ public class LocalInfoController {
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, populationInfo));
     }
+
     /**
      * [신규] 법정동코드로 편의시설 (예: 자전거 대수) 정보를 조회하는 API
      * @param regionCd 조회할 지역의 법정동 코드
@@ -126,34 +128,36 @@ public class LocalInfoController {
                     ApiResponse.error(ErrorCode.REGION_NOT_FOUND), // 편의시설 없음 에러코드 따로 정의 가능
                     ErrorCode.REGION_NOT_FOUND.getStatus()
             );
-
+        }
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, facilityInfoOptional.get()));
+    }
 
     @GetMapping("/hospitals-count")
-    @ApiOperation(value = "법정동코드로 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 편의시설(예: 자전거 대수) 정보를 조회합니다.")
+    @ApiOperation(value = "법정동코드로 병원 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 병원 수 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<HospitalDTO>> getHospitalCountsByRegionCd(
             @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
             @RequestParam("regionCd") String regionCd) {
 
-        Optional<HospitalDTO> hosptialInfoOptional = hospitalService.getHospitalCountsByRegionCd(regionCd);
+        Optional<HospitalDTO> hospitalInfoOptional = hospitalService.getHospitalCountsByRegionCd(regionCd);
 
-        if (hosptialInfoOptional.isEmpty()) {
+        if (hospitalInfoOptional.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(ErrorCode.REGION_NOT_FOUND),
                     ErrorCode.REGION_NOT_FOUND.getStatus()
             );
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, hosptialInfoOptional.get()));
-
         }
 
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, hospitalInfoOptional.get()));
+    }
+
     @GetMapping("/safety-count")
-    @ApiOperation(value = "법정동코드로 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 편의시설(예: 자전거 대수) 정보를 조회합니다.");
-    public ResponseEntity<ApiResponse<SafatyDTO>> getSafetyCountsByRegionCd(
+    @ApiOperation(value = "법정동코드로 안전시설 수 조회", notes = "법정동코드(regionCd)로 해당 지역의 안전시설(안심벨) 수 정보를 조회합니다.")
+    public ResponseEntity<ApiResponse<SafetyDTO>> getSafetyCountsByRegionCd(
             @ApiParam(value = "지역 법정동 코드", required = true, example = "1168010800")
             @RequestParam("regionCd") String regionCd) {
 
-        Optional<SafatyDTO> safetyInfoOptional = safetyService.getSafetyCountsByRegionCd(regionCd);
+        Optional<SafetyDTO> safetyInfoOptional = safetyService.getSafetyCountsByRegionCd(regionCd);
 
         if (safetyInfoOptional.isEmpty()) {
             return new ResponseEntity<>(
@@ -164,4 +168,4 @@ public class LocalInfoController {
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, safetyInfoOptional.get()));
     }
-
+}
