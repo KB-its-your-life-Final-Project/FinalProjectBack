@@ -71,8 +71,9 @@ public class SafeReportService {
             ratio = 0;
             ratioScore = 0;
         } else {
-            ratio = (budget / (double)dealAmount) * 100;
-            ratioScore = (ratio <= 70) ? 0 : (ratio <= 80) ? 1 : (ratio <= 90) ? 2 : 3;
+            ratio = ((double) budget / dealAmount) * 100;
+            // 역전세율이 80% 이하면 깡통전세 위험 없음(10점), 80~90%이면 가능성 있으므로 위험 수준(6점), 90~100%는 매우 위험 수준(3점)
+            ratioScore = (ratio <= 80) ? 10 : (ratio <= 90) ? 6 : 3;
         }
 
         int currentYear = LocalDate.now().getYear();
