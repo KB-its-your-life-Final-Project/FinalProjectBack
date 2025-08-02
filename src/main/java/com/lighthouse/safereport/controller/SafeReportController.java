@@ -80,7 +80,7 @@ public class SafeReportController {
         try {
             Integer userId = getUserId(request);
             if (userId != null) {
-                // 유효한 데이터인지 확인
+                // 매매 기록 없어서 조회 안 되었던 것 또는 전세가율 100% 이상이어서 조회 안 되었던 것은 저장 x 
                 boolean isValidData = rentalRatioAndBuildyear != null &&
                         rentalRatioAndBuildyear.getDealAmount() != 0 &&
                         rentalRatioAndBuildyear.getReverseRentalRatio() < 100;
@@ -121,7 +121,7 @@ public class SafeReportController {
         value = "최근 본 안심레포트 상세 조회",
         notes = "특정 안심레포트의 상세 정보를 조회합니다."
     )
-    public ResponseEntity<ApiResponse<RecentSafeReportDetailResponseDto>> getRecentReportDetail(
+    public ResponseEntity<ApiResponse<SafeReportResponseDto>> getRecentReportDetail(
         @PathVariable Integer id,
         HttpServletRequest request
     ){
@@ -131,7 +131,7 @@ public class SafeReportController {
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
         }
         
-        RecentSafeReportDetailResponseDto report = recentSafeReportService.getRecentReportDetail(id, userId);
+        SafeReportResponseDto report = recentSafeReportService.getRecentReportDetail(id, userId);
         
         if (report == null) {
             return ResponseEntity.status(404)

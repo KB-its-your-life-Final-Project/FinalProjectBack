@@ -13,7 +13,7 @@
     <!-- 최근 본 안심레포트 수정 -->
     <update id="updateRecentSafeReport" parameterType="com.lighthouse.safereport.entity.RecentSafeReport">
         UPDATE safe_report_tbl
-        SET budget = #{budget}, updated_at = #{updatedAt}
+        SET budget = #{budget}, updated_at = #{updatedAt}, is_delete = #{isDelete}
         WHERE id = #{id}
     </update>
 
@@ -24,10 +24,10 @@
         ORDER BY updated_at DESC
     </select>
 
-    <!-- 특정 estate_id에 대한 레포트 조회 -->
+    <!-- 특정 estate_id에 대한 레포트 조회 (삭제된 것 포함) -->
     <select id="findByUserIdAndEstateId" resultType="com.lighthouse.safereport.entity.RecentSafeReport">
         SELECT * FROM safe_report_tbl
-        WHERE user_id = #{userId} AND estate_id = #{estateId} AND is_delete = 0
+        WHERE user_id = #{userId} AND estate_id = #{estateId}
     </select>
 
     <!-- 특정 사용자의 특정 레포트 조회 -->
@@ -36,10 +36,11 @@
         WHERE id = #{id} AND user_id = #{userId} AND is_delete = 0
     </select>
 
-    <!-- 특정 사용자의 특정 레포트 삭제 -->
-    <delete id="deleteByIdAndUserId">
-        DELETE FROM safe_report_tbl
+    <!-- 특정 사용자의 특정 레포트 삭제 (논리적 삭제) -->
+    <update id="deleteByIdAndUserId">
+        UPDATE safe_report_tbl
+        SET is_delete = 1
         WHERE id = #{id} AND user_id = #{userId}
-    </delete>
+    </update>
 
 </mapper>
