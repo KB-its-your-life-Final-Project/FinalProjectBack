@@ -28,3 +28,6 @@ Thumbs.db
 
 # DB test
 DBset.sql
+
+# Test properties (개인이 설정)
+src/test/resources/application-test.properties
