@@ -20,7 +20,17 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(basePackages = "com.lighthouse")
+@MapperScan(basePackages = {
+    "com.lighthouse.buildingRegister.mapper",
+    "com.lighthouse.estate.mapper", 
+    "com.lighthouse.member.mapper",
+    "com.lighthouse.safereport.mapper",
+    "com.lighthouse.security.mapper",
+    "com.lighthouse.toCoord.mapper",
+    "com.lighthouse.transactions.mapper",
+    "com.lighthouse.coord.mapper",
+    "com.lighthouse.wishlist.mapper"
+})
 @ComponentScan(
         basePackages = {"com.lighthouse"},
         excludeFilters = {
