@@ -23,13 +23,16 @@ public enum SuccessCode implements ResponseCode{
 
 	// News
 	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공"),
-
+	
 	// WishList
-	WISHLIST_GETLIST_SUCCESS(3002,"찜 목록 조회 성공"),
-	WISHLIST_SAVE_SUCCESS(3003, "찜 목록 추가 성공"),
-	WISHLIST_DELETE_SUCCESS(3004, "찜 목록 삭제 성공"),
-	SEARCH_HISTORY_SAVE_SUCCESS(3005,"검색 기록 저장 성공"),
-	SEARCH_HISTORY_GETLIST_SUCCESS(3006,"검색 기록 조회 성공");
+	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),
+	WISHLIST_SAVE_SUCCESS(3002, "찜 목록 추가 성공"),
+	WISHLIST_DELETE_SUCCESS(3003, "찜 목록 삭제 성공"),
+	SEARCH_HISTORY_SAVE_SUCCESS(3004,"검색 기록 저장 성공"),
+	SEARCH_HISTORY_GETLIST_SUCCESS(3005,"검색 기록 조회 성공"),
+
+	// Estate
+	ESTATE_FETCH_SUCCESS(4001, "건물 정보 확인 성공");
 
 	private final int code;
 	private final String message;
