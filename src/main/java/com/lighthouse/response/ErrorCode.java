@@ -33,7 +33,10 @@ public enum ErrorCode implements ResponseCode{
     WISHLIST_PROCESS_FAIL(3001, "찜 처리에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     WISHLIST_NOT_FOUND(3002,"해당 찜 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     WISHLIST_BAD_REQUEST(3003,"잘못된 인자가 포함된 요청입니다.", HttpStatus.BAD_REQUEST),
-    SEARCH_HISTORY_PROCESS_FAIL(3004, "검색 기록 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    SEARCH_HISTORY_PROCESS_FAIL(3004, "검색 기록 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // Estate
+	ESTATE_NOT_FOUND(4001, "건물에 대한 정보가 없습니다.", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;
