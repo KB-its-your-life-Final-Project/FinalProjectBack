@@ -19,11 +19,7 @@ public class RecentSafeReport {
     private Long estateId; // estate_api_integration_tbl 참조
     private String buildingName;
     private String roadAddress;
-    private Double latitude;
-    private Double longitude;
-    private Integer budget;
+    private Integer budget; // 사용자가 입력한 예산
     private String resultGrade;
-    private Integer isDelete;
-    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

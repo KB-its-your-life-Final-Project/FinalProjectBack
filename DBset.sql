@@ -214,13 +214,11 @@ ALTER TABLE `estate_api_integration_tbl`
 ADD CONSTRAINT unique_combination
 UNIQUE (mhouse_type, shouse_type, build_year, building_type, jibun_addr);
 
-DROP TABLE IF EXISTS safe_report_unified;
+DROP TABLE IF EXISTS safe_report_tbl;
 CREATE TABLE safe_report_tbl (
-                                    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '기본 키',
-                                    user_id BIGINT NOT NULL COMMENT '조회한 사용자',
-                                    estate_id BIGINT NOT NULL COMMENT 'estate_api_integration_tbl의 id',
-                                    building_name VARCHAR(255) NOT NULL COMMENT '건물명',
-                                    road_address VARCHAR(255) NOT NULL COMMENT '도로명 주소',
+                                    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '기본 키',
+                                    user_id INT NOT NULL COMMENT '조회한 사용자',
+                                    estate_id INT NOT NULL COMMENT 'estate_api_integration_tbl의 id',
                                     budget INT NOT NULL COMMENT '예산',
                                     result_grade VARCHAR(50) NOT NULL COMMENT '레포트 결과 등급',
                                     is_delete TINYINT(1) DEFAULT 0 COMMENT '삭제 여부 (0: 활성, 1: 삭제)',

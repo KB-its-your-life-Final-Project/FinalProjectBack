@@ -7,12 +7,12 @@ import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.dto.SafeReportResponseDto;
 import com.lighthouse.safereport.entity.RecentSafeReport;
 import com.lighthouse.safereport.mapper.RecentSafeReportMapper;
+import com.lighthouse.estate.mapper.EstateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,34 +24,34 @@ public class RecentSafeReportService {
     
     private final RecentSafeReportMapper recentSafeReportMapper;
     private final SafeReportService safeReportService; // estate 데이터 조회용
+    private final EstateMapper estateMapper; // estate_id 조회용
     
-    /**
-     * 최근 본 안심레포트 저장
-     */
+    // 최근 본 안심 레포트 저장
     @Transactional
-    public void saveRecentSafeReport(Long userId, SafeReportRequestDto requestDto, SafeReportResponseDto responseDto) {
+    public void saveRecentSafeReport(Integer userId, SafeReportRequestDto requestDto) {
         try {
             // estate_id 추출 (위도/경도로 estate_api_integration_tbl에서 조회)
-            Long estateId = getEstateIdFromLocation(requestDto.getLat(), requestDto.getLng());
+            Integer estateId = getEstateIdFromLocation(requestDto.getLat(), requestDto.getLng());
             
-            // 중복 체크 (같은 위치의 안심레포트가 이미 있는지)
-            RecentSafeReport existingReport = recentSafeReportMapper.findByUserIdAndLocation(
-                userId, BigDecimal.valueOf(requestDto.getLat()), BigDecimal.valueOf(requestDto.getLng()));
+            if (estateId == null) {
+                log.warn("estate_id를 찾을 수 없어 최근 본 안심레포트 저장을 건너뜁니다: lat={}, lng={}", 
+                    requestDto.getLat(), requestDto.getLng());
+                return;
+            }
+            
+            // 중복 체크 (같은 estateId의 안심레포트가 이미 있는지- 이전에 열람한 적 있는 건물인지)
+            RecentSafeReport existingReport = recentSafeReportMapper.findByUserIdAndEstateId(userId, estateId);
             
             if (existingReport != null) {
                 // 기존 데이터 업데이트
                 existingReport.setBudget(requestDto.getBudget());
-                existingReport.setCreatedAt(LocalDateTime.now());
+                existingReport.setUpdatedAt(LocalDateTime.now());
                 recentSafeReportMapper.updateRecentSafeReport(existingReport);
             } else {
                 // 새 데이터 저장
                 RecentSafeReport newReport = RecentSafeReport.builder()
                     .userId(userId)
                     .estateId(estateId)
-                    .buildingName(requestDto.getBuildingName())
-                    .roadAddress(requestDto.getRoadAddress())
-                    .latitude(requestDto.getLat())
-                    .longitude(requestDto.getLng())
                     .budget(requestDto.getBudget())
                     .resultGrade("완료")
                     .isDelete(0)
@@ -68,9 +68,9 @@ public class RecentSafeReportService {
     }
     
     /**
-     * 최근 본 안심레포트 목록 조회
+     * 최근 본 안심레포트 목록 모두 조회 최신순
      */
-    public List<RecentSafeReportResponseDto> getRecentReports(Long userId) {
+    public List<RecentSafeReportResponseDto> getRecentReports(Integer userId) {
         List<RecentSafeReport> reports = recentSafeReportMapper.findByUserIdOrderByCreatedAtDesc(userId);
         return reports.stream()
             .map(this::convertToResponseDto)
@@ -88,11 +88,9 @@ public class RecentSafeReportService {
         
         // estate_api_integration_tbl에서 최신 데이터 조회
         SafeReportRequestDto requestDto = new SafeReportRequestDto();
-        requestDto.setLat(report.getLatitude().doubleValue());
-        requestDto.setLng(report.getLongitude().doubleValue());
-        requestDto.setBudget(report.getBudget());
         requestDto.setBuildingName(report.getBuildingName());
         requestDto.setRoadAddress(report.getRoadAddress());
+        requestDto.setBudget(report.getBudget());
         
         // 실시간으로 안심레포트 데이터 생성
         SafeReportResponseDto safeReportData = generateSafeReportResponse(requestDto);
@@ -122,10 +120,19 @@ public class RecentSafeReportService {
     /**
      * 위도/경도로 estate_id 조회
      */
-    private Long getEstateIdFromLocation(double lat, double lng) {
-        // estate_api_integration_tbl에서 위도/경도로 estate_id 조회
-        // 실제 구현에서는 해당 매퍼 메서드 호출
-        return 1L; // 임시 반환값
+    private Integer getEstateIdFromLocation(double lat, double lng) {
+        try {
+            // EstateMapper를 사용하여 위도/경도로 estate 정보 조회
+            var estate = estateMapper.getRealEstateByLocation(lat, lng);
+            if (estate != null) {
+                return estate.getId(); // estate_id 반환
+            }
+            log.warn("위도/경도에 해당하는 estate 정보를 찾을 수 없습니다: lat={}, lng={}", lat, lng);
+            return null;
+        } catch (Exception e) {
+            log.error("estate_id 조회 실패: {}", e.getMessage(), e);
+            return null;
+        }
     }
     
     /**
@@ -150,11 +157,9 @@ public class RecentSafeReportService {
         return RecentSafeReportResponseDto.builder()
             .id(report.getId())
             .buildingName(report.getBuildingName())
-            .jibunAddress(report.getJibunAddress())
             .roadAddress(report.getRoadAddress())
-            .diagnosisStatus(report.getDiagnosisStatus())
-            .diagnosisDate(report.getDiagnosisDate())
-            .createdAt(report.getCreatedAt())
+            .resultGrade(report.getResultGrade())
+            .updatedAt(report.getUpdatedAt())
             .build();
     }
     
@@ -165,16 +170,9 @@ public class RecentSafeReportService {
         return RecentSafeReportDetailResponseDto.builder()
             .id(report.getId())
             .buildingName(report.getBuildingName())
-            .dongName(report.getDongName())
-            .jibunAddress(report.getJibunAddress())
             .roadAddress(report.getRoadAddress())
-            .latitude(report.getLatitude())
-            .longitude(report.getLongitude())
             .budget(report.getBudget())
             .reportData(convertToJson(safeReportData)) // 실시간 조회한 데이터
-            .diagnosisStatus(report.getDiagnosisStatus())
-            .diagnosisDate(report.getDiagnosisDate())
-            .createdAt(report.getCreatedAt())
             .build();
     }
     

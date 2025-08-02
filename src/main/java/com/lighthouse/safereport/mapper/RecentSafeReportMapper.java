@@ -11,11 +11,9 @@ import java.util.List;
 public interface RecentSafeReportMapper {
     
     /**
-     * 사용자 ID와 위치로 최근 본 안심레포트 조회
+     * 사용자 ID와 estateId로 최근 본 안심레포트 조회
      */
-    RecentSafeReport findByUserIdAndLocation(@Param("userId") Long userId, 
-                                           @Param("latitude") BigDecimal latitude, 
-                                           @Param("longitude") BigDecimal longitude);
+    RecentSafeReport findByUserIdAndEstateId(@Param("userId") Long userId, @Param("estateId") Long estateId);
     
     /**
      * 최근 본 안심레포트 저장

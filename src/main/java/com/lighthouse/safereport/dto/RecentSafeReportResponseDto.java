@@ -16,5 +16,5 @@ public class RecentSafeReportResponseDto {
     private String buildingName;//건물명
     private String roadAddress;//도로명주소
     private String resultGrade;//결과 등급(위험/주의/안전)
-    private LocalDateTime diagnosisDate;//본 날짜(최근)
+    private LocalDateTime updatedAt;//등록일/수정일
 }

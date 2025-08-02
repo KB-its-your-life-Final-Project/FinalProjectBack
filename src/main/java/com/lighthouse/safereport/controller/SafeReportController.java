@@ -78,9 +78,9 @@ public class SafeReportController {
         
         // 최근 본 안심레포트에 저장
         try {
-            Long userId = getUserId(request);
+            Integer userId = getUserId(request);
             if (userId != null) {
-                recentSafeReportService.saveRecentSafeReport(userId, dto, responseDto);
+                recentSafeReportService.saveRecentSafeReport(userId, dto);
             }
         } catch (Exception e) {
             log.warn("최근 본 안심레포트 저장 실패: {}", e.getMessage());
@@ -98,7 +98,7 @@ public class SafeReportController {
     public ResponseEntity<ApiResponse<List<RecentSafeReportResponseDto>>> getRecentReports(
         HttpServletRequest request
     ){
-        Long userId = getUserId(request);
+        Integer userId = getUserId(request);
         if (userId == null) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
@@ -115,10 +115,10 @@ public class SafeReportController {
         notes = "특정 안심레포트의 상세 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<RecentSafeReportDetailResponseDto>> getRecentReportDetail(
-        @PathVariable Long id,
+        @PathVariable Integer id,
         HttpServletRequest request
     ){
-        Long userId = getUserId(request);
+        Integer userId = getUserId(request);
         if (userId == null) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
@@ -141,10 +141,10 @@ public class SafeReportController {
         notes = "특정 안심레포트를 최근 본 목록에서 삭제합니다."
     )
     public ResponseEntity<ApiResponse<Void>> deleteRecentReport(
-        @PathVariable Long id,
+        @PathVariable Integer id,
         HttpServletRequest request
     ){
-        Long userId = getUserId(request);
+        Integer userId = getUserId(request);
         if (userId == null) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
@@ -155,7 +155,7 @@ public class SafeReportController {
     }
     
     // 사용자 ID 추출 메서드 (JWT 토큰에서)
-    private Long getUserId(HttpServletRequest request) {
+    private Integer getUserId(HttpServletRequest request) {
         try {
             // 1. 쿠키에서 accessToken 추출
             String accessToken = jwtCookieUtil.getAccessTokenFromRequest(request);
@@ -168,12 +168,12 @@ public class SafeReportController {
                 }
                 // refreshToken에서 사용자 ID 추출
                 String subject = jwtUtil.getSubjectFromToken(refreshToken);
-                return Long.valueOf(subject);
+                return Integer.valueOf(subject);
             }
             
             // 3. accessToken에서 사용자 ID 추출
             String subject = jwtUtil.getSubjectFromToken(accessToken);
-            return Long.valueOf(subject);
+            return Integer.valueOf(subject);
             
         } catch (Exception e) {
             log.warn("JWT 토큰에서 사용자 ID 추출 실패: {}", e.getMessage());
