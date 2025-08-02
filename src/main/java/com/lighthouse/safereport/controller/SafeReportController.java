@@ -80,7 +80,14 @@ public class SafeReportController {
         try {
             Integer userId = getUserId(request);
             if (userId != null) {
-                recentSafeReportService.saveRecentSafeReport(userId, dto);
+                // 유효한 데이터인지 확인
+                boolean isValidData = rentalRatioAndBuildyear != null &&
+                        rentalRatioAndBuildyear.getDealAmount() != 0 &&
+                        rentalRatioAndBuildyear.getReverseRentalRatio() < 100;
+
+                if (isValidData) {
+                    recentSafeReportService.saveRecentSafeReport(userId, dto);
+                }
             }
         } catch (Exception e) {
             log.warn("최근 본 안심레포트 저장 실패: {}", e.getMessage());

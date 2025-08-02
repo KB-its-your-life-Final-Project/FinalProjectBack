@@ -26,6 +26,16 @@
         
     </select>
 
+    <!-- estate ID로 건물 정보 조회 -->
+    <select id="getEstateById" resultMap="EstateMap">
+        SELECT
+            *
+        FROM
+            estate_api_integration_tbl 
+        WHERE
+            id = #{estateId}
+    </select>
+
     <!-- 건물 ID로 매매 정보 조회 -->
     <select id="getSalesByEstateId" resultMap="EstateSalesMap">
         SELECT

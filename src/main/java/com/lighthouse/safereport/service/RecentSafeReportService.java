@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,20 +48,20 @@ public class RecentSafeReportService {
                 existingReport.setBudget(requestDto.getBudget());
                 existingReport.setUpdatedAt(LocalDateTime.now());
                 recentSafeReportMapper.updateRecentSafeReport(existingReport);
-            } else {
-                // 새 데이터 저장
-                RecentSafeReport newReport = RecentSafeReport.builder()
-                    .userId(userId)
-                    .estateId(estateId)
-                    .budget(requestDto.getBudget())
-                    .resultGrade("완료")
-                    .isDelete(0)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-                
-                recentSafeReportMapper.insertRecentSafeReport(newReport);
-            }
+                         } else {
+                 // 새 데이터 저장 (estate_id만 저장)
+                 RecentSafeReport newReport = RecentSafeReport.builder()
+                     .userId(userId)
+                     .estateId(estateId)
+                     .budget(requestDto.getBudget())
+                     .resultGrade("완료")
+                     .isDelete(0)
+                     .createdAt(LocalDateTime.now())
+                     .updatedAt(LocalDateTime.now())
+                     .build();
+                 
+                 recentSafeReportMapper.insertRecentSafeReport(newReport);
+             }
         } catch (Exception e) {
             log.error("최근 본 안심레포트 저장 실패: {}", e.getMessage(), e);
             throw new RuntimeException(ErrorCode.RECENT_SAFEREPORT_SAVE_FAIL.getMessage());
@@ -74,22 +75,29 @@ public class RecentSafeReportService {
         List<RecentSafeReport> reports = recentSafeReportMapper.findByUserIdOrderByCreatedAtDesc(userId);
         return reports.stream()
             .map(this::convertToResponseDto)
+            .filter(dto -> dto != null) // null인 경우 필터링
             .collect(Collectors.toList());
     }
     
     /**
      * 최근 본 안심레포트 상세 조회 (estate_api_integration_tbl에서 실시간 데이터 조회)
      */
-    public RecentSafeReportDetailResponseDto getRecentReportDetail(Long id, Long userId) {
+    public RecentSafeReportDetailResponseDto getRecentReportDetail(Integer id, Integer userId) {
         RecentSafeReport report = recentSafeReportMapper.findByIdAndUserId(id, userId);
         if (report == null) {
             return null;
         }
         
         // estate_api_integration_tbl에서 최신 데이터 조회
+        var estate = estateMapper.getEstateById(report.getEstateId());
+        if (estate == null) {
+            log.warn("estate 정보를 찾을 수 없습니다: estateId={}", report.getEstateId());
+            return null;
+        }
+        
         SafeReportRequestDto requestDto = new SafeReportRequestDto();
-        requestDto.setBuildingName(report.getBuildingName());
-        requestDto.setRoadAddress(report.getRoadAddress());
+        requestDto.setBuildingName(estate.getBuildingName());
+        requestDto.setRoadAddress(estate.getJibunAddr()); // 지번주소 사용
         requestDto.setBudget(report.getBudget());
         
         // 실시간으로 안심레포트 데이터 생성
@@ -102,7 +110,7 @@ public class RecentSafeReportService {
      * 최근 본 안심레포트 삭제
      */
     @Transactional
-    public void deleteRecentReport(Long id, Long userId) {
+    public void deleteRecentReport(Integer id, Integer userId) {
         try {
             // 삭제 전 존재 여부 확인
             RecentSafeReport report = recentSafeReportMapper.findByIdAndUserId(id, userId);
@@ -123,7 +131,7 @@ public class RecentSafeReportService {
     private Integer getEstateIdFromLocation(double lat, double lng) {
         try {
             // EstateMapper를 사용하여 위도/경도로 estate 정보 조회
-            var estate = estateMapper.getRealEstateByLocation(lat, lng);
+            var estate = estateMapper.getEstateByLatLng(lat, lng);
             if (estate != null) {
                 return estate.getId(); // estate_id 반환
             }
@@ -154,12 +162,23 @@ public class RecentSafeReportService {
      * RecentSafeReport를 RecentSafeReportResponseDto로 변환
      */
     private RecentSafeReportResponseDto convertToResponseDto(RecentSafeReport report) {
+        // estate_id로 estate_api_integration_tbl에서 buildingName 조회
+        var estate = estateMapper.getEstateById(report.getEstateId());
+        if (estate == null) {
+            log.warn("estate 정보를 찾을 수 없습니다: estateId={}", report.getEstateId());
+            return null;
+        }
+        
+        String formattedDate = report.getUpdatedAt() != null ? 
+            report.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : 
+            null;
+            
         return RecentSafeReportResponseDto.builder()
             .id(report.getId())
-            .buildingName(report.getBuildingName())
-            .roadAddress(report.getRoadAddress())
+            .buildingName(estate.getBuildingName())
+            .roadAddress(estate.getJibunAddr()) // 지번주소 사용 (도로명주소가 없으므로)
             .resultGrade(report.getResultGrade())
-            .updatedAt(report.getUpdatedAt())
+            .updatedAt(formattedDate)
             .build();
     }
     
@@ -167,10 +186,17 @@ public class RecentSafeReportService {
      * RecentSafeReport를 RecentSafeReportDetailResponseDto로 변환 (실시간 데이터 포함)
      */
     private RecentSafeReportDetailResponseDto convertToDetailResponseDto(RecentSafeReport report, SafeReportResponseDto safeReportData) {
+        // estate_id로 estate_api_integration_tbl에서 buildingName 조회
+        var estate = estateMapper.getEstateById(report.getEstateId());
+        if (estate == null) {
+            log.warn("estate 정보를 찾을 수 없습니다: estateId={}", report.getEstateId());
+            return null;
+        }
+        
         return RecentSafeReportDetailResponseDto.builder()
             .id(report.getId())
-            .buildingName(report.getBuildingName())
-            .roadAddress(report.getRoadAddress())
+            .buildingName(estate.getBuildingName())
+            .roadAddress(estate.getJibunAddr()) // 지번주소 사용
             .budget(report.getBudget())
             .reportData(convertToJson(safeReportData)) // 실시간 조회한 데이터
             .build();

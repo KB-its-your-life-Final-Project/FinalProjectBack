@@ -80,10 +80,10 @@ public class SafeReportService {
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - buildYear;
         int ageScore = (age <= 10) ? 1 : (age <= 20) ? 2 : (age <= 30) ? 3 : 4;
-        result.setBuildyear_score(ageScore); //연식률 점수 저장
+        result.setBuildYearScore(ageScore); //연식률 점수 저장
 
         //역전세율만 고려하는 것으로 수정
-        result.setReverse_rental_ratio(ratio);
+        result.setReverseRentalRatio(ratio);
         result.setScore(ratioScore);
         return result;
     }

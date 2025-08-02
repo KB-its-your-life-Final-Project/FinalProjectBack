@@ -13,7 +13,7 @@ public interface RecentSafeReportMapper {
     /**
      * 사용자 ID와 estateId로 최근 본 안심레포트 조회
      */
-    RecentSafeReport findByUserIdAndEstateId(@Param("userId") Long userId, @Param("estateId") Long estateId);
+    RecentSafeReport findByUserIdAndEstateId(@Param("userId") Integer userId, @Param("estateId") Integer estateId);
     
     /**
      * 최근 본 안심레포트 저장
@@ -28,15 +28,15 @@ public interface RecentSafeReportMapper {
     /**
      * 사용자별 최근 본 안심레포트 목록 조회 (최신순)
      */
-    List<RecentSafeReport> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+    List<RecentSafeReport> findByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
     
     /**
      * 특정 최근 본 안심레포트 조회
      */
-    RecentSafeReport findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+    RecentSafeReport findByIdAndUserId(@Param("id") Integer id, @Param("userId") Integer userId);
     
     /**
      * 최근 본 안심레포트 삭제
      */
-    void deleteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+    void deleteByIdAndUserId(@Param("id") Integer id, @Param("userId") Integer userId);
 } 

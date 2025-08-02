@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class RecentSafeReportDetailResponseDto {
-    private Long id;
+    private Integer id;
     private String buildingName;
     private String dongName;
     private String jibunAddress;

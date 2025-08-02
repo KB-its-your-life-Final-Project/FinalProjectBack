@@ -20,10 +20,10 @@ public class RentalRatioAndBuildyear {
     private int buildYear;//건축연도 ( 연식 점수 계산 목적 )
     
     @ApiModelProperty(value = "역전세율 (%)", example = "85.5")
-    private double reverse_rental_ratio; //역전세율
+    private double reverseRentalRatio; //역전세율
     
     @ApiModelProperty(value = "연식률 점수", example = "2")
-    private int buildyear_score; //연식률 점수
+    private int buildYearScore; //연식률 점수
     
     @ApiModelProperty(value = "최종 점수", example = "5")
     private int score; //최종 점수 = 전세가율점수 + 연식점수
