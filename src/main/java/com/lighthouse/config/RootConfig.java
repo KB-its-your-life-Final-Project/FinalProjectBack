@@ -64,6 +64,13 @@ public class RootConfig {
     @Value("${jdbc.username}") String username;
     @Value("${jdbc.password}") String password;
 
+    // HikariCP 설정 추가
+    @Value("${JDBC_CONNECTION_TIMEOUT:10000}") int connectionTimeout;
+    @Value("${JDBC_MAX_LIFETIME:600000}") int maxLifetime;
+    @Value("${JDBC_IDLE_TIMEOUT:300000}") int idleTimeout;
+    @Value("${JDBC_MAXIMUM_POOL_SIZE:5}") int maximumPoolSize;
+    @Value("${JDBC_MINIMUM_IDLE:2}") int minimumIdle;
+
     private final ApplicationContext applicationContext;
 
     public RootConfig(ApplicationContext applicationContext) {
@@ -77,6 +84,14 @@ public class RootConfig {
         config.setJdbcUrl(url);
         config.setUsername(username);
         config.setPassword(password);
+
+        // HikariCP 설정 적용
+        config.setConnectionTimeout(connectionTimeout);
+        config.setMaxLifetime(maxLifetime);
+        config.setIdleTimeout(idleTimeout);
+        config.setMaximumPoolSize(maximumPoolSize);
+        config.setMinimumIdle(minimumIdle);
+
         return new HikariDataSource(config);
     }
 
