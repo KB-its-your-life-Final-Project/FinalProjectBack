@@ -10,12 +10,12 @@
         INSERT INTO api_building_register (
             type, res_addr_dong, res_number,
             res_user_addr, comm_addr_lot_number, comm_addr_road_name, res_note,
-             res_violation_status, jibun_addr,
+             res_violation_status,
             req_dong, req_ho, latitude, longitude
         ) VALUES (
                     #{type}, #{resAddrDong}, #{resNumber},
                      #{resUserAddr}, #{commAddrLotNumber}, #{commAddrRoadName}, #{resNote},
-                       #{resViolationStatus}, #{jibunAddr},
+                       #{resViolationStatus}, 
                      #{reqDong}, #{reqHo}, #{latitude}, #{longitude}
                  )
     </insert>
@@ -65,9 +65,7 @@
     <!-- 9. 위도/경도로 건물 정보 조회 (단건 조회)-->
     <select id="getBuildingRegisterByLocation" resultType="com.lighthouse.buildingRegister.vo.BuildingRegisterVO">
         SELECT
-            id, type, res_addr_dong, res_number, res_user_addr, comm_addr_lot_number,
-            comm_addr_road_name, res_note, res_violation_status, jibun_addr, req_dong, req_ho,
-            latitude, longitude
+            *
         FROM
             api_building_register
         WHERE
@@ -80,7 +78,7 @@
     <select id="getBuildingRegisterWithStatusByLocation" resultType="com.lighthouse.buildingRegister.vo.BuildingRegisterWithStatusVO">
         SELECT
             A.id, A.type, A.res_addr_dong, A.res_number, A.res_user_addr, A.comm_addr_lot_number,
-            A.comm_addr_road_name, A.res_note, A.res_violation_status, A.jibun_addr, A.req_dong, A.req_ho,
+            A.comm_addr_road_name, A.res_note, A.res_violation_status, A.req_dong, A.req_ho,
             A.latitude, A.longitude,
             B.register_id, B.res_type, B.res_floor, B.res_structure, B.res_use_type, B.res_area
         FROM

@@ -18,7 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
 
 @Slf4j
 @Service
@@ -28,6 +31,7 @@ public class SafeReportService {
     private final EstateService estateService;
     private final BuildingRegisterService buildingRegisterService;
     private final BuildingRegisterMapper buildingRegisterMapper;
+    private final GeoCodingService geoCodingService;
 
     // 건물의 건축연도 점수, 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
@@ -95,14 +99,24 @@ public class SafeReportService {
         String address = dto.getRoadAddress();
         String dongName = dto.getDongName();
         
-        // 동 정보가 있으면 주소에 포함
+        // 법정동 정보가 있으면 주소에 포함
         String fullAddress = address;
         if(dongName != null && !dongName.trim().isEmpty()) {
             fullAddress = address + " (" + dongName + ")";
         }
-        
-        // 1단계: DB에서 토지대장 데이터터 조회
-        BuildingInfoResult dbResult = getBuildingInfoFromDB(dto.getLat(), dto.getLng());
+        // 도로명 주소인 fulladdress를 위/경도로 바꿔서 이걸로 db에서 조회
+        // api_building_register 테이블에는 도로명 주소로 변환된 위도/경도가 저장되어 있기 때문에 오차 범위를 줄이기 위해 도로명 주소로 검색해야 함함
+        double lat = 0.0; double lng=0.0;
+        try {
+            Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(fullAddress);
+            lat = coords.get("lat");
+            lng = coords.get("lng");
+        } catch (Exception e) {
+            log.warn("주소 좌표 변환 실패: {}", fullAddress);
+        }
+
+        // 1단계: DB에서 토지대장 데이터 조회
+        BuildingInfoResult dbResult = getBuildingInfoFromDB(lat, lng);
         if(dbResult != null) {
             return dbResult;
         }

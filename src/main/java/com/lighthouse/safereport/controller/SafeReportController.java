@@ -6,7 +6,6 @@ import com.lighthouse.response.ErrorCode;
 import com.lighthouse.safereport.dto.SafeReportRequestDto;
 import com.lighthouse.safereport.dto.SafeReportResponseDto;
 import com.lighthouse.safereport.dto.RecentSafeReportResponseDto;
-import com.lighthouse.safereport.dto.RecentSafeReportDetailResponseDto;
 import com.lighthouse.safereport.service.SafeReportService;
 import com.lighthouse.safereport.service.RecentSafeReportService;
 import com.lighthouse.safereport.entity.RentalRatioAndBuildyear;

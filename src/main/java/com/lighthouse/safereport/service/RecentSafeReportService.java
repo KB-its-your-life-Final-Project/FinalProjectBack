@@ -200,6 +200,7 @@ public class RecentSafeReportService {
         return RecentSafeReportResponseDto.builder()
             .id(report.getId())
             .buildingName(estate.getBuildingName())
+            .budget(report.getBudget())
             .roadAddress(roadAddress)
             .resultGrade(report.getResultGrade())
             .updatedAt(formattedDate)
