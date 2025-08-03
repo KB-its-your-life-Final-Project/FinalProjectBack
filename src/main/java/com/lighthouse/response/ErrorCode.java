@@ -24,6 +24,8 @@ public enum ErrorCode implements ResponseCode{
     EMAIL_LOGIN_FAIL(1014, "이메일 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     MEMBER_LOGOUT_FAIL(1015, "로그아웃에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHORIZED(1016, "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_UPDATE_TYPE(1012, "올바르지 않은 회원 정보 수정 접근입니다.", HttpStatus.BAD_REQUEST),
+    MEMBER_UPDATE_FAIL(1017, "회원 정보 수정에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // SafeReport
     BUILDINGINFO_NOT_FOUND(2001,"건물 건축 년도 또는 거래 금액 정보가 없습니다.", HttpStatus.NOT_FOUND),

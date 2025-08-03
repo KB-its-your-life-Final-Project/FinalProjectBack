@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberDTO {
+public class MemberResponseDTO {
     private int id;
     private String name;
     private String email;
@@ -30,8 +30,8 @@ public class MemberDTO {
     private Integer isDelete;
 
     //클라이언트에 보낼 수 있는 데이터
-    public static MemberDTO toUser(Member member) {
-        return MemberDTO.builder()
+    public static MemberResponseDTO toUser(Member member) {
+        return MemberResponseDTO.builder()
                 .id(member.getId())
                 .name(member.getName())
                 .email(member.getEmail())
@@ -46,8 +46,8 @@ public class MemberDTO {
     }
 
     // 관리자에게 보내는 데이터
-    public static MemberDTO toAdmin(Member member) {
-        return MemberDTO.builder()
+    public static MemberResponseDTO toAdmin(Member member) {
+        return MemberResponseDTO.builder()
                 .id(member.getId())
                 .name(member.getName())
                 .email(member.getEmail())

@@ -5,6 +5,8 @@ import com.lighthouse.member.service.MemberService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
+import com.lighthouse.security.util.JwtCookieUtil;
+import com.lighthouse.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,37 +26,40 @@ import java.util.Objects;
 @CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
 public class MemberController {
     final MemberService memberService;
+    private final JwtCookieUtil jwtCookieUtil;
+    private final JwtUtil jwtUtil;
 
-    // 모든 사용자 정보 조회
+
+    // 모든 회원 정보 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<MemberDTO>>> findAllUsers() {
-        List<MemberDTO> dtos = memberService.findAllMembers();
+    public ResponseEntity<ApiResponse<List<MemberResponseDTO>>> findAllUsers() {
+        List<MemberResponseDTO> dtos = memberService.findAllMembers();
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dtos));
     }
 
-    // 아이디로 사용자 정보 조회
+    // 아이디로 회원 정보 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MemberDTO>> findMemberById(@RequestBody int id) {
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> findMemberById(@PathVariable int id) {
         try {
-            MemberDTO dto = memberService.findMemberById(id);
+            MemberResponseDTO dto = memberService.findMemberById(id);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dto));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
         }
     }
 
-    // 로그인된 사용자 정보 조회
+    // 로그인된 회원 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<MemberDTO>> checkLoginStatus(HttpServletRequest req, HttpServletResponse resp) {
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> checkLoginStatus(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            MemberDTO memberDto = memberService.findMemberLoggedIn(req, resp);
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto != null) {
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, memberDto));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
         } catch (NoSuchElementException e) {
-            log.error("사용자 정보 조회 실패", e);
+            log.error("회원 정보 조회 실패", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
         }
     }
@@ -70,6 +75,16 @@ public class MemberController {
         return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.DUPLICATE_EMAIL, isDuplicate));
     }
 
+    // 비밀번호 검증
+    @PostMapping("/verifypwd") // Get은 @RequestBody 사용 불가
+    public ResponseEntity<ApiResponse<Boolean>> verifyPwd(@RequestBody VerifyPwdRequestDTO verifyPwdReqDto) {
+        boolean isVerified = memberService.isVerifiedPwd(verifyPwdReqDto);
+        log.info("isVerified: {}", isVerified);
+        if (isVerified) {
+            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_PASSWORD_VERIFICATION_SUCCESS, true));
+        }
+        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD, false));
+    }
     // 인증 코드 발송
 //    @PostMapping("/sendcode")
 //    public ResponseEntity<ApiResponse<Boolean>> sendVerificationCode(@RequestParam String email) {
@@ -96,22 +111,22 @@ public class MemberController {
 
     // 이메일 회원가입
     @PostMapping("/register/email")
-    public ResponseEntity<ApiResponse<MemberDTO>> registerByEmail(@ModelAttribute RegisterEmailDTO registerDto, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> registerByEmail(@ModelAttribute RegisterEmailRequestDTO registerReqDto, HttpServletRequest req) {
         // 이메일 형식 유효성 검사
-        if (!memberService.isValidEmail(registerDto.getEmail())) {
+        if (!memberService.isValidEmail(registerReqDto.getEmail())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
         // 비밀번호 형식 유효성 검사
-        if (!memberService.isValidPassword(registerDto.getPassword1())) {
+        if (!memberService.isValidPassword(registerReqDto.getPassword1())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
         }
         // 비밀번호1과 비밀번호2 일치 여부 검사
-        if (!Objects.equals(registerDto.getPassword1(), registerDto.getPassword2())) {
+        if (!Objects.equals(registerReqDto.getPassword1(), registerReqDto.getPassword2())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));
         }
         try {
-            log.info("email: {}", registerDto.getEmail());
-            MemberDTO userDto = memberService.registerByEmail(registerDto, req);
+            log.info("email: {}", registerReqDto.getEmail());
+            MemberResponseDTO userDto = memberService.registerByEmail(registerReqDto, req);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_REGISTER_SUCCESS, userDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
@@ -120,13 +135,13 @@ public class MemberController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<MemberDTO>> login(@RequestBody LoginDTO loginDto, HttpServletRequest req, HttpServletResponse resp) {
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> login(@RequestBody LoginRequestDTO loginReqDto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("로그인 POST 요청==========");
-        log.info("LoginDTO: {}", loginDto);
-        log.info("createType = " + loginDto.getCreatedType());
+        log.info("LoginRequestDTO: {}", loginReqDto);
+        log.info("createType = " + loginReqDto.getCreatedType());
         // 이메일 로그인
-        if (loginDto.getCreatedType() == 1) {
-            String email = loginDto.getEmail();
+        if (loginReqDto.getCreatedType() == 1) {
+            String email = loginReqDto.getEmail();
             // 이메일 형식 유효성 검사
             if (!memberService.isValidEmail(email)) {
                 return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
@@ -135,7 +150,7 @@ public class MemberController {
             boolean isMember = memberService.checkDuplicateEmail(email);
             if (isMember) {
                 try {
-                    MemberDTO memberDto = memberService.loginByEmail(loginDto, req, resp);
+                    MemberResponseDTO memberDto = memberService.loginByEmail(loginReqDto, req, resp);
                     if (memberDto == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
                     }
@@ -147,18 +162,18 @@ public class MemberController {
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             // 카카오 로그인
-        } else if (loginDto.getCreatedType() == 2) {
+        } else if (loginReqDto.getCreatedType() == 2) {
             try {
-                MemberDTO memberDto = memberService.loginOrRegisterByKakaoCode(loginDto, req, resp);
+                MemberResponseDTO memberDto = memberService.loginOrRegisterByKakaoCode(loginReqDto, req, resp);
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("카카오 회원가입/로그인 실패", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
             }
             // 구글 로그인
-        } else if (loginDto.getCreatedType() == 3) {
+        } else if (loginReqDto.getCreatedType() == 3) {
             try {
-                MemberDTO memberDto = memberService.loginOrRegisterByGoogleCode(loginDto, req, resp);
+                MemberResponseDTO memberDto = memberService.loginOrRegisterByGoogleCode(loginReqDto, req, resp);
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("구글 회원가입/로그인 실패", e);
@@ -180,6 +195,64 @@ public class MemberController {
             log.error("로그아웃 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error(ErrorCode.MEMBER_LOGOUT_FAIL));
+        }
+    }
+
+    // 회원 정보 수정
+    @PutMapping("/change")
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> changeMemberInfo(@RequestBody ChangeRequestDTO changeReqDto, HttpServletRequest req, HttpServletResponse resp) {
+        int changeType = changeReqDto.getChangeType();
+        log.info("회원 정보 수정 PUT 요청==========");
+        log.info("ChangeRequestDTO: {}", changeReqDto);
+        log.info("changeType = " + changeType);
+        // 이름 수정
+        if (changeType == 1) {
+            // 이름 유효성 검사 추가
+            String newName = changeReqDto.getName().trim();
+            try {
+                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newName, req, resp);
+                if (updatedMemberDto != null) {
+                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_NAME_SUCCESS, updatedMemberDto));
+                } else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                }
+            } catch (Exception e) {
+                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+            }
+        // 비밀번호 수정
+        } else if (changeType == 2) {
+            // 비밀번호 유효성 검사 추가
+            String newPwd = changeReqDto.getPwd().trim();
+            try {
+                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newPwd, req, resp);
+                if (updatedMemberDto != null) {
+                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PWD_SUCCESS, updatedMemberDto));
+                } else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                }
+            } catch (Exception e) {
+                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+            }
+        // 프로필사진 수정
+        } else if (changeType == 3) {
+            // 프로필사진 경로 유효성 검사 추가
+            String newProfileImg = changeReqDto.getProfileImg().trim();
+            try {
+                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newProfileImg, req, resp);
+                if (updatedMemberDto != null) {
+                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMemberDto));
+                } else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                }
+            } catch (Exception e) {
+                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+            }
+        // 지원하지 않는 수정 타입
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_UPDATE_TYPE));
         }
     }
 }

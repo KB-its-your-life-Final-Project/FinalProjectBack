@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginDTO {
+public class LoginRequestDTO {
     private String email;
-    private String password;
+    private String pwd;
     private String code;
     private int createdType;
 
-    public Member toVO() {
+    public Member toMember() {
         return Member.builder()
                 .createdType(createdType) // 1: 기본 2: 카카오 3: 구글
                 .build();
