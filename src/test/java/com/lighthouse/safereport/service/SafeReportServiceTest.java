@@ -1,7 +1,6 @@
 package com.lighthouse.safereport.service;
 
 import com.lighthouse.buildingRegister.mapper.BuildingRegisterMapper;
-import com.lighthouse.buildingRegister.service.BuildingRegisterService;
 import com.lighthouse.common.geocoding.service.GeoCodingService;
 import com.lighthouse.estate.dto.EstateDTO;
 import com.lighthouse.estate.entity.EstateSales;
