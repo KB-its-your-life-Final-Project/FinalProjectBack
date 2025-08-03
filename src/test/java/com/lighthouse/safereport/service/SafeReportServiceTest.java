@@ -38,9 +38,6 @@ class SafeReportServiceTest {
     private EstateService estateService;
 
     @Mock
-    private BuildingRegisterService buildingRegisterService;
-
-    @Mock
     private BuildingRegisterMapper buildingRegisterMapper;
 
     @Mock
