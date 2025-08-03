@@ -8,7 +8,6 @@ import com.lighthouse.safereport.dto.SafeReportResponseDto;
 import com.lighthouse.safereport.dto.RecentSafeReportResponseDto;
 import com.lighthouse.safereport.service.SafeReportService;
 import com.lighthouse.safereport.service.RecentSafeReportService;
-import com.lighthouse.safereport.entity.RentalRatioAndBuildyear;
 import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponses;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -34,55 +31,32 @@ public class SafeReportController {
     private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
     
-    // 사용자로부터 건물, 예산 전달 받아 안심레포트 제공
+    // 사용자로부터 건물, 예산 전달 받아 안심레포트 생성 + 제공
     @PostMapping("/requestSafeReport")
     @ApiOperation(
         value = "안심 레포트 데이터 요청",
         notes = "건물의 위도/경도와 예산을 받아서 안심 레포트 정보를 생성합니다. " +
                 "건축년도, 거래금액, 전세가율, 위반여부, 층수/용도 정보를 포함합니다."
     )
-
-    public ResponseEntity<ApiResponse<SafeReportResponseDto>> receiveForm(
+    public ResponseEntity<ApiResponse<SafeReportResponseDto>> generateSafeReport(
         @ApiParam(value = "안심 레포트 요청 데이터", required = true) 
         @RequestBody SafeReportRequestDto dto,
         HttpServletRequest request
     ){
-        // 건축년도, 거래 금액, 전세가율 얻기
-        RentalRatioAndBuildyear rentalRatioAndBuildyear = safeReportService.generateSafeReport(dto);
-        // 위반 여부와 층수/용도 정보 통합 조회 (건축물 대장 정보)
-        SafeReportService.BuildingInfoResult buildingInfo = safeReportService.getBuildingInfo(dto);
-
-        // 둘 다 없는 경우에만 404 에러 반환
-        boolean hasRentalInfo = rentalRatioAndBuildyear != null;
-        boolean hasBuildingInfo = buildingInfo != null && 
-                                 (buildingInfo.getViolationStatus() != null || 
-                                  (buildingInfo.getFloorAndPurposeList() != null && !buildingInfo.getFloorAndPurposeList().isEmpty()));
+        // 안심레포트 데이터 생성
+        SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(dto);
         
-        if (!hasRentalInfo && !hasBuildingInfo) {
-            log.warn("모든 정보 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
+        // 데이터가 없으면 404 에러 반환
+        if (responseDto == null) {
             return ResponseEntity.status(404)
                     .body(ApiResponse.error(ErrorCode.BUILDINGINFO_NOT_FOUND));
         }
-
-        // 부분 데이터라도 있으면 성공 응답
-        SafeReportResponseDto responseDto = new SafeReportResponseDto(
-            rentalRatioAndBuildyear, 
-            buildingInfo != null ? buildingInfo.getViolationStatus() : null, 
-            buildingInfo != null ? buildingInfo.getFloorAndPurposeList() : null
-        );
         
         // 최근 본 안심레포트에 저장
         try {
             Integer userId = getUserId(request);
-            if (userId != null) {
-                // 매매 기록 없어서 조회 안 되었던 것 또는 전세가율 100% 이상이어서 조회 안 되었던 것은 저장 x 
-                boolean isValidData = rentalRatioAndBuildyear != null &&
-                        rentalRatioAndBuildyear.getDealAmount() != 0 &&
-                        rentalRatioAndBuildyear.getReverseRentalRatio() < 100;
-
-                if (isValidData) {
-                    recentSafeReportService.saveRecentSafeReport(userId, dto);
-                }
+            if (userId != null && safeReportService.shouldSaveToRecentReports(responseDto)) {
+                recentSafeReportService.saveRecentSafeReport(userId, dto);
             }
         } catch (Exception e) {
             log.warn("최근 본 안심레포트 저장 실패: {}", e.getMessage());
@@ -90,6 +64,8 @@ public class SafeReportController {
         
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, responseDto));
     }
+    
+
 
     // 최근 본 안심 레포트 목록 조회
     @GetMapping("/recentSafeReport")
