@@ -4,6 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.buildingRegister.mapper.BuildingRegisterMapper">
 
+    <resultMap id="BuildingRegisterVOMap" type="com.lighthouse.buildingRegister.vo.BuildingRegisterVO" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <resultMap id="BuildingRegisterWithStatusVOMap" type="com.lighthouse.buildingRegister.vo.BuildingRegisterWithStatusVO" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
     <!-- 1. building_register 저장 -->
     <!-- keyProperty="id"로 VO에 저장된 id값이 setter로 저장됨   -->
     <insert id="insertBuildingRegister" useGeneratedKeys="true" keyProperty="id">
@@ -63,19 +71,19 @@
     </insert>
 
     <!-- 9. 위도/경도로 건물 정보 조회 (단건 조회)-->
-    <select id="getBuildingRegisterByLocation" resultType="com.lighthouse.buildingRegister.vo.BuildingRegisterVO">
+    <select id="getBuildingRegisterByLocation" resultMap="BuildingRegisterVOMap">
         SELECT
             *
         FROM
             api_building_register
         WHERE
-            latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
-          AND longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
+            latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
+          AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
         LIMIT 1;
     </select>
 
     <!-- 10. 위도/경도로 건물 정보와 상세 정보 조회 (다건 조회)-->
-    <select id="getBuildingRegisterWithStatusByLocation" resultType="com.lighthouse.buildingRegister.vo.BuildingRegisterWithStatusVO">
+    <select id="getBuildingRegisterWithStatusByLocation" resultMap="BuildingRegisterWithStatusVOMap">
         SELECT
             A.id, A.type, A.res_addr_dong, A.res_number, A.res_user_addr, A.comm_addr_lot_number,
             A.comm_addr_road_name, A.res_note, A.res_violation_status, A.req_dong, A.req_ho,
@@ -88,8 +96,8 @@
             ON
                 A.id = B.register_id
         WHERE
-            A.latitude BETWEEN #{lat} - 0.005 AND #{lat} + 0.005
-          AND A.longitude BETWEEN #{lng} - 0.005 AND #{lng} + 0.005
+            A.latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
+          AND A.longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
         ORDER BY B.res_floor;
     </select>
 

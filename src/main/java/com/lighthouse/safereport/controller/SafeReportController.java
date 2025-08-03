@@ -41,11 +41,7 @@ public class SafeReportController {
         notes = "건물의 위도/경도와 예산을 받아서 안심 레포트 정보를 생성합니다. " +
                 "건축년도, 거래금액, 전세가율, 위반여부, 층수/용도 정보를 포함합니다."
     )
-    @ApiResponses({
-        @io.swagger.annotations.ApiResponse(code = 200, message = "성공적으로 안심 레포트 데이터를 조회했습니다."),
-        @io.swagger.annotations.ApiResponse(code = 404, message = "요청한 위치의 건물 정보를 찾을 수 없습니다."),
-        @io.swagger.annotations.ApiResponse(code = 500, message = "서버 내부 오류가 발생했습니다.")
-    })
+
     public ResponseEntity<ApiResponse<SafeReportResponseDto>> receiveForm(
         @ApiParam(value = "안심 레포트 요청 데이터", required = true) 
         @RequestBody SafeReportRequestDto dto,
@@ -111,7 +107,7 @@ public class SafeReportController {
         }
         
         List<RecentSafeReportResponseDto> recentReports = recentSafeReportService.getRecentReports(userId);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, recentReports));
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_LIST_SUCCESS, recentReports));
     }
 
     // 특정 안심 레포트 상세 조회
@@ -137,7 +133,7 @@ public class SafeReportController {
                     .body(ApiResponse.error(ErrorCode.RECENT_SAFEREPORT_NOT_FOUND));
         }
         
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, report));
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DETAIL_SUCCESS, report));
     }
     
     // 최근 본 안심레포트 삭제
@@ -157,7 +153,7 @@ public class SafeReportController {
         }
         
         recentSafeReportService.deleteRecentReport(id, userId);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.SAFEREPORT_FETCH_SUCCESS, null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DELETE_SUCCESS, null));
     }
     
     // 사용자 ID 추출 메서드 (JWT 토큰에서)
