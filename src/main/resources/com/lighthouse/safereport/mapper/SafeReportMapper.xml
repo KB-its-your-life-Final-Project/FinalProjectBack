@@ -3,8 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
-<!-- trade_type=1인 매매 데이터만 조회 -->
-    <select id="getSalesByEstateIdWithTradeType" resultType="com.lighthouse.estate.dto.EstateSalesDTO">
+
+    <resultMap id="EstateSalesMap" type="com.lighthouse.estate.entity.EstateSales" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <!-- trade_type=1인 매매 데이터만 조회 -->
+    <select id="getSalesByEstateIdWithTradeType" resultMap="EstateSalesMap">
         SELECT
             *
         FROM

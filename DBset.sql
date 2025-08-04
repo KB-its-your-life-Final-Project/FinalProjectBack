@@ -203,9 +203,17 @@ ALTER TABLE api_building_register
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
 
-DELETE FROM api_building_register WHERE id = 14;
+DELETE FROM api_building_register WHERE id = 37;
 DELETE FROM api_building_register_building_status
-WHERE register_id=14;
+WHERE register_id=37;
+DELETE FROM api_building_register_auth_status WHERE ID=37;
+DELETE FROM api_building_register_change WHERE ID=37;
+DELETE FROM api_building_register_detail WHERE ID=37;
+DELETE FROM api_building_register_license_class WHERE ID=37;
+DELETE FROM api_building_register_owner WHERE ID=37;
+DELETE FROM api_building_register_parking_lot_status WHERE ID=37;
+
+ALTER TABLE api_building_register DROP COLUMN jibun_addr;
 
 SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 
@@ -213,3 +221,20 @@ SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 ALTER TABLE `estate_api_integration_tbl`
 ADD CONSTRAINT unique_combination
 UNIQUE (mhouse_type, shouse_type, build_year, building_type, jibun_addr);
+
+DROP TABLE IF EXISTS safe_report_tbl;
+CREATE TABLE safe_report_tbl (
+                                    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '기본 키',
+                                    user_id INT NOT NULL COMMENT '조회한 사용자',
+                                    estate_id INT NOT NULL COMMENT 'estate_api_integration_tbl의 id',
+                                    budget INT NOT NULL COMMENT '예산',
+                                    result_grade VARCHAR(50) NOT NULL COMMENT '레포트 결과 등급',
+                                    is_delete TINYINT(1) DEFAULT 0 COMMENT '삭제 여부 (0: 활성, 1: 삭제)',
+                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '조회 날짜',
+                                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 날짜',
+
+    -- 인덱스
+                                    INDEX idx_user_created (user_id, created_at DESC),
+                                    INDEX idx_user_delete (user_id, is_delete),
+                                    INDEX idx_estate (estate_id)
+);
