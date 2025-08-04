@@ -7,7 +7,7 @@
             #{regionCd} AS regionCd,
             COUNT(*) AS totalBicycleCount
         FROM
-            share_bicycle
+            csv_bicycle_tbl
         WHERE
             region_cd = #{regionCd}
         GROUP BY
