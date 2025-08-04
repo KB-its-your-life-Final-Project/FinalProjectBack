@@ -42,6 +42,7 @@ public class MemberResponseDTO {
                 .profileImg(member.getProfileImg())
                 .createdType(member.getCreatedType())
                 .regDate(member.getRegDate())
+                .isDelete(member.getIsDelete())
                 .build();
     }
 

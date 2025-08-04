@@ -17,6 +17,7 @@ public enum ErrorCode implements ResponseCode{
     INVALID_PHONE_FORMAT(1007, "올바르지 않은 전화번호 형식입니다.", HttpStatus.BAD_REQUEST),
     INVALID_VERIFICATION_CODE(1008, "인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     MEMBER_REGISTER_FAIL(1009, "회원가입에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    MEMBER_UNREGISTER_FAIL(1010, "회원 탈퇴에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     KAKAO_REGISTER_LOGIN_FAIL(1010, "카카오 회원가입 또는 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     GOOGLE_REGISTER_LOGIN_FAIL(1011, "구글 회원가입 또는 로그인에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_LOGIN_TYPE(1012, "올바르지 않은 로그인 접근입니다.", HttpStatus.BAD_REQUEST),

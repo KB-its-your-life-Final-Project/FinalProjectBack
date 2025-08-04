@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 public class ChangeRequestDTO {
     private String name;
     private String pwd;
-    private String profileImg;
-    private int changeType; // 1: name, 2: pwd, 3: profileImg
+    private int changeType; // 1: name, 2: pwd
 }

@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 public class MemberService {
 
     private final MemberMapper memberMapper;
-    private final MemberTokenMapper memberTokenMapper;
 //    private final JavaMailSender mailSender;
 //    private final ConcurrentHashMap<String, String> verificationCodeStore = new ConcurrentHashMap<>();
 //    private final ConcurrentHashMap<String, LocalDateTime> codeTimestamps = new ConcurrentHashMap<>();
@@ -188,6 +187,54 @@ public class MemberService {
         return findMemberByEmail(member.getEmail());
     }
 
+    // 회원 탈퇴
+    @Transactional
+    public MemberResponseDTO unregister(HttpServletRequest req, HttpServletResponse resp) {
+        log.info("MemberService.unregister() 실행 ======");
+        // accessToken 검증
+        String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
+        if (accessToken != null) {
+            boolean isAccessTokenValid = tokenService.isAccessTokenValid(accessToken);
+            if (isAccessTokenValid) {
+                String subject = jwtUtil.getSubjectFromToken(accessToken);
+                log.info("request에서 추출된 accessToken: {}", accessToken);
+                log.info("accessToken에서 추출된 subject(memberId): {}", subject);
+                int memberIdFromToken = Integer.parseInt(subject);
+                Member member = memberMapper.findMemberById(memberIdFromToken);
+                member.setIsDelete(2);
+                memberMapper.updateMember(member);
+                return MemberResponseDTO.toUser(memberMapper.findDeletedMemberById(memberIdFromToken));
+            } else {
+                log.info("accessToken 만료");
+            }
+        }
+        // accessToken 만료 또는 없음 -> refreshToken 검증
+        log.info("accessToken 없음");
+        String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
+        if (refreshToken != null) {
+            // refreshToken 유효성 검사
+            String subject = jwtUtil.getSubjectFromToken(refreshToken);
+            int memberIdFromToken = Integer.parseInt(subject);
+            log.info("request에서 추출된 refreshToken: {}", refreshToken);
+            log.info("refreshToken에서 추출된 subject(memberId): {}", subject);
+            boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
+            if (!isRefreshTokenValid) {
+                log.info("refreshToken값이 만료되었거나 DB에 저장된 값과 일치하지 않습니다");
+                return null;
+            }
+            // refreshToken 검증 성공 -> accessToken, refreshToken 재발급 및 저장 (HttpOnly 쿠키, DB)
+            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
+            tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
+            Member member = memberMapper.findMemberById(memberIdFromToken);
+            member.setIsDelete(2);
+            memberMapper.updateMember(member);
+            return MemberResponseDTO.toUser(memberMapper.findDeletedMemberById(memberIdFromToken));
+        }
+        // refreshToken 만료 또는 없음
+        log.info("refreshToken 없음");
+        return null;
+    }
+
     // 이메일 로그인
     @Transactional
     public MemberResponseDTO loginByEmail(LoginRequestDTO loginReqDto, HttpServletRequest req, HttpServletResponse resp) {
@@ -326,12 +373,12 @@ public class MemberService {
                     return null;
                 }
                 member.setPwd(passwordEncoder.encode(changeInfo));
-            } else if (changeType == 3) {
-                member.setProfileImg(changeInfo);
+//            } else if (changeType == 3) {
+//                member.setProfileImg(changeInfo);
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
-            Member updatedMember = memberMapper.findMemberById(member.getId());
+            Member updatedMember = memberMapper.findMemberById(memberIdFromToken);
             log.info("DB updatedMember: {}", updatedMember);
             return MemberResponseDTO.toUser(updatedMember);
         }
@@ -365,12 +412,12 @@ public class MemberService {
                     return null;
                 }
                 member.setPwd(passwordEncoder.encode(changeInfo));
-            } else if (changeType == 3) {
-                member.setProfileImg(changeInfo);
+//            } else if (changeType == 3) {
+//                member.setProfileImg(changeInfo);
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
-            Member updatedMember = memberMapper.findMemberById(member.getId());
+            Member updatedMember = memberMapper.findMemberById(memberIdFromToken);
             log.info("DB updatedMember: {}", updatedMember);
             return MemberResponseDTO.toUser(updatedMember);
         }

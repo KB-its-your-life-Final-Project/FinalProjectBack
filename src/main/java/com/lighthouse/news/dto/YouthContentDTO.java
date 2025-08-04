@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class YouthContentDTO {
+    private Long id;               // PK
     private String bbsSn;          // 게시판 일련번호
     private String pstSn;          // 게시물 일련번호
     private String pstSeSn;        // 게시물 구분 일련번호

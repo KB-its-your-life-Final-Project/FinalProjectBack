@@ -1,4 +1,4 @@
-package com.lighthouse.news.service;
+package com.lighthouse.news.service.external;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lighthouse.news.dto.YouthContentDTO;
@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NewsService {
+public class YouthContentClient {
     private static final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String YOUTH_CONTENT_URL = "https://www.youthcenter.go.kr/go/ythip/getContent";
@@ -23,8 +23,8 @@ public class NewsService {
     @Value("${YOUTH_CONTENT_API_KEY}")
     private String apiKey;
 
-    public List<YouthContentDTO> getNews() {
-        log.info("NewsService.getNews() 실행 ======");
+    public List<YouthContentDTO> getYouthContents() {
+        log.info("YouthContentClient.getNews() 실행 ======");
         try {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(YOUTH_CONTENT_URL)
                     .queryParam("apiKeyNm", apiKey)         // 인가코드

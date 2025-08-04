@@ -29,10 +29,9 @@ public class MemberController {
     private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
 
-
     // 모든 회원 정보 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<MemberResponseDTO>>> findAllUsers() {
+    public ResponseEntity<ApiResponse<List<MemberResponseDTO>>> findAllMembers() {
         List<MemberResponseDTO> dtos = memberService.findAllMembers();
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dtos));
     }
@@ -133,6 +132,19 @@ public class MemberController {
         }
     }
 
+    // 회원 탈퇴
+    @PostMapping("/unregister")
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> unregister(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            MemberResponseDTO unregisteredMemberDto = memberService.unregister(req, resp);
+            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UNREGISTER_SUCCESS, unregisteredMemberDto));
+        } catch (Exception e) {
+            log.error("회원 탈퇴 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UNREGISTER_FAIL));
+        }
+    }
+
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> login(@RequestBody LoginRequestDTO loginReqDto, HttpServletRequest req, HttpServletResponse resp) {
@@ -208,7 +220,7 @@ public class MemberController {
         // 이름 수정
         if (changeType == 1) {
             // 이름 유효성 검사 추가
-            String newName = changeReqDto.getName().trim();
+            String newName = changeReqDto.getName();
             try {
                 MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newName, req, resp);
                 if (updatedMemberDto != null) {
@@ -223,7 +235,7 @@ public class MemberController {
         // 비밀번호 수정
         } else if (changeType == 2) {
             // 비밀번호 유효성 검사 추가
-            String newPwd = changeReqDto.getPwd().trim();
+            String newPwd = changeReqDto.getPwd();
             try {
                 MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newPwd, req, resp);
                 if (updatedMemberDto != null) {
@@ -236,20 +248,20 @@ public class MemberController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
             }
         // 프로필사진 수정
-        } else if (changeType == 3) {
-            // 프로필사진 경로 유효성 검사 추가
-            String newProfileImg = changeReqDto.getProfileImg().trim();
-            try {
-                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newProfileImg, req, resp);
-                if (updatedMemberDto != null) {
-                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMemberDto));
-                } else {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
-                }
-            } catch (Exception e) {
-                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
-            }
+//        } else if (changeType == 3) {
+//            // 프로필사진 경로 유효성 검사 추가
+//            String newProfileImg = changeReqDto.getProfileImg();
+//            try {
+//                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newProfileImg, req, resp);
+//                if (updatedMemberDto != null) {
+//                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMemberDto));
+//                } else {
+//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+//                }
+//            } catch (Exception e) {
+//                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+//            }
         // 지원하지 않는 수정 타입
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_UPDATE_TYPE));

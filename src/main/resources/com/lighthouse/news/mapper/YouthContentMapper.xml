@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.news.mapper.YouthContentMapper">
+
+    <select id="existsByPostSn" resultType="boolean" parameterType="String">
+        SELECT COUNT(*) > 0 FROM api_youth_content WHERE pst_sn = #{pstSn}
+    </select>
+
+    <insert id="insertYouthContent" parameterType="com.lighthouse.news.dto.YouthContentDTO">
+        INSERT INTO api_youth_content (
+        bbs_sn, pst_sn, pst_se_sn, pst_se_nm, pst_ttl, pst_whol_cn,
+        pst_inq_cnt, pst_url_addr, atch_file,
+        frst_rgtr_nm, frst_reg_dt, last_mdfr_nm, last_mdfcn_dt
+        ) VALUES (
+        #{bbsSn}, #{pstSn}, #{pstSeSn}, #{pstSeNm}, #{pstTtl}, #{pstWholCn},
+        #{pstInqCnt}, #{pstUrlAddr}, #{atchFile},
+        #{frstRgtrNm}, #{frstRegDt}, #{lastMdfrNm}, #{lastMdfcnDt}
+        )
+    </insert>
+
+    <select id="findAllUnreadContents" resultType="com.lighthouse.news.dto.YouthContentDTO">
+        SELECT *
+        FROM api_youth_content yc
+        WHERE NOT EXISTS (
+        SELECT 1 FROM youth_content_member_read ycmr
+        WHERE ycmr.member_id = #{memberId}
+        AND ycmr.content_id = yc.id
+        )
+        ORDER BY yc.frst_reg_dt DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+</mapper>
