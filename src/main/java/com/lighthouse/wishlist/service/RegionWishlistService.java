@@ -1,10 +1,10 @@
 package com.lighthouse.wishlist.service;
 
+import com.lighthouse.regionCode.service.RegionCodeService;
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.wishlist.dto.SeparatedRegionDTO;
 import com.lighthouse.wishlist.entity.LikeRegion;
-import com.lighthouse.wishlist.mapper.LawdCdMapper;
 import com.lighthouse.wishlist.mapper.RegionWishlistMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,20 +17,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegionWishlistService {
     private final RegionWishlistMapper mapper;
-    private final LawdCdMapper cdMapper;
-    private String getUmdNm(String regionCd) {
-        String result = cdMapper.findUmdNmByRegionCd(regionCd);
-        if(result == null) {
-            throw new CustomException(ErrorCode.WISHLIST_BAD_REQUEST);
-        }
-        return result;
-    }
+    private final RegionCodeService regionCdService;
+
     public void saveOrUpdateWishlist(Long memberId, String regionCd) {
         String sidoCd = regionCd.substring(0, 2);
         String ssgCd = regionCd.substring(2, 5);
         String umdCd = regionCd.substring(5, 8);
         String umdRegionCd = sidoCd + ssgCd + umdCd + "00";
-        String umdNm = getUmdNm(umdRegionCd);
+        String umdNm = regionCdService.findRegionByRegionCd(umdRegionCd).getLocallowNm();
 
         LikeRegion existing = mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd);
         if (existing != null) {
