@@ -203,9 +203,16 @@ ALTER TABLE api_building_register
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
 
-DELETE FROM api_building_register WHERE id = 36;
+DELETE FROM api_building_register WHERE id = 37;
 DELETE FROM api_building_register_building_status
-WHERE register_id=36;
+WHERE register_id=37;
+DELETE FROM api_building_register_auth_status WHERE ID=37;
+DELETE FROM api_building_register_change WHERE ID=37;
+DELETE FROM api_building_register_detail WHERE ID=37;
+DELETE FROM api_building_register_license_class WHERE ID=37;
+DELETE FROM api_building_register_owner WHERE ID=37;
+DELETE FROM api_building_register_parking_lot_status WHERE ID=37;
+
 ALTER TABLE api_building_register DROP COLUMN jibun_addr;
 
 SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
