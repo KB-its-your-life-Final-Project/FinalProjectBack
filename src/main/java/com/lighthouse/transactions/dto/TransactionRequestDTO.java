@@ -11,4 +11,9 @@ public class TransactionRequestDTO {
     private String startDate;
     private String endDate;
 
+
+    private String roadAddress;
+    private Double lat;
+    private Double lng;
+
 }
