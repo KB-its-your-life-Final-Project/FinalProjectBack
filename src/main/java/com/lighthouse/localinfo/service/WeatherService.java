@@ -3,7 +3,7 @@ package com.lighthouse.localinfo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lighthouse.localinfo.vo.WeatherVO;
+import com.lighthouse.localinfo.entity.Weather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +28,11 @@ public class WeatherService {
 
     private final String BASE_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
 
-    public WeatherVO getWeatherFromKMA(int gridX, int gridY) {
+    public Weather getWeatherFromKMA(int gridX, int gridY) {
         return fetchCommon(gridX, gridY, "날씨 정보");
     }
 
-    private WeatherVO fetchCommon(int gridX, int gridY, String logPrefix) {
+    private Weather fetchCommon(int gridX, int gridY, String logPrefix) {
         try {
             // 현재 시간 기준으로 base_date와 base_time 계산
             String baseTime = getBaseTimeForShortTermForecast();
@@ -87,7 +87,7 @@ public class WeatherService {
         }
     }
 
-    private WeatherVO parseWeatherResponse(String jsonResponse) {
+    private Weather parseWeatherResponse(String jsonResponse) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode root = objectMapper.readTree(jsonResponse);
@@ -108,7 +108,7 @@ public class WeatherService {
                 return createMockWeatherData();
             }
 
-            WeatherVO weatherVO = new WeatherVO();
+            Weather weather = new Weather();
             Integer latestTmp = null;
             String latestSky = null;
             String latestFcstTime = null;
@@ -141,18 +141,18 @@ public class WeatherService {
                         }
                         break;
                     case "TMX": // 일 최고 기온
-                        if (weatherVO.getMaxTemperature() == null) {
+                        if (weather.getMaxTemperature() == null) {
                             try {
-                                weatherVO.setMaxTemperature(Double.valueOf(fcstValue).intValue());
+                                weather.setMaxTemperature(Double.valueOf(fcstValue).intValue());
                             } catch (NumberFormatException e) {
                                 log.warn("TMX 값 파싱 오류: {}", fcstValue);
                             }
                         }
                         break;
                     case "TMN": // 일 최저 기온
-                        if (weatherVO.getMinTemperature() == null) {
+                        if (weather.getMinTemperature() == null) {
                             try {
-                                weatherVO.setMinTemperature(Double.valueOf(fcstValue).intValue());
+                                weather.setMinTemperature(Double.valueOf(fcstValue).intValue());
                             } catch (NumberFormatException e) {
                                 log.warn("TMN 값 파싱 오류: {}", fcstValue);
                             }
@@ -161,18 +161,18 @@ public class WeatherService {
                 }
             }
 
-            // 파싱된 값들을 WeatherVO에 설정
-            if (latestTmp != null) weatherVO.setTemperature(latestTmp);
-            if (latestSky != null) weatherVO.setSkyCondition(latestSky);
+            // 파싱된 값들을 Weather 엔티티에 설정
+            if (latestTmp != null) weather.setTemperature(latestTmp);
+            if (latestSky != null) weather.setSkyCondition(latestSky);
 
             // 필수 값이 없으면 mock 데이터로 보완
-            if (weatherVO.getTemperature() == null) weatherVO.setTemperature(22);
-            if (weatherVO.getMaxTemperature() == null) weatherVO.setMaxTemperature(25);
-            if (weatherVO.getMinTemperature() == null) weatherVO.setMinTemperature(18);
-            if (weatherVO.getSkyCondition() == null) weatherVO.setSkyCondition("맑음");
+            if (weather.getTemperature() == null) weather.setTemperature(22);
+            if (weather.getMaxTemperature() == null) weather.setMaxTemperature(25);
+            if (weather.getMinTemperature() == null) weather.setMinTemperature(18);
+            if (weather.getSkyCondition() == null) weather.setSkyCondition("맑음");
 
-            log.info("날씨 데이터 파싱 완료: {}", weatherVO);
-            return weatherVO;
+            log.info("날씨 데이터 파싱 완료: {}", weather);
+            return weather;
 
         } catch (JsonProcessingException e) {
             log.error("❌ 날씨 정보 JSON 파싱 실패: {}", e.getMessage(), e);
@@ -228,8 +228,8 @@ public class WeatherService {
         }
     }
 
-    private WeatherVO createMockWeatherData() {
-        WeatherVO mockWeather = new WeatherVO();
+    private Weather createMockWeatherData() {
+        Weather mockWeather = new Weather();
         mockWeather.setTemperature(22);
         mockWeather.setMaxTemperature(25);
         mockWeather.setMinTemperature(18);

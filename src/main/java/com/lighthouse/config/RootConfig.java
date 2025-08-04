@@ -29,8 +29,8 @@ import java.util.Properties;
     "com.lighthouse.toCoord.mapper",
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.coord.mapper",
-    "com.lighthouse.wishlist.mapper"
-})
+    "com.lighthouse.wishlist.mapper",
+    "com.lighthouse.localinfo.mapper"})
 @ComponentScan(
         basePackages = {"com.lighthouse"},
         excludeFilters = {

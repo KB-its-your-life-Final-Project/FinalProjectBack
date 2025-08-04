@@ -4,7 +4,7 @@ import com.lighthouse.localinfo.dto.LocalInfoResponseDTO;
 import com.lighthouse.localinfo.dto.WeatherDTO;
 import com.lighthouse.localinfo.mapper.LocalInfoMapper;
 import com.lighthouse.localinfo.mapper.WeatherMapper;
-import com.lighthouse.localinfo.vo.WeatherVO;
+import com.lighthouse.localinfo.entity.Weather;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +59,7 @@ public class LocalInfoService {
 
 
         // 2. 날씨 정보 요청 (WeatherService는 순수 날씨 데이터인 VO를 반환)
-        WeatherVO weatherDataVO = weatherService.getWeatherFromKMA(regionInfo.getGridX(), regionInfo.getGridY());
+        Weather weatherDataVO = weatherService.getWeatherFromKMA(regionInfo.getGridX(), regionInfo.getGridY());
         if (weatherDataVO == null) {
             // 날씨 정보 조회에 실패하면 null 반환 (WeatherService 내부에서 이미 로그 남김)
             return null;

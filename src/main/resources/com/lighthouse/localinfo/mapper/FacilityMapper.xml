@@ -4,7 +4,7 @@
 
     <select id="findFacilityDetailsByRegionCd" resultType="com.lighthouse.localinfo.dto.FacilityDTO">
         SELECT
-            region_cd AS regionCd,
+            #{regionCd} AS regionCd,
             COUNT(*) AS totalBicycleCount
         FROM
             share_bicycle
