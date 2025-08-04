@@ -87,19 +87,45 @@ public class CodefUtil {
                             }
                         }
                     } else {
-                        // dong이 null이면 "상가"가 포함되지 않은 첫 번째 후보 동 선택
+                        // dong이 null이면 숫자가 포함된 동을 우선적으로 선택
+                        String selectedDong = null;
+                        
+                        // 1단계: 숫자가 포함된 동 중에서 "상가", "근린생활시설" 등이 포함되지 않은 동 우선 선택
                         for (BuildingResponseDTO.ReqDongNum reqDongNum : dongNumList) {
                             String dongName = reqDongNum.getReqDong();
-                            if (dongName != null && !dongName.contains("상가")) {
+                            if (dongName != null && 
+                                dongName.matches(".*\\d+.*") && // 숫자가 포함된 동
+                                !dongName.contains("상가") && 
+                                !dongName.contains("근린생활시설") &&
+                                !dongName.contains("상업시설")) {
                                 dongNum = reqDongNum.getCommDongNum();
-                                System.out.println("dong이 null이므로 '상가'가 포함되지 않은 후보 동 선택: " + dongName);
+                                selectedDong = dongName;
+                                System.out.println("숫자가 포함되고 상가/근린생활시설이 아닌 동 선택: " + dongName);
                                 break;
                             }
                         }
-                        // "상가"가 포함되지 않은 동이 없으면 첫 번째 동 선택
+                        
+                        // 2단계: 숫자가 포함된 동이 없으면 "상가", "근린생활시설" 등이 포함되지 않은 동 선택
+                        if (dongNum == null) {
+                            for (BuildingResponseDTO.ReqDongNum reqDongNum : dongNumList) {
+                                String dongName = reqDongNum.getReqDong();
+                                if (dongName != null && 
+                                    !dongName.contains("상가") && 
+                                    !dongName.contains("근린생활시설") &&
+                                    !dongName.contains("상업시설")) {
+                                    dongNum = reqDongNum.getCommDongNum();
+                                    selectedDong = dongName;
+                                    System.out.println("상가/근린생활시설이 아닌 동 선택: " + dongName);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // 3단계: 모든 조건에 맞는 동이 없으면 첫 번째 동 선택
                         if (dongNum == null && !dongNumList.isEmpty()) {
                             dongNum = dongNumList.get(0).getCommDongNum();
-                            System.out.println("'상가'가 포함되지 않은 동이 없어 첫 번째 후보 동 선택: " + dongNumList.get(0).getReqDong());
+                            selectedDong = dongNumList.get(0).getReqDong();
+                            System.out.println("조건에 맞는 동이 없어 첫 번째 후보 동 선택: " + selectedDong);
                         }
                     }
                 }
