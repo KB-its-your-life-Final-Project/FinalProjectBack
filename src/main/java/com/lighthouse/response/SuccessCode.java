@@ -20,6 +20,9 @@ public enum SuccessCode implements ResponseCode{
 
 	// SafeReport
 	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
+	RECENT_SAFEREPORT_LIST_SUCCESS(2001, "최근 본 안심레포트 목록 조회 성공"),
+	RECENT_SAFEREPORT_DETAIL_SUCCESS(2002, "최근 본 안심레포트 상세 조회 성공"),
+	RECENT_SAFEREPORT_DELETE_SUCCESS(2003, "최근 본 안심레포트 삭제 성공"),
 
 	// News
 	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공"),
@@ -32,8 +35,10 @@ public enum SuccessCode implements ResponseCode{
 	SEARCH_HISTORY_GETLIST_SUCCESS(3005,"검색 기록 조회 성공"),
 
 	// Estate
-	ESTATE_FETCH_SUCCESS(4001, "건물 정보 확인 성공");
+	ESTATE_FETCH_SUCCESS(4001, "건물 정보 확인 성공"),
 
+	// localinfo
+	LOCALINFO_FETCH_SUCCESS(5001, "지역 정보 조회 성공");
 	private final int code;
 	private final String message;
 }

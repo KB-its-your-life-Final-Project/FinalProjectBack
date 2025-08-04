@@ -5,7 +5,6 @@ import com.lighthouse.buildingRegister.dto.BuildingRequestDTO;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 import com.lighthouse.buildingRegister.util.CodefUtil;
 import com.lighthouse.common.geocoding.service.GeoCodingService;
-import com.lighthouse.toCoord.service.AddressGeocodeService;
 import io.codef.api.EasyCodefUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,15 +80,6 @@ public class BuildingRegisterService {
                 return null;
             }
             
-            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
-            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
-            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
-            if(resUserAddr != null && commAddrLotNumber != null) {
-                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
-                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
-                log.info("지번 주소 설정: {}", jibunAddr);
-            }
-            
             // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
                 Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(normalizedAddress);
@@ -154,14 +144,6 @@ public class BuildingRegisterService {
         }
         // jibun_addr 설정 및 위/경도 변환
         if(result != null && result.getBuildingRegisterVO() != null) {
-            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
-            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
-            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
-            if(resUserAddr != null && commAddrLotNumber != null) {
-                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
-                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
-                log.info("지번 주소 설정: {}", jibunAddr);
-            }
             
             // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {

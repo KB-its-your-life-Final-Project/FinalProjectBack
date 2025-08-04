@@ -213,18 +213,3 @@ SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 ALTER TABLE `estate_api_integration_tbl`
 ADD CONSTRAINT unique_combination
 UNIQUE (mhouse_type, shouse_type, build_year, building_type, jibun_addr);
-
-DROP TABLE IF EXISTS alarm_tbl;
-CREATE TABLE alarm_tbl (
-                                  id INT PRIMARY KEY AUTO_INCREMENT,
-                                  member_id INT NOT NULL,
-                                  type INT NOT NULL COMMENT '알림 유형(1:위험도변동, 2:가격변동, 3:계약진행, 4:만료알림, 5:기타)',
-                                  text TEXT NOT NULL COMMENT '알림 메시지 내용',
-                                  reg_ip VARCHAR(45) DEFAULT NULL COMMENT '등록 IP',
-                                  reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
-                                  is_checked BOOLEAN DEFAULT FALSE COMMENT '사용자 확인 여부 (true=확인함 false=아직 확인 안 함)',
-                                  get_alarm BOOLEAN DEFAULT FALSE COMMENT '알림 수신 설정 (true=알림 받음, false= 알림 받지 않음)',
-                                  INDEX idx_member_type (member_id, type),
-                                  INDEX idx_member_checked (member_id, is_checked),
-                                  INDEX idx_reg_date (reg_date)
-);
