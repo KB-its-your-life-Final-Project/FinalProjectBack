@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.safereport.mapper.SafeReportMapper">
+<!-- trade_type=1인 매매 데이터만 조회 -->
+    <select id="getSalesByEstateIdWithTradeType" resultType="com.lighthouse.estate.dto.EstateSalesDTO">
+        SELECT
+            *
+        FROM
+            estate_api_integration_sales_tbl 
+        WHERE
+            estate_id = #{estateId}
+            AND trade_type = 1
+        ORDER BY deal_year DESC, deal_month DESC, deal_day DESC
+        LIMIT 1;<!-- 최근 매매 데이터만 조회 -->
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.security.mapper.MemberTokenMapper">
+    <resultMap id="memberTokenMap" type="MemberToken" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <select id="findRefreshTokenByMemberId" resultMap="memberTokenMap">
+        SELECT *
+        FROM member_token_tbl
+        WHERE member_id = #{memberId}
+    </select>
+
+    <insert id="insertRefreshToken">
+        INSERT INTO member_token_tbl
+        (member_id, refresh_token, created_at, expires_at)
+        VALUES (#{memberId}, #{refreshToken}, #{createdAt}, #{expiresAt})
+    </insert>
+
+    <update id="updateRefreshToken">
+        UPDATE member_token_tbl
+        SET refresh_token    = #{refreshToken},
+            created_at       = #{createdAt},
+            expires_at       = #{expiresAt}
+        WHERE member_id = #{memberId}
+    </update>
+</mapper>

@@ -1,0 +1,1 @@
+import{_ as a,c as s,o,a as t}from"./index-Cr3oa366.js";const c={},n={class:"editPage"};function r(_,e){return o(),s("div",n,e[0]||(e[0]=[t("h1",null,"사용자 정보 수정 화면",-1),t("p",null,"내 집, 학교, 회사 등록/수정하기",-1)]))}const l=a(c,[["render",r],["__scopeId","data-v-e6c51e3a"]]);export{l as default};
