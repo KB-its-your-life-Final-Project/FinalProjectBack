@@ -67,6 +67,13 @@ public class RecentSafeReportService {
                 return;
             }
             
+            // 안심레포트 데이터 생성하여 저장 조건 확인
+            SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(requestDto);
+            if (responseDto == null || !safeReportService.shouldSaveToRecentReports(responseDto)) {
+                log.info("저장 조건을 만족하지 않아 최근 본 안심레포트 저장을 건너뜁니다: estateId={}", estateId);
+                return;
+            }
+            
             // 중복 체크 및 저장/업데이트
             RecentSafeReport existingReport = recentSafeReportMapper.findByUserIdAndEstateId(userId, estateId);
             if (existingReport != null) {
@@ -82,8 +89,16 @@ public class RecentSafeReportService {
     
     // 기존 레포트 업데이트
     private void updateExistingReport(RecentSafeReport existingReport, SafeReportRequestDto requestDto) {
-        var rentalRatioAndBuildyear = safeReportService.generateSafeReport(requestDto);
-        String resultGrade = calculateResultGrade(rentalRatioAndBuildyear);
+        // 안심레포트 데이터 생성하여 저장 조건 확인
+        SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(requestDto);
+        if (responseDto == null || !safeReportService.shouldSaveToRecentReports(responseDto)) {
+            log.info("저장 조건을 만족하지 않아 기존 레포트를 논리적 삭제합니다: estateId={}", existingReport.getEstateId());
+            existingReport.setIsDelete(1); // 논리적 삭제
+            recentSafeReportMapper.updateRecentSafeReport(existingReport);
+            return;
+        }
+        
+        String resultGrade = calculateResultGrade(responseDto.getRentalRatioAndBuildyear());
         
         existingReport.setBudget(requestDto.getBudget());
         existingReport.setResultGrade(resultGrade);
@@ -94,8 +109,14 @@ public class RecentSafeReportService {
     
     // 새 레포트 생성
     private void createNewReport(Integer userId, Integer estateId, SafeReportRequestDto requestDto) {
-        var rentalRatioAndBuildyear = safeReportService.generateSafeReport(requestDto);
-        String resultGrade = calculateResultGrade(rentalRatioAndBuildyear);
+        // 안심레포트 데이터 생성하여 저장 조건 확인
+        SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(requestDto);
+        if (responseDto == null || !safeReportService.shouldSaveToRecentReports(responseDto)) {
+            log.info("저장 조건을 만족하지 않아 새 레포트 생성을 건너뜁니다: estateId={}", estateId);
+            return;
+        }
+        
+        String resultGrade = calculateResultGrade(responseDto.getRentalRatioAndBuildyear());
         
         RecentSafeReport newReport = buildRecentSafeReport(userId, estateId, requestDto, resultGrade);
         
