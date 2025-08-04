@@ -28,8 +28,8 @@ import java.util.Properties;
     "com.lighthouse.security.mapper",
     "com.lighthouse.toCoord.mapper",
     "com.lighthouse.transactions.mapper",
-    "com.lighthouse.coord.mapper",
-    "com.lighthouse.wishlist.mapper"
+    "com.lighthouse.wishlist.mapper",
+    "com.lighthouse.regionCode.mapper"
 })
 @ComponentScan(
         basePackages = {"com.lighthouse"},
