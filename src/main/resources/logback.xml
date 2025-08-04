@@ -10,21 +10,26 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <!-- 개발용 로그 레벨 설정 -->
+    <logger name="com.lighthouse" level="DEBUG" />
+    
+    <!-- MyBatis 쿼리 로그 -->
+    <logger name="*.mapper" level="DEBUG" />
+    
+    <!-- Spring 프레임워크 로그 -->
+    <logger name="org.springframework" level="INFO" />
+    
+    <!-- 데이터베이스 관련 로그 -->
+    <logger name="jdbc.sqlonly" level="DEBUG" />
+    <logger name="jdbc.resultset" level="INFO" />
+    <logger name="jdbc.audit" level="WARN" />
+    <logger name="jdbc.connection" level="WARN" />
+    
+    <!-- Swagger 로그 (서버 시작 시 방해 방지) -->
+    <logger name="springfox" level="WARN" />
+    <logger name="s.d.s" level="WARN" />
+
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
-
-    <!-- 패키지별 로그 수준 설정 -->
-    <logger name="org.springframework" level="WARN" />
-    <logger name="org.mybatis" level="WARN" />
-    <logger name="org.apache.ibatis.mapper" level="DEBUG" />
-    <logger name="com.zaxxer.hikari" level="WARN" />
-    <logger name="jdbc" level="ERROR" />
-    <logger name="jdbc.sqlonly" level="DEBUG" />
-    <logger name="jdbc.resultset" level="DEBUG" />
-    <logger name="jdbc.audit" level="DEBUG" />
-    <logger name="jdbc.connection" level="DEBUG" />
-
-    <!-- 내 프로젝트는 디버그 로그 출력 허용 -->
-    <logger name="com.lighthouse" level="DEBUG" />
 </configuration>

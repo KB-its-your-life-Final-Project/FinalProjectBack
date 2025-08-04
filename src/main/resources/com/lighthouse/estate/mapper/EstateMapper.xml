@@ -4,8 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.estate.mapper.EstateMapper">
 
+    <resultMap id="EstateMap" type="com.lighthouse.estate.entity.Estate" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <resultMap id="EstateSalesMap" type="com.lighthouse.estate.entity.EstateSales" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
         <!-- 위도/경도에 해당하는 건물 정보 조회 (단일 건물) -->
-    <select id="getRealEstateByLocation" resultType="com.lighthouse.estate.dto.RealEstateDTO">
+    <select id="getEstateByLatLng" resultMap="EstateMap">
         SELECT
             *
         FROM
@@ -19,7 +27,7 @@
     </select>
 
     <!-- 건물 ID로 매매 정보 조회 -->
-    <select id="getSalesByEstateId" resultType="com.lighthouse.estate.dto.RealEstateSalesDTO">
+    <select id="getSalesByEstateId" resultMap="EstateSalesMap">
         SELECT
             *
         FROM
@@ -29,7 +37,7 @@
     </select>
 
     <!-- 지도 사각형 영역 내 건물들 정보 조회 (다건 조회)-->
-    <select id="getAllRealEstateByLocation" resultType="com.lighthouse.estate.dto.RealEstateDTO">
+    <select id="getEstateBySqaure" resultMap="EstateMap">
         SELECT
             *
         FROM
