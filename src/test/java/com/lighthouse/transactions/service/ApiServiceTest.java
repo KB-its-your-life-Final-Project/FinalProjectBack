@@ -11,10 +11,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -150,17 +152,17 @@ class ApiServiceTest {
     @Test
     @DisplayName("단독/다가구 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
     void insertSHRentalsToEstApiIntgTest() {
-        int lawdCd = 48310;
-        int dealYmd = 202411;
+        int lawdCd = 41210;
+        int dealYmd = 202501;
         apiService.insertSHRentalsToEstApiIntg(lawdCd, dealYmd);
     }
 
     @Test
     @DisplayName("모든 API 삽입 테스트:  법정동코드, 시작~종료 연월까지")
     void insertAllApiToEstApiIntgTest() throws InterruptedException{
-        int lawdCd = 41210; // 광명시:41210, 하남시:41450, 거제시:48310
-        int startYmd = 202401;
-        int endYmd = 202412;
+        int lawdCd = 11110; // 서울특별시:11110, 광명시:41210, 하남시:41450, 거제시:48310
+        int startYmd = 202412;
+        int endYmd = 202501;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
         YearMonth start = YearMonth.parse(String.valueOf(startYmd), formatter);
         YearMonth end = YearMonth.parse(String.valueOf(endYmd), formatter);
@@ -197,16 +199,18 @@ class ApiServiceTest {
      */
     @Test
     @DisplayName("모든 시군구코드에 대해 10년치 부동산 데이터 삽입 테스트")
+    @Transactional
+    @Rollback
     public void insertAllRegionEstateDataFor10YearsTest() throws InterruptedException {
         // 모든 고유 시군구코드 조회
         LawdCdRequestDTO dto = new LawdCdRequestDTO();
         List<Integer> allUniqueLawdCodes = lawdCodeService.getAllUniqueRegionCodesWithPagination();
 
         // 10년치 데이터 삽입
-        int startYmd = 201507;
+        int startYmd = 202506;
         int endYmd = 202507;
 
-        log.info("데이터 삽입 시작 - 기간: {} ~ {}", startYmd, endYmd);
+        log.debug("데이터 삽입 시작 - 기간: {} ~ {}", startYmd, endYmd);
 
         apiService.insertEstateApiIntgAndSalesTbl(allUniqueLawdCodes, startYmd, endYmd);
     }

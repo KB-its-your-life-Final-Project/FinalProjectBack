@@ -3,7 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.transactions.mapper.TransactionMapper">
-
     <insert id="insertApartmentTrade" parameterType="ApartmentTradeVO">
         INSERT INTO apartment_trade_0715 (
             umd_nm, sgg_cd, apt_dong, apt_nm, build_year,

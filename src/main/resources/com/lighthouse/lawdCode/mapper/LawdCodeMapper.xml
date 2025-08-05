@@ -7,7 +7,8 @@
         <id property="regionCd" column="region_cd" />
     </resultMap>
 
-    <select id="findAll" resultMap="lawdCdMap">
+<!--    <select id="findAll" resultMap="lawdCdMap">-->
+    <select id="findAll" resultType="com.lighthouse.lawdCode.dto.LawdCdResponseDTO">
         SELECT * FROM ${API_LAWD_CD}
         <if test="offset != null and limit != null">
             LIMIT #{offset}, #{limit}

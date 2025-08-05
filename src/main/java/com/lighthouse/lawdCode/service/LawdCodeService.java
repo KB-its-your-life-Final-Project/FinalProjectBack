@@ -71,7 +71,7 @@ public class LawdCodeService {
      * 페이지네이션(offset, limit)을 사용하여 모든 고유 시군구코드 조회
      */
     public List<Integer> getAllUniqueRegionCodesWithPagination() {
-        log.info("LawdCodeService.getAllUniqueRegionCodesWithPagination() 실행=======");
+        log.debug("LawdCodeService.getAllUniqueRegionCodesWithPagination() 실행=======");
         Set<Integer> allUniqueCodes = new HashSet<>();
         int currentOffset = 0;
         int limit = 1000; // 한 번에 조회건수 설정
@@ -94,7 +94,7 @@ public class LawdCodeService {
                 .sorted()
                 .collect(Collectors.toList());
 
-        log.info("모든 시군구 코드 조회 완료 - 총 {}개", result.size());
+        log.debug("모든 시군구 코드 조회 완료 - 총 {}개", result.size());
         return result;
     }
 }

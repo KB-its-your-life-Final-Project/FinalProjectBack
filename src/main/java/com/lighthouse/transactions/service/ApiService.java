@@ -60,26 +60,52 @@ public class ApiService {
                 .queryParam("DEAL_YMD", dealYmd)
                 .toUriString();
         urlStr += "&serviceKey=" + apiKey;
+        log.debug("API 요청 URL: {}", urlStr);
+
+        RestTemplate restTemplate = new RestTemplate();
+        String responseXml = restTemplate.getForObject(urlStr, String.class);
+        log.debug("API 응답 XML: {}", responseXml);
+
         XmlMapper xmlMapper = new XmlMapper();
         JavaType type = xmlMapper.getTypeFactory().constructParametricType(TransactionApiDTO.class, itemType);
+
+        TransactionApiDTO<T> response = xmlMapper.readValue(responseXml, type);
+        ObjectMapper jsonMapper = new ObjectMapper();
+        log.debug("파싱된 응답 객체(JSON): {}", jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
         return xmlMapper.readValue(new URL(urlStr), type);
     }
 
     private <T> void insertCommon(String endpoint, int lawdCd, int dealYmd, Class<T> clazz, SaveHandler<T> handler, String logPrefix) {
         final String url = BASE_URL + endpoint;
-        try {
-            TransactionApiDTO<T> response = apiRequest(url, lawdCd, dealYmd, clazz);
-            if (!"000".equals(response.getHeader().getResultCode())) {
-                log.warn("❌ {} API 실패 - 코드: {}, 메시지: {}", logPrefix, response.getHeader().getResultCode(), response.getHeader().getResultMsg());
+        int maxRetries = 2;
+        int attempts = 0;
+        while (attempts < maxRetries) {
+            try {
+                attempts++;
+                TransactionApiDTO<T> response = apiRequest(url, lawdCd, dealYmd, clazz);
+                if (!"000".equals(response.getHeader().getResultCode())) {
+                    log.warn("❌ {} API 실패 - 코드: {}, 메시지: {}", logPrefix, response.getHeader().getResultCode(), response.getHeader().getResultMsg());
+                    return;
+                }
+                handler.save(response.getBody().getItems()); // = mapper.insertApartmentTradeBatch(itemList);
+                log.debug("{} 데이터 저장: {}", logPrefix, response.getBody().getItems());
                 return;
+            } catch (Exception e) {
+                log.error("❌ {} 데이터 요청 실패 (시도 {} / {})", logPrefix, attempts, maxRetries, e);
+                if (attempts >= maxRetries) {
+                    log.error("❌ {} API 요청 최종 실패 - 재시도 종료", logPrefix);
+                    break;
+                }
+                try {
+                    Thread.sleep(1000); // 1초 대기 후 재시도
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt(); // 인터럽트 발생 시 현재 스레드 상태 복구
+                    log.error("❌ {} 재시도 대기 중 인터럽트 발생", logPrefix, ie);
+                    break;
+                }
             }
-            handler.save(response.getBody().getItems()); // = mapper.insertApartmentTradeBatch(itemList);
-            log.info("{} 데이터 저장: {}", logPrefix, response.getBody().getItems());
-        } catch (Exception e) {
-            log.error("❌ {} 데이터 요청 실패", logPrefix, e);
         }
     }
-
     public void insertApartmentTrades(int lawdCd, int dealYmd) {
         insertCommon(APT_TRADE_ENDPOINT,
                 lawdCd, dealYmd, ApartmentTradeVO.class, mapper::insertApartmentTradeBatch, "아파트 매매");
@@ -257,7 +283,7 @@ public class ApiService {
         YearMonth start = YearMonth.parse(String.valueOf(startYmd), formatter);
         YearMonth end = YearMonth.parse(String.valueOf(endYmd), formatter);
 
-        // API 함수 목록 정의 (service는 EstateApiService 등으로 가정)
+        // API 함수 목록 정의
         List<ApiNameCallDTO> apiList = List.of(
                 new ApiNameCallDTO("아파트 매매", this::insertAptTradesToEstApiIntg),
                 new ApiNameCallDTO("아파트 전월세", this::insertAptRentalsToEstApiIntg),
@@ -269,8 +295,8 @@ public class ApiService {
                 new ApiNameCallDTO("단독/다가구 전월세", this::insertSHRentalsToEstApiIntg)
         );
 
-        log.info("=== 부동산 API 통합 데이터 삽입 시작 ===");
-        log.info("대상 시군구 수: {}, 기간: {} ~ {}", uniqueLawdCdList.size(), startYmd, endYmd);
+        log.debug("=== 부동산 API 통합 데이터 삽입 시작 ===");
+        log.debug("대상 시군구 수: {}, 기간: {} ~ {}", uniqueLawdCdList.size(), startYmd, endYmd);
 
         int totalLawdCd = uniqueLawdCdList.size();
         int processedLawdCd = 0;
@@ -278,12 +304,12 @@ public class ApiService {
         // 각 시군구 코드별로 처리
         for (Integer lawdCd : uniqueLawdCdList) {
             processedLawdCd++;
-            log.info("진행률: {}/{} - 법정동코드: {} 처리 시작", processedLawdCd, totalLawdCd, lawdCd);
+            log.debug("진행률: {}/{} - 법정동코드: {} 처리 시작", processedLawdCd, totalLawdCd, lawdCd);
 
             // 각 연월별로 처리
             for (YearMonth current = start; !current.isAfter(end); current = current.plusMonths(1)) {
                 int dealYmd = Integer.parseInt(current.format(formatter));
-                log.info("시군구코드: {}, 연월: {}", lawdCd, dealYmd);
+                log.debug("시군구코드: {}, 연월: {}", lawdCd, dealYmd);
 
                 // 각 API별로 처리
                 for (ApiNameCallDTO api : apiList) {
@@ -298,11 +324,11 @@ public class ApiService {
                          throw e; // 중단
                     }
                 }
-                log.info("시군구코드: {} - 연월: {} 완료", lawdCd, dealYmd);
+                log.debug("시군구코드: {} - 연월: {} 완료", lawdCd, dealYmd);
             }
-            log.info("시군구코드: {} 전체 처리 완료 ({}/{})", lawdCd, processedLawdCd, totalLawdCd);
+            log.debug("시군구코드: {} 전체 처리 완료 ({}/{})", lawdCd, processedLawdCd, totalLawdCd);
         }
-        log.info("=== 부동산 API 통합 데이터 삽입 완료 ===");
+        log.debug("=== 부동산 API 통합 데이터 삽입 완료 ===");
     }
 }
 
