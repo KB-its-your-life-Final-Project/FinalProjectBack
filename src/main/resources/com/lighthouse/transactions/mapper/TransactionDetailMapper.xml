@@ -62,6 +62,15 @@
                  JOIN estate_api_integration_tbl e ON s.estate_id = e.id
         WHERE e.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
           AND e.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+        <if test="tradeType != null">
+            AND s.trade_type = #{tradeType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[>=]]> #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
+        </if>
     </select>
 
 
