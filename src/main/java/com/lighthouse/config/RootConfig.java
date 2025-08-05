@@ -30,6 +30,8 @@ import java.util.Properties;
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.coord.mapper",
     "com.lighthouse.wishlist.mapper",
+    "com.lighthouse.localinfo.mapper",
+    "com.lighthouse.homeregister.mapper"})
     "com.lighthouse.lawdCode.mapper",
     "com.lighthouse.localinfo.mapper"
 })
