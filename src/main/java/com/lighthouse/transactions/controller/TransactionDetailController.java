@@ -34,25 +34,26 @@ public class TransactionDetailController {
         if (request.getJibunAddress() != null && !request.getJibunAddress().isEmpty()) {
             log.info("지번 주소로 좌표 변환 시도: {}", request.getJibunAddress());
 
-            Map<String, Double> coordinates = geoCodingService.getCoordinateFromAddress(request.getJibunAddress());
-            lat = coordinates.get("lat");
-            lng = coordinates.get("lng");
-            log.info("주소 변환 결과 lat={}, lng={}", lat, lng);
-        } else if (request.getLat() != null && request.getLng() != null && request.getLat() != 0.0 && request.getLng() != 0.0) {
-            // 프론트에서 좌표를 바로 전달한 경우
-            lat = request.getLat();
-            lng = request.getLng();
-            log.info("프론트 전달 좌표 사용 lat={}, lng={}", lat, lng);
-        } else {
-            // jibunAddress, lat/lng 둘 다 없는 경우
-            throw new IllegalArgumentException("jibunAddress 또는 lat/lng 값 중 하나는 반드시 전달되어야 합니다.");
+            try {
+                // 주소 변환 시도
+                Map<String, Double> coordinates = geoCodingService.getCoordinateFromAddress(request.getJibunAddress());
+                lat = coordinates.get("lat");
+                lng = coordinates.get("lng");
+            } catch (Exception e) {
+                // ❌ 주소 변환 실패 시 예외를 throw하지 않고
+                // ✅ 좌표를 직접 사용하도록 fallback
+                log.warn("주소 변환 실패, 좌표 직접 사용: {}", request.getJibunAddress());
+                lat = request.getLat();
+                lng = request.getLng();
+            }
         }
+
 
 
         // 4. Mapper에서 lat/lng 오차보정 쿼리로 buildingName 조회 시도
         String buildingName = transactionDetailService.findBuildingNameByLatLng(lat, lng);
 
-        if (buildingName != null) {
+        if (buildingName != null && !buildingName.isEmpty()) {
             log.info("오차보정으로 buildingName 조회 성공: {}", buildingName);
             // 5. buildingName 기준으로 거래 데이터 조회
             return transactionDetailService.getFilteredTransactionsByBuildingName(request, buildingName);

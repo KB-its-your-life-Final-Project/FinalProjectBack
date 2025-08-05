@@ -64,6 +64,7 @@ public class TransactionDetailService {
 
     // buildingName 기준 조회
     public List<TransactionResponseDTO> getFilteredTransactionsByBuildingName(TransactionRequestDTO request, String buildingName) {
+        setDefaultDatesIfNull(request);
         List<TransactionGraphVO> rawList = transactionDetailMapper.findDateByBuildingName(
                 buildingName,
                 request.getTradeType(),
@@ -76,6 +77,7 @@ public class TransactionDetailService {
 
     // lat/lng 기준 조회
     public List<TransactionResponseDTO> getFilteredTransactionsByLatLng(TransactionRequestDTO request, double lat, double lng) {
+        setDefaultDatesIfNull(request);
         List<TransactionGraphVO> rawList = transactionDetailMapper.findDateByLatLng(
                 lat,
                 lng,
@@ -88,7 +90,13 @@ public class TransactionDetailService {
     }
 
 
-
+    private void setDefaultDatesIfNull(TransactionRequestDTO request) {
+        if (request.getStartDate() == null || request.getEndDate() == null) {
+            LocalDate now = LocalDate.now();
+            request.setEndDate(now.toString());
+            request.setStartDate(now.minusYears(1).toString());
+        }
+    }
 
 //DTO 로 변환
 private List<TransactionResponseDTO> convertToResponseDTO(List<TransactionGraphVO> rawList) {
