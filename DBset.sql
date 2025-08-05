@@ -238,3 +238,27 @@ CREATE TABLE safe_report_tbl (
                                     INDEX idx_user_delete (user_id, is_delete),
                                     INDEX idx_estate (estate_id)
 );
+
+DROP TABLE IF EXISTS myhome_tbl;
+CREATE TABLE myhome_tbl (
+                                id INT NOT NULL AUTO_INCREMENT COMMENT 'PK, 고유 식별자',
+                                user_id INT NOT NULL COMMENT '사용자 id',
+                                estate_id INT NOT NULL DEFAULT 0 COMMENT 'all_real_estate 테이블의 id',
+                                umd_nm VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '법정동',
+                                sgg_cd INT NULL COMMENT '지역코드',
+                                building_name VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '건물명',
+                                building_number VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '건물동 이름',
+                                jibun VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '지번',
+                                reg_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
+                                reg_ip VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '등록아이피',
+                                is_delete INT NOT NULL DEFAULT 1 COMMENT '1:정상, 2:삭제',
+
+                                contract_start DATE NULL COMMENT '계약 시작일',
+                                contract_end DATE NULL COMMENT '계약 종료일',
+                                rent_type INT NULL COMMENT '전세/월세 여부 (1:전세, 2:월세)',
+                                jeonse_amount INT NULL COMMENT '전세 금액(만원) (전세인 경우만 입력)',
+                                monthly_deposit INT NULL COMMENT '월세 보증금(만원) (월세인 경우만 입력)',
+                                monthly_rent INT NULL COMMENT '월세 금액(만원) (월세인 경우만 입력)',
+
+                                PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='아파트 정보 및 계약 정보';
