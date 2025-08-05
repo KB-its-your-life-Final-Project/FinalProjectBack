@@ -13,15 +13,23 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LawdCodeService {
-    private final LawdCodeMapper mapper;
+    private final LawdCodeMapper lawdCodeMapper;
+
+    public List<LawdCdResponseDTO> findAll(LawdCdRequestDTO dto) {
+        if(dto.getOffset() == null) {
+            dto.setOffset(0);
+        }
+        return lawdCodeMapper.findAll(dto);
+    }
+
     public LawdCdResponseDTO findRegionByRegionCd(String regionCd) {
-        LawdCdResponseDTO result = mapper.findByFullRegionCd(regionCd);
+        LawdCdResponseDTO result = lawdCodeMapper.findByFullRegionCd(regionCd);
         if(result == null) {
-            throw new CustomException(ErrorCode.WISHLIST_BAD_REQUEST);
+            throw new CustomException(ErrorCode.LAWDCD_TARGET_NOT_FOUND);
         }
         return result;
     }
     public List<LawdCdResponseDTO> findAllRegionCdByPartialCd(LawdCdRequestDTO dto) {
-        return mapper.findAllRegionByPartialCd(dto);
+        return lawdCodeMapper.findAllRegionByPartialCd(dto);
     }
 }

@@ -27,12 +27,13 @@ public class TransactionDetailController {
     @PostMapping("/detail")
     public List<TransactionResponseDTO> getFilteredData(@RequestBody TransactionRequestDTO request) {
         log.info("요청 들어옴: {}", request);
-
         double lat = 0.0;
         double lng = 0.0;
 
-
+      //1. 지번이 있으면 위/경도 변환
         if (request.getJibunAddress() != null && !request.getJibunAddress().isEmpty()) {
+            log.info("지번 주소로 좌표 변환 시도: {}", request.getJibunAddress());
+
             Map<String, Double> coordinates = geoCodingService.getCoordinateFromAddress(request.getJibunAddress());
             lat = coordinates.get("lat");
             lng = coordinates.get("lng");
@@ -47,6 +48,18 @@ public class TransactionDetailController {
             throw new IllegalArgumentException("jibunAddress 또는 lat/lng 값 중 하나는 반드시 전달되어야 합니다.");
         }
 
-        return transactionDetailService.getFilteredTransactions(request,lat,lng);
+
+        // 4. Mapper에서 lat/lng 오차보정 쿼리로 buildingName 조회 시도
+        String buildingName = transactionDetailService.findBuildingNameByLatLng(lat, lng);
+
+        if (buildingName != null) {
+            log.info("오차보정으로 buildingName 조회 성공: {}", buildingName);
+            // 5. buildingName 기준으로 거래 데이터 조회
+            return transactionDetailService.getFilteredTransactionsByBuildingName(request, buildingName);
+        } else {
+            log.info("buildingName 조회 실패, lat/lng 기준으로 거래 데이터 조회");
+            // 6. lat/lng 기준으로 거래 데이터 조회
+            return transactionDetailService.getFilteredTransactionsByLatLng(request, lat, lng);
+        }
     }
 }

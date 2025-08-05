@@ -22,7 +22,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @MapperScan(basePackages = {
     "com.lighthouse.buildingRegister.mapper",
-    "com.lighthouse.estate.mapper", 
+    "com.lighthouse.estate.mapper",
     "com.lighthouse.member.mapper",
     "com.lighthouse.safereport.mapper",
     "com.lighthouse.security.mapper",
@@ -30,6 +30,8 @@ import java.util.Properties;
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.coord.mapper",
     "com.lighthouse.wishlist.mapper",
+    "com.lighthouse.localinfo.mapper",
+    "com.lighthouse.homeregister.mapper",
     "com.lighthouse.lawdCode.mapper",
     "com.lighthouse.localinfo.mapper"
 })

@@ -3,6 +3,17 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.lawdCode.mapper.LawdCodeMapper">
+    <resultMap id="lawdCdMap" type="com.lighthouse.lawdCode.entity.LawdCd" autoMapping="true">
+        <id property="regionCd" column="region_cd" />
+    </resultMap>
+
+    <select id="findAll" resultMap="lawdCdMap">
+        SELECT * FROM ${API_LAWD_CD}
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
     <select id="findAllRegionByPartialCd" parameterType="com.lighthouse.lawdCode.dto.LawdCdRequestDTO" resultType="com.lighthouse.lawdCode.dto.LawdCdResponseDTO">
         SELECT region_cd, locatadd_nm, locallow_nm, grid_x, grid_y
         FROM ${API_LAWD_CD}

@@ -10,7 +10,10 @@ import lombok.Setter;
 @Setter
 @Getter
 public class LawdCdRequestDTO {
-    String sidoCd;
-    String sggCd;
-    String umdCd;
+    private String regionCd;
+    private String sidoCd;
+    private String sggCd;
+    private String umdCd;
+    private Integer offset;
+    private Integer limit;
 }

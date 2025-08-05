@@ -18,4 +18,10 @@ public interface TransactionDetailMapper {
                                               @Param("tradeType") Integer tradeType,
                                               @Param("startDate") String startDate,
                                               @Param("endDate") String endDate);
+
+    List<TransactionGraphVO> findDateByBuildingName(@Param("buildingName") String buildingName,
+                                                    @Param("tradeType") Integer tradeType,
+                                                    @Param("startDate") String startDate,
+                                                    @Param("endDate") String endDate);
 }
+
