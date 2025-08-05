@@ -32,6 +32,9 @@ import java.util.Properties;
     "com.lighthouse.wishlist.mapper",
     "com.lighthouse.localinfo.mapper",
     "com.lighthouse.homeregister.mapper"})
+    "com.lighthouse.lawdCode.mapper",
+    "com.lighthouse.localinfo.mapper"
+})
 @ComponentScan(
         basePackages = {"com.lighthouse"},
         excludeFilters = {
