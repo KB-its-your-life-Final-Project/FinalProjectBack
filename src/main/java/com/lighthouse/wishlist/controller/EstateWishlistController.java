@@ -23,22 +23,19 @@ public class EstateWishlistController {
     private final EstateWishlistService service;
     private final JwtUtil jwtUtil;
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody EstateWishlistRequestDTO estateId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody EstateWishlistRequestDTO estateId, @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         service.saveOrUpdateWishlist(memberId,estateId.getEstateId());
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_SAVE_SUCCESS));
     }
     @DeleteMapping("/{estateId}")
-    public ResponseEntity<ApiResponse<Void>> removeWishlist (@PathVariable Long estateId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<Void>> removeWishlist (@PathVariable Long estateId, @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         service.deleteWishlist(memberId,estateId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_DELETE_SUCCESS));
     }
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<EstateWishlistResponseDTO>>> getEstateIdsByMemberId(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<List<EstateWishlistResponseDTO>>> getEstateIdsByMemberId(@CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         List<EstateWishlistResponseDTO> result = service.getEstateIdsByMemberId(memberId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_GETLIST_SUCCESS,result));
