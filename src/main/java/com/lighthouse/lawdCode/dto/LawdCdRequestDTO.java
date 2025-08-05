@@ -1,4 +1,4 @@
-package com.lighthouse.regionCode.dto;
+package com.lighthouse.lawdCode.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class RegionCdRequestDTO {
+public class LawdCdRequestDTO {
     String sidoCd;
     String sggCd;
     String umdCd;

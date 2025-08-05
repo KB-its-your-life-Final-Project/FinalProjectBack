@@ -1,9 +1,9 @@
-package com.lighthouse.regionCode.mapper;
+package com.lighthouse.lawdCode.mapper;
 
 import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
-import com.lighthouse.regionCode.dto.RegionCdRequestDTO;
-import com.lighthouse.regionCode.dto.RegionCdResponseDTO;
+import com.lighthouse.lawdCode.dto.LawdCdRequestDTO;
+import com.lighthouse.lawdCode.dto.LawdCdResponseDTO;
 import com.lighthouse.security.config.SecurityConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @Slf4j
 @ActiveProfiles("local")
-class RegionCodeMapperTest {
+class LawdCodeMapperTest {
     @Autowired
-    private RegionCodeMapper mapper;
+    private LawdCodeMapper mapper;
 
     @Test
     void testFindUmdNmByRegionCd() {
@@ -41,17 +41,17 @@ class RegionCodeMapperTest {
     @Test
     void findAllRegionByPartialCd() {
         // 전체 테스트용 DTO 변수들
-        RegionCdRequestDTO dtoAllNull = new RegionCdRequestDTO(); // 모두 null
-        RegionCdRequestDTO dtoAllEmpty = new RegionCdRequestDTO("","","");
+        LawdCdRequestDTO dtoAllNull = new LawdCdRequestDTO(); // 모두 null
+        LawdCdRequestDTO dtoAllEmpty = new LawdCdRequestDTO("","","");
 
-        RegionCdRequestDTO dtoSidoOnly = new RegionCdRequestDTO();
+        LawdCdRequestDTO dtoSidoOnly = new LawdCdRequestDTO();
         dtoSidoOnly.setSidoCd("11");
 
-        RegionCdRequestDTO dtoSidoSsg = new RegionCdRequestDTO();
+        LawdCdRequestDTO dtoSidoSsg = new LawdCdRequestDTO();
         dtoSidoSsg.setSidoCd("11");
         dtoSidoSsg.setSggCd("680");
 
-        RegionCdRequestDTO dtoFull = new RegionCdRequestDTO();
+        LawdCdRequestDTO dtoFull = new LawdCdRequestDTO();
         dtoFull.setSidoCd("11");
         dtoFull.setSggCd("680");
         dtoFull.setUmdCd("103");
@@ -89,7 +89,7 @@ class RegionCodeMapperTest {
         String fullRegionCd = "1168010300"; // 실제 DB에 존재하는 10자리 전체 코드로 설정
 
         // when
-        RegionCdResponseDTO result = mapper.findByFullRegionCd(fullRegionCd);
+        LawdCdResponseDTO result = mapper.findByFullRegionCd(fullRegionCd);
 
         // then
         assertThat(result).isNotNull();

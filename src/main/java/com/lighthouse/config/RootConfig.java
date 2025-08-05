@@ -29,7 +29,7 @@ import java.util.Properties;
     "com.lighthouse.toCoord.mapper",
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.wishlist.mapper",
-    "com.lighthouse.regionCode.mapper"
+    "com.lighthouse.lawdCode.mapper"
 })
 @ComponentScan(
         basePackages = {"com.lighthouse"},

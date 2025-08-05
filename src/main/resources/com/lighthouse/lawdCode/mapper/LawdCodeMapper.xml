@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.lighthouse.regionCode.mapper.RegionCodeMapper">
-    <select id="findAllRegionByPartialCd" parameterType="com.lighthouse.regionCode.dto.RegionCdRequestDTO" resultType="com.lighthouse.regionCode.dto.RegionCdResponseDTO">
+<mapper namespace="com.lighthouse.lawdCode.mapper.LawdCodeMapper">
+    <select id="findAllRegionByPartialCd" parameterType="com.lighthouse.lawdCode.dto.LawdCdRequestDTO" resultType="com.lighthouse.lawdCode.dto.LawdCdResponseDTO">
         SELECT region_cd, locatadd_nm, locallow_nm, grid_x, grid_y
         FROM ${API_LAWD_CD}
         <where>
@@ -18,7 +18,7 @@
             </if>
         </where>
     </select>
-    <select id="findByFullRegionCd" resultType="com.lighthouse.regionCode.dto.RegionCdResponseDTO">
+    <select id="findByFullRegionCd" resultType="com.lighthouse.lawdCode.dto.LawdCdResponseDTO">
         SELECT region_cd, locatadd_nm, locallow_nm, grid_x, grid_y
         FROM ${API_LAWD_CD}
         WHERE region_cd = #{regionCd}

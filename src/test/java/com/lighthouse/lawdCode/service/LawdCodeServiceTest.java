@@ -1,8 +1,8 @@
-package com.lighthouse.regionCode.service;
+package com.lighthouse.lawdCode.service;
 
-import com.lighthouse.regionCode.dto.RegionCdRequestDTO;
-import com.lighthouse.regionCode.dto.RegionCdResponseDTO;
-import com.lighthouse.regionCode.mapper.RegionCodeMapper;
+import com.lighthouse.lawdCode.dto.LawdCdRequestDTO;
+import com.lighthouse.lawdCode.dto.LawdCdResponseDTO;
+import com.lighthouse.lawdCode.mapper.LawdCodeMapper;
 import com.lighthouse.response.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,29 +14,29 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-class RegionCodeServiceTest {
+class LawdCodeServiceTest {
 
-    private RegionCodeService service;
-    private RegionCodeMapper mapper;
+    private LawdCodeService service;
+    private LawdCodeMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = Mockito.mock(RegionCodeMapper.class);  // mapper mock 생성
-        service = new RegionCodeService(mapper);        // 서비스에 mock 주입
+        mapper = Mockito.mock(LawdCodeMapper.class);  // mapper mock 생성
+        service = new com.lighthouse.lawdCode.service.LawdCodeService(mapper);        // 서비스에 mock 주입
     }
 
     @Test
     void findRegionByRegionCd_found() {
         // given
         String regionCd = "1168010300";
-        RegionCdResponseDTO dto = new RegionCdResponseDTO();
+        LawdCdResponseDTO dto = new LawdCdResponseDTO();
         dto.setRegionCd(regionCd);
         dto.setLocallowNm("개포동");
 
         when(mapper.findByFullRegionCd(regionCd)).thenReturn(dto);
 
         // when
-        RegionCdResponseDTO result = service.findRegionByRegionCd(regionCd);
+        LawdCdResponseDTO result = service.findRegionByRegionCd(regionCd);
 
         // then
         assertNotNull(result);
@@ -56,20 +56,20 @@ class RegionCodeServiceTest {
     @Test
     void findAllRegionCdByPartialCd_returnsList() {
         // given
-        RegionCdRequestDTO dto = new RegionCdRequestDTO();
+        LawdCdRequestDTO dto = new LawdCdRequestDTO();
         dto.setSidoCd("11");
         dto.setSggCd(null);
         dto.setUmdCd(null);
 
-        RegionCdResponseDTO response1 = new RegionCdResponseDTO("1100000000", "서울시", "강남구", 100, 200);
-        RegionCdResponseDTO response2 = new RegionCdResponseDTO("1100100000", "서울시", "서초구", 110, 210);
+        LawdCdResponseDTO response1 = new LawdCdResponseDTO("1100000000", "서울시", "강남구", 100, 200);
+        LawdCdResponseDTO response2 = new LawdCdResponseDTO("1100100000", "서울시", "서초구", 110, 210);
 
-        List<RegionCdResponseDTO> mockResult = Arrays.asList(response1, response2);
+        List<LawdCdResponseDTO> mockResult = Arrays.asList(response1, response2);
 
         when(mapper.findAllRegionByPartialCd(dto)).thenReturn(mockResult);
 
         // when
-        List<RegionCdResponseDTO> result = service.findAllRegionCdByPartialCd(dto);
+        List<LawdCdResponseDTO> result = service.findAllRegionCdByPartialCd(dto);
 
         // then
         assertNotNull(result);

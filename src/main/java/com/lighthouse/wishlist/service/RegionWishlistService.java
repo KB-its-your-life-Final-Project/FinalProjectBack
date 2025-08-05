@@ -1,6 +1,6 @@
 package com.lighthouse.wishlist.service;
 
-import com.lighthouse.regionCode.service.RegionCodeService;
+import com.lighthouse.lawdCode.service.LawdCodeService;
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.wishlist.dto.SeparatedRegionDTO;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegionWishlistService {
     private final RegionWishlistMapper mapper;
-    private final RegionCodeService regionCdService;
+    private final LawdCodeService regionCdService;
 
     public void saveOrUpdateWishlist(Long memberId, String regionCd) {
         String sidoCd = regionCd.substring(0, 2);
