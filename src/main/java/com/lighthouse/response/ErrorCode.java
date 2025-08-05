@@ -44,10 +44,16 @@ public enum ErrorCode implements ResponseCode{
     // localinfo
     REGION_NOT_FOUND( 5001, "지역 정보를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 
+
+
     //LawdCd
     LAWDCD_NOT_FOUND(6001, "지역 코드 조회 실패", HttpStatus.NOT_FOUND),
     LAWDCD_TARGET_NOT_FOUND(6002, "해당 지역 코드를 찾을 수 업습니다.", HttpStatus.NOT_FOUND),
 
+    // HomeRegister
+    HOME_REGISTER_FAIL(7001, "집 정보 등록에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ESTATE_NOT_FOUND_BY_COORDINATES(7002, "해당 위치의 부동산 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_USER(7003, "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     //Server Error
     SERVER_NOT_RESPONDING(99001, "서버가 응답하지 않습니다", HttpStatus.SERVICE_UNAVAILABLE),
     ELEMENT_NOT_FOUND(99002, "알맞은 데이터를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
