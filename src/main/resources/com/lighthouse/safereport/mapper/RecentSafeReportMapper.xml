@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.safereport.mapper.RecentSafeReportMapper">
+
+    <resultMap id="RecentSafeReportMap" type="com.lighthouse.safereport.entity.RecentSafeReport" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <!-- 최근 본 안심레포트 저장 -->
+    <insert id="insertRecentSafeReport" parameterType="com.lighthouse.safereport.entity.RecentSafeReport">
+        INSERT INTO safe_report_tbl (user_id, estate_id, budget, result_grade, is_delete, created_at, updated_at)
+        VALUES (#{userId}, #{estateId}, #{budget}, #{resultGrade}, #{isDelete}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!-- 최근 본 안심레포트 수정 -->
+    <update id="updateRecentSafeReport" parameterType="com.lighthouse.safereport.entity.RecentSafeReport">
+        UPDATE safe_report_tbl
+        SET budget = #{budget}, result_grade = #{resultGrade}, updated_at = #{updatedAt}, is_delete = #{isDelete}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 최근 본 안심레포트 목록 조회(최신순) -->
+    <select id="findByUserIdOrderByCreatedAtDesc" resultMap="RecentSafeReportMap">
+        SELECT * FROM safe_report_tbl
+        WHERE user_id = #{userId} AND is_delete = 0
+        ORDER BY updated_at DESC
+    </select>
+
+    <!-- 특정 estate_id에 대한 레포트 조회 (삭제된 것 포함) -->
+    <select id="findByUserIdAndEstateId" resultMap="RecentSafeReportMap">
+        SELECT * FROM safe_report_tbl
+        WHERE user_id = #{userId} AND estate_id = #{estateId}
+    </select>
+
+    <!-- 특정 사용자의 특정 레포트 조회 -->
+    <select id="findByIdAndUserId" resultMap="RecentSafeReportMap">
+        SELECT * FROM safe_report_tbl
+        WHERE id = #{id} AND user_id = #{userId} AND is_delete = 0
+    </select>
+
+    <!-- 특정 사용자의 특정 레포트 삭제 (논리적 삭제) -->
+    <update id="deleteByIdAndUserId">
+        UPDATE safe_report_tbl
+        SET is_delete = 1
+        WHERE id = #{id} AND user_id = #{userId}
+    </update>
+
+</mapper>

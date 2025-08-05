@@ -116,9 +116,15 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
         // 비밀번호 형식 유효성 검사
+<<<<<<< HEAD
         if (!memberService.isValidPassword(registerReqDto.getPassword1())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
         }
+=======
+//        if (!memberService.isValidPassword(registerDto.getPassword1())) {
+//            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
+//        }
+>>>>>>> dev
         // 비밀번호1과 비밀번호2 일치 여부 검사
         if (!Objects.equals(registerReqDto.getPassword1(), registerReqDto.getPassword2())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));

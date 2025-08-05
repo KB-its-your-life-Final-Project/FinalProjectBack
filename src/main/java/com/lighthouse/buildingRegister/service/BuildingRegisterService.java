@@ -4,8 +4,7 @@ package com.lighthouse.buildingRegister.service;
 import com.lighthouse.buildingRegister.dto.BuildingRequestDTO;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 import com.lighthouse.buildingRegister.util.CodefUtil;
-
-import com.lighthouse.toCoord.service.AddressGeocodeService;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
 import io.codef.api.EasyCodefUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class BuildingRegisterService {
     @Value("${PRIVATE_PW}") private String privatePassword;
 
     private final BuildingRegisterPersistence buildingRegisterPersistence;
-    private final AddressGeocodeService addressGeocodeService;
+    private final GeoCodingService geoCodingService;
 
     /** address = 정확한 도로명 주소, type = (0=지상/1=지하/2=공중) */
     public BuildingResponseDTO getBuildingRegisterCommon(String address, String type) {
@@ -81,18 +80,9 @@ public class BuildingRegisterService {
                 return null;
             }
             
-            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
-            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
-            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
-            if(resUserAddr != null && commAddrLotNumber != null) {
-                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
-                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
-                log.info("지번 주소 설정: {}", jibunAddr);
-            }
-            
             // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
-                Map<String, Double> coords = addressGeocodeService.getCoordinates(normalizedAddress);
+                Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(normalizedAddress);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
                 result.getBuildingRegisterVO().setLongitude(coords.get("lng"));
             } catch (Exception e) {
@@ -154,18 +144,10 @@ public class BuildingRegisterService {
         }
         // jibun_addr 설정 및 위/경도 변환
         if(result != null && result.getBuildingRegisterVO() != null) {
-            // jibun_addr 설정 (res_user_addr + commAddrLotNumber 조합)
-            String resUserAddr = result.getBuildingRegisterVO().getResUserAddr();
-            String commAddrLotNumber = result.getBuildingRegisterVO().getCommAddrLotNumber();
-            if(resUserAddr != null && commAddrLotNumber != null) {
-                String jibunAddr = resUserAddr + " " + commAddrLotNumber;
-                result.getBuildingRegisterVO().setJibunAddr(jibunAddr);
-                log.info("지번 주소 설정: {}", jibunAddr);
-            }
             
             // DB 저장 전에 위/경도 변환 (normalizedAddress 사용)
             try {
-                Map<String, Double> coords = addressGeocodeService.getCoordinates(normalizedAddress);
+                Map<String, Double> coords = geoCodingService.getCoordinateFromAddress(normalizedAddress);
                 result.getBuildingRegisterVO().setLatitude(coords.get("lat"));
                 result.getBuildingRegisterVO().setLongitude(coords.get("lng"));
             } catch (Exception e) {

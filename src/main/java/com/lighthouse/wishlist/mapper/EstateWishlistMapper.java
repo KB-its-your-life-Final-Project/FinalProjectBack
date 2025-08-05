@@ -2,10 +2,13 @@ package com.lighthouse.wishlist.mapper;
 
 import com.lighthouse.wishlist.dto.EstateWishlistResponseDTO;
 import com.lighthouse.wishlist.entity.LikeEstate;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface EstateWishlistMapper {
     int saveLikeEstate(LikeEstate item);
     int updateLikeEstate(LikeEstate item);
