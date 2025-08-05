@@ -12,7 +12,7 @@ public class TransactionRequestDTO {
     private String endDate;
 
 
-    private String roadAddress;
+    private String jibunAddress;
     private Double lat;
     private Double lng;
 
