@@ -1,28 +1,20 @@
 package com.lighthouse.localinfo.mapper;
 
-import com.lighthouse.localinfo.dto.WeatherDTO;
 import com.lighthouse.localinfo.entity.Weather;
-import org.springframework.stereotype.Component;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-@Component
-public class WeatherMapper {
+import java.util.List;
 
-    public WeatherDTO toDTO(Weather weather) {
-        if (weather == null) {
-            return null;
-        }
+@Mapper
+public interface WeatherMapper {
 
-        WeatherDTO weatherDTO = new WeatherDTO();
-        weatherDTO.setRegionCd(weather.getRegionCd());
-        weatherDTO.setRegion(weather.getRegion());
-        weatherDTO.setGridX(weather.getGridX());
-        weatherDTO.setGridY(weather.getGridY());
-        weatherDTO.setLocataddNm(weather.getLocataddNm());
-        weatherDTO.setSkyCondition(weather.getSkyCondition());
-        weatherDTO.setTemperature(weather.getTemperature());
-        weatherDTO.setMaxTemperature(weather.getMaxTemperature());
-        weatherDTO.setMinTemperature(weather.getMinTemperature());
+    // 모든 지역 조회
+    List<Weather> findAll();
 
-        return weatherDTO;
-    }
+    // 지역 코드로 조회
+    Weather findByGrid(@Param("gridX") int gridX, @Param("gridY") int gridY);
+
+    // 날씨 데이터 업데이트
+    void updateWeather(Weather weather);
 }

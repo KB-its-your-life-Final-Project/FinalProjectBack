@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lighthouse.localinfo.entity.Weather;
+import com.lighthouse.localinfo.mapper.WeatherMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -17,6 +19,7 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,84 @@ public class WeatherService {
     private String apiKey;
 
     private final String BASE_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+    private final WeatherMapper weatherMapper;
+
+    // 3시간마다 실행 (매일 02:00, 05:00, 08:00, 11:00, 14:00, 17:00, 20:00, 23:00)
+    @Scheduled(cron = "0 0 2,5,8,11,14,17,20,23 * * ?")
+    public void updateWeatherDataScheduled() {
+        log.info("🕐 스케줄된 날씨 데이터 업데이트 시작");
+
+        try {
+            List<Weather> allRegions = weatherMapper.findAll();
+
+            if (allRegions.isEmpty()) {
+                log.warn("⚠️ 업데이트할 지역 데이터가 없습니다.");
+                return;
+            }
+
+            log.info("총 {}개 지역의 날씨 데이터를 업데이트합니다.", allRegions.size());
+
+            for (Weather region : allRegions) {
+                try {
+                    log.info("지역 {} ({}, {}) 날씨 데이터 업데이트 중...",
+                            region.getRegion(), region.getGridX(), region.getGridY());
+
+                    Weather updatedWeather = fetchCommon(region.getGridX(), region.getGridY(),
+                            "스케줄된 업데이트 - " + region.getRegion());
+
+                    if (updatedWeather != null) {
+                        // 현재 온도는 항상 업데이트
+                        region.setTemperature(updatedWeather.getTemperature());
+                        region.setSkyCondition(updatedWeather.getSkyCondition());
+                        region.setBaseDate(updatedWeather.getBaseDate());
+                        region.setBaseTime(updatedWeather.getBaseTime());
+
+                        // 최고/최저 온도는 비교 후 업데이트
+                        updateMaxMinTemperature(region, updatedWeather);
+
+                        weatherMapper.updateWeather(region);
+                        log.info("✅ 지역 {} 날씨 데이터 업데이트 완료", region.getRegion());
+                    } else {
+                        log.warn("⚠️ 지역 {} 날씨 데이터 업데이트 실패 - null 반환", region.getRegion());
+                    }
+
+                    // API 호출 간격 조절 (서버 부하 방지)
+                    Thread.sleep(1000);
+
+                } catch (Exception e) {
+                    log.error("❌ 지역 {} 날씨 데이터 업데이트 실패: {}", region.getRegion(), e.getMessage());
+                }
+            }
+
+            log.info(" 모든 지역 날씨 데이터 스케줄 업데이트 완료");
+
+        } catch (Exception e) {
+            log.error("❌ 스케줄된 날씨 데이터 업데이트 중 오류 발생: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 최고/최저 온도를 비교하여 업데이트하는 메서드
+     */
+    private void updateMaxMinTemperature(Weather existingWeather, Weather newWeather) {
+        // 최고 온도 업데이트 (더 높은 값으로)
+        if (newWeather.getMaxTemperature() != null) {
+            if (existingWeather.getMaxTemperature() == null ||
+                    newWeather.getMaxTemperature() > existingWeather.getMaxTemperature()) {
+                existingWeather.setMaxTemperature(newWeather.getMaxTemperature());
+                log.debug("최고 온도 업데이트: {}°C", newWeather.getMaxTemperature());
+            }
+        }
+
+        // 최저 온도 업데이트 (더 낮은 값으로)
+        if (newWeather.getMinTemperature() != null) {
+            if (existingWeather.getMinTemperature() == null ||
+                    newWeather.getMinTemperature() < existingWeather.getMinTemperature()) {
+                existingWeather.setMinTemperature(newWeather.getMinTemperature());
+                log.debug("최저 온도 업데이트: {}°C", newWeather.getMinTemperature());
+            }
+        }
+    }
 
     public Weather getWeatherFromKMA(int gridX, int gridY) {
         return fetchCommon(gridX, gridY, "날씨 정보");
@@ -79,11 +160,18 @@ public class WeatherService {
             String response = sb.toString();
             log.debug("API 응답: {}", response);
 
-            return parseWeatherResponse(response);
+            Weather weather = parseWeatherResponse(response);
+
+            if (weather != null) {
+                weather.setBaseDate(baseDate);
+                weather.setBaseTime(baseTime);
+            }
+
+            return weather;
 
         } catch (Exception e) {
             log.error("❌ {} 데이터 처리 중 예기치 않은 오류 발생: {}", logPrefix, e.getMessage(), e);
-            return createMockWeatherData();
+            return null; // 목데이터 대신 null 반환
         }
     }
 
@@ -99,13 +187,13 @@ public class WeatherService {
 
             if (!"00".equals(resultCode)) {
                 log.warn("❌ 날씨 API 응답 오류 - 코드: {}, 메시지: {}", resultCode, resultMsg);
-                return createMockWeatherData();
+                return null; // 목데이터 대신 null 반환
             }
 
             JsonNode itemsNode = root.path("response").path("body").path("items").path("item");
             if (!itemsNode.isArray() || itemsNode.size() == 0) {
                 log.warn("날씨 API 응답에 아이템이 없거나 형식이 올바르지 않습니다.");
-                return createMockWeatherData();
+                return null; // 목데이터 대신 null 반환
             }
 
             Weather weather = new Weather();
@@ -165,21 +253,22 @@ public class WeatherService {
             if (latestTmp != null) weather.setTemperature(latestTmp);
             if (latestSky != null) weather.setSkyCondition(latestSky);
 
-            // 필수 값이 없으면 mock 데이터로 보완
-            if (weather.getTemperature() == null) weather.setTemperature(22);
-            if (weather.getMaxTemperature() == null) weather.setMaxTemperature(25);
-            if (weather.getMinTemperature() == null) weather.setMinTemperature(18);
-            if (weather.getSkyCondition() == null) weather.setSkyCondition("맑음");
+            // 필수 값이 없으면 null 반환 (프론트엔드에서 처리)
+            if (weather.getTemperature() == null || weather.getMaxTemperature() == null ||
+                    weather.getMinTemperature() == null || weather.getSkyCondition() == null) {
+                log.warn("필수 날씨 데이터가 누락되어 null 반환");
+                return null;
+            }
 
             log.info("날씨 데이터 파싱 완료: {}", weather);
             return weather;
 
         } catch (JsonProcessingException e) {
             log.error("❌ 날씨 정보 JSON 파싱 실패: {}", e.getMessage(), e);
-            return createMockWeatherData();
+            return null; // 목데이터 대신 null 반환
         } catch (Exception e) {
             log.error("❌ 날씨 정보 파싱 중 예기치 않은 오류 발생: {}", e.getMessage(), e);
-            return createMockWeatherData();
+            return null; // 목데이터 대신 null 반환
         }
     }
 
@@ -226,15 +315,5 @@ public class WeatherService {
         } else {
             return today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         }
-    }
-
-    private Weather createMockWeatherData() {
-        Weather mockWeather = new Weather();
-        mockWeather.setTemperature(22);
-        mockWeather.setMaxTemperature(25);
-        mockWeather.setMinTemperature(18);
-        mockWeather.setSkyCondition("맑음");
-        log.info("Mock 날씨 데이터 생성: {}", mockWeather);
-        return mockWeather;
     }
 }
