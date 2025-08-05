@@ -40,8 +40,7 @@ public class TransactionDetailController {
                 lat = coordinates.get("lat");
                 lng = coordinates.get("lng");
             } catch (Exception e) {
-                // ❌ 주소 변환 실패 시 예외를 throw하지 않고
-                // ✅ 좌표를 직접 사용하도록 fallback
+
                 log.warn("주소 변환 실패, 좌표 직접 사용: {}", request.getJibunAddress());
                 lat = request.getLat();
                 lng = request.getLng();
