@@ -12,12 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+
+import static com.lighthouse.member.util.ValidateUtil.isValidImgType;
 
 @Slf4j
 @RestController
@@ -26,8 +29,6 @@ import java.util.Objects;
 @CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
 public class MemberController {
     final MemberService memberService;
-    private final JwtCookieUtil jwtCookieUtil;
-    private final JwtUtil jwtUtil;
 
     // 모든 회원 정보 조회
     @GetMapping("")
@@ -116,15 +117,9 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
         // 비밀번호 형식 유효성 검사
-<<<<<<< HEAD
-        if (!memberService.isValidPassword(registerReqDto.getPassword1())) {
-            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
-        }
-=======
 //        if (!memberService.isValidPassword(registerDto.getPassword1())) {
 //            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
 //        }
->>>>>>> dev
         // 비밀번호1과 비밀번호2 일치 여부 검사
         if (!Objects.equals(registerReqDto.getPassword1(), registerReqDto.getPassword2())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));
@@ -216,14 +211,14 @@ public class MemberController {
         }
     }
 
-    // 회원 정보 수정
+    // 회원 정보 (이름, 비밀번호) 변경
     @PutMapping("/change")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> changeMemberInfo(@RequestBody ChangeRequestDTO changeReqDto, HttpServletRequest req, HttpServletResponse resp) {
         int changeType = changeReqDto.getChangeType();
-        log.info("회원 정보 수정 PUT 요청==========");
+        log.info("회원 정보 변경 PUT 요청==========");
         log.info("ChangeRequestDTO: {}", changeReqDto);
         log.info("changeType = " + changeType);
-        // 이름 수정
+        // 이름 변경
         if (changeType == 1) {
             // 이름 유효성 검사 추가
             String newName = changeReqDto.getName();
@@ -235,10 +230,10 @@ public class MemberController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
                 }
             } catch (Exception e) {
-                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+                log.error("회원 정보 변경 실패. 요청자: {}", changeReqDto.getName(), e);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
             }
-        // 비밀번호 수정
+        // 비밀번호 변경
         } else if (changeType == 2) {
             // 비밀번호 유효성 검사 추가
             String newPwd = changeReqDto.getPwd();
@@ -250,27 +245,66 @@ public class MemberController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
                 }
             } catch (Exception e) {
-                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
+                log.error("회원 정보 변경 실패. 요청자: {}", changeReqDto.getName(), e);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
             }
-        // 프로필사진 수정
-//        } else if (changeType == 3) {
-//            // 프로필사진 경로 유효성 검사 추가
-//            String newProfileImg = changeReqDto.getProfileImg();
-//            try {
-//                MemberResponseDTO updatedMemberDto = memberService.changeMemberInfo(changeType, newProfileImg, req, resp);
-//                if (updatedMemberDto != null) {
-//                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMemberDto));
-//                } else {
-//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
-//                }
-//            } catch (Exception e) {
-//                log.error("회원 정보 수정 실패. 요청자: {}", changeReqDto.getName(), e);
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
-//            }
-        // 지원하지 않는 수정 타입
+        // 지원하지 않는 변경 타입
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_UPDATE_TYPE));
+        }
+    }
+
+    // 회원 프로필사진 변경
+    @PostMapping("/profileimg")
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest req, HttpServletResponse resp) {
+        log.info("회원 프로필사진 변경 POST 요청==========");
+        log.info("파일명: {}, 크기: {}bytes", file.getOriginalFilename(), file.getSize());
+        try {
+            // 파일 유무
+            if (file.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_FILE_EMPTY));
+            }
+            // 파일 크기 검사 (5MB 초과 시 에러)
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_FILE_SIZE));
+            }
+            // 파일 형식 검사
+            String contentType = file.getContentType();
+            if (!isValidImgType(contentType)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_FILE_TYPE));
+            }
+            MemberResponseDTO updatedMember = memberService.uploadProfileImg(file, req, resp);
+            if (updatedMember != null) {
+                log.info("프로필 이미지 업로드 성공 - 회원ID: {}", updatedMember.getId());
+                return ResponseEntity.ok()
+                        .body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+        } catch (Exception e) {
+        log.error("프로필 이미지 업로드 실패", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+        }
+    }
+
+    // 회원 프로필사진 삭제 (기본 이미지로 변경)
+    @DeleteMapping("/profileimg")
+    public ResponseEntity<ApiResponse<MemberResponseDTO>> deleteProfileImage(HttpServletRequest req, HttpServletResponse resp) {
+        log.info("회원 프로필사진 삭제 DELETE 요청==========");
+        try {
+            MemberResponseDTO updatedMember = memberService.deleteProfileImg(req, resp);
+            if (updatedMember != null) {
+                log.info("프로필사진 삭제 성공, 요청자: {}",updatedMember.getName());
+                return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+        } catch (Exception e) {
+            log.error("프로필 이미지 삭제 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }
     }
 }

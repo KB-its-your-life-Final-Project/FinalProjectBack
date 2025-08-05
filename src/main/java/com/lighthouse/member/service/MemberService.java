@@ -7,7 +7,6 @@ import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.util.ValidateUtil;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
-import com.lighthouse.security.mapper.MemberTokenMapper;
 import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.service.TokenService;
 import com.lighthouse.security.util.JwtUtil;
@@ -20,9 +19,12 @@ import java.util.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static com.lighthouse.member.util.ValidateUtil.isEmpty;
 
 @Slf4j
 @Service
@@ -42,6 +44,7 @@ public class MemberService {
     private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
+    private final FileUploadService fileUploadService;
 
     // 모든 회원 조회
     public List<MemberResponseDTO> findAllMembers() {
@@ -130,12 +133,12 @@ public class MemberService {
 
     // 이메일 유효성 검사
     public boolean isValidEmail(String email) {
-        return !ValidateUtil.isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
+        return !isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
     }
 
     // 비밀번호 유효성 검사
     public boolean isValidPassword(String password) {
-        return !ValidateUtil.isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
+        return !isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
     }
 
     // 비밀번호 검증
@@ -344,7 +347,7 @@ public class MemberService {
         }
     }
 
-    // 회원 정보 수정
+    // 회원 정보 (이름, 비밀번호) 변경
     public MemberResponseDTO changeMemberInfo(int changeType, String changeInfo, HttpServletRequest req, HttpServletResponse resp) {
         String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
         if (accessToken != null) {
@@ -373,8 +376,6 @@ public class MemberService {
                     return null;
                 }
                 member.setPwd(passwordEncoder.encode(changeInfo));
-//            } else if (changeType == 3) {
-//                member.setProfileImg(changeInfo);
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
@@ -412,8 +413,6 @@ public class MemberService {
                     return null;
                 }
                 member.setPwd(passwordEncoder.encode(changeInfo));
-//            } else if (changeType == 3) {
-//                member.setProfileImg(changeInfo);
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
@@ -424,5 +423,43 @@ public class MemberService {
         // refreshToken 만료 또는 없음
         log.info("refreshToken 없음");
         return null;
+    }
+
+    // 회원 프로필사진 업로드
+    public MemberResponseDTO uploadProfileImg(MultipartFile file, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        try {
+            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                throw new Exception("로그인이 필요합니다.");
+            }
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            String uploadedImgUrl = fileUploadService.uploadProfileImg(file, memberDto.getId());
+            memberMapper.updateMember(member);
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("프로필사진 업로드 중 오류 발생: ", e);
+            throw new Exception("프로필사진 업로드에 실패했습니다.");
+        }
+    }
+
+    // 회원 프로필사진 삭제 (기본 이미지로 변경)
+    public MemberResponseDTO deleteProfileImg(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        try {
+            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                throw new Exception("로그인이 필요합니다.");
+            }
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            if (!isEmpty(member.getProfileImg())) {
+                fileUploadService.deleteFile(member.getProfileImg());
+            }
+            member.setProfileImg("");
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("프로필사진 삭제 중 오류 발생: ", e);
+            throw new Exception("프로필사진 삭제에 실패했습니다.");
+        }
     }
 }

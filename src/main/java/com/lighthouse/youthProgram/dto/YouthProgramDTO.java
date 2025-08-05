@@ -1,4 +1,4 @@
-package com.lighthouse.news.dto;
+package com.lighthouse.youthProgram.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class YouthContentDTO {
+public class YouthProgramDTO {
     private Long id;               // PK
     private String bbsSn;          // 게시판 일련번호
     private String pstSn;          // 게시물 일련번호

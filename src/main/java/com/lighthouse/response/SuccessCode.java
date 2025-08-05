@@ -29,8 +29,8 @@ public enum SuccessCode implements ResponseCode{
 	RECENT_SAFEREPORT_DELETE_SUCCESS(2003, "최근 본 안심레포트 삭제 성공"),
 
 	// News
-	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공"),
-	NEWS_YOUTH_CONTENT_getUnreadContents_SUCCESS(3002, "회원이 안 읽은 온통청년 콘텐츠 조회 성공"),
+	NEWS_YOUTH_PROGRAM_FETCH_SUCCESS(3001, "온통청년 제공 청년 프로그램 조회 성공"),
+	NEWS_YOUTH_PROGRAM_GET_UNREAD_SUCCESS(3002, "회원이 안 읽은 온통청년 콘텐츠 조회 성공"),
 	
 	// WishList
 	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),

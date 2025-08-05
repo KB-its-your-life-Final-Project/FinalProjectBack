@@ -27,6 +27,9 @@ public enum ErrorCode implements ResponseCode{
     UNAUTHORIZED(1016, "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_UPDATE_TYPE(1012, "올바르지 않은 회원 정보 수정 접근입니다.", HttpStatus.BAD_REQUEST),
     MEMBER_UPDATE_FAIL(1017, "회원 정보 수정에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_FILE_EMPTY(1020, "파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_SIZE(1020, "파일이 5MB를 초과합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(1020, "지원하지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST),
 
     // SafeReport
     BUILDINGINFO_NOT_FOUND(2001,"건물 건축 년도 또는 거래 금액 정보가 없습니다.", HttpStatus.NOT_FOUND),

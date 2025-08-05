@@ -9,9 +9,9 @@ import javax.servlet.ServletRegistration;
 
 
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-    final String LOCATION = "/uploads/"; // 업로드 임시 저장 경로
-    final long MAX_FILE_SIZE = 1024 * 1024 * 10L; // 10M
-    final long MAX_REQUEST_SIZE = 1024 * 1024 * 20L; // 20M
+    final String LOCATION = "/uploads/"; // 프로필사진 업로드 저장 경로
+    final long MAX_FILE_SIZE = 1024 * 1024 * 5L; // 5M
+    final long MAX_REQUEST_SIZE = 1024 * 1024 * 10L; // 10M
     final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5; // 5M 넘으면 디스크에 저장
 
     @Override

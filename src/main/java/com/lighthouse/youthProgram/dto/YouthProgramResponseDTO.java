@@ -1,4 +1,4 @@
-package com.lighthouse.news.dto;
+package com.lighthouse.youthProgram.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class YouthContentResponseDTO {
+public class YouthProgramResponseDTO {
     private int resultCode;
     private String resultMessage;
     private YouthResult result;
@@ -15,7 +15,7 @@ public class YouthContentResponseDTO {
     public class YouthResult {
         private Pagging pagging;
         @JsonProperty("youthPolicyList")
-        private List<YouthContentDTO> youthPolicyList;
+        private List<YouthProgramDTO> youthPolicyList;
     }
 
     @Data

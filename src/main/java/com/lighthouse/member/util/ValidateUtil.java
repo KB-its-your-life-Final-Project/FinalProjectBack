@@ -25,4 +25,16 @@ public class ValidateUtil {
     public static boolean isValidIp(String ip) {
         return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);
     }
+
+    // 이미지 파일 타입 유효성 검사
+    public static boolean isValidImgType(String imgType) {
+        if (isEmpty(imgType)) {
+            return false;
+        }
+        return imgType.equals("image/jpeg") ||
+               imgType.equals("image/jpg") ||
+                imgType.equals("image/svg") ||
+               imgType.equals("image/png") ||
+               imgType.equals("image/webp");
+    }
 }
