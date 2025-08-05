@@ -46,7 +46,8 @@ public enum ErrorCode implements ResponseCode{
 
     //LawdCd
     LAWDCD_NOT_FOUND(6001, "지역 코드 조회 실패", HttpStatus.NOT_FOUND),
-    
+    LAWDCD_TARGET_NOT_FOUND(6002, "해당 지역 코드를 찾을 수 업습니다.", HttpStatus.NOT_FOUND),
+
     //Server Error
     SERVER_NOT_RESPONDING(99001, "서버가 응답하지 않습니다", HttpStatus.SERVICE_UNAVAILABLE),
     ELEMENT_NOT_FOUND(99002, "알맞은 데이터를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);

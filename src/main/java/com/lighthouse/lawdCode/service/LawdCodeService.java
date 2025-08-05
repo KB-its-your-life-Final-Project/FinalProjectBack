@@ -25,7 +25,7 @@ public class LawdCodeService {
     public LawdCdResponseDTO findRegionByRegionCd(String regionCd) {
         LawdCdResponseDTO result = lawdCodeMapper.findByFullRegionCd(regionCd);
         if(result == null) {
-            throw new CustomException(ErrorCode.WISHLIST_BAD_REQUEST);
+            throw new CustomException(ErrorCode.LAWDCD_TARGET_NOT_FOUND);
         }
         return result;
     }
