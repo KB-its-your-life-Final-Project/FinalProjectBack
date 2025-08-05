@@ -19,11 +19,21 @@
         FROM
             estate_api_integration_tbl 
         WHERE
-            latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
-          AND longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+            latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
+          AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
           <!-- 현재는 real_estate와 real_estate_saelse가 1:다가 아닌 다:다라서 limit 적용했습니다. -->
         LIMIT 1
         
+    </select>
+
+    <!-- estate ID로 건물 정보 조회 -->
+    <select id="getEstateById" resultMap="EstateMap">
+        SELECT
+            *
+        FROM
+            estate_api_integration_tbl 
+        WHERE
+            id = #{estateId}
     </select>
 
     <!-- 건물 ID로 매매 정보 조회 -->

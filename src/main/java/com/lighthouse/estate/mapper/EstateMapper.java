@@ -17,6 +17,13 @@ public interface EstateMapper {
      * @return 건물 정보
      */
     Estate getEstateByLatLng(@Param("lat") double lat, @Param("lng") double lng);
+    
+    /**
+     * estate ID로 건물 정보 조회
+     * @param estateId 건물 ID
+     * @return 건물 정보
+     */
+    Estate getEstateById(@Param("estateId") Integer estateId);
     List<Estate> getAllEstateByLatLng(@Param("lat") double lat, @Param("lng") double lng);
     
     /**
