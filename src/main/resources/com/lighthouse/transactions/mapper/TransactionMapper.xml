@@ -340,7 +340,8 @@
 
     <select id="findIdByUniqueCombination" parameterType="map" resultType="java.lang.Integer">
         SELECT id
-        FROM estate_api_integration_tbl
+<!--        FROM estate_api_integration_tbl-->
+        FROM estate_api_integration_tbl_0805
         WHERE mhouse_type = #{mhouseType}
           AND shouse_type = #{shouseType}
           AND build_year = #{buildYear}
@@ -349,7 +350,8 @@
     </select>
 
     <insert id="insertEstateApiIntegrationBatch" parameterType="list">
-        INSERT IGNORE INTO estate_api_integration_tbl (
+<!--        INSERT IGNORE INTO estate_api_integration_tbl (-->
+        INSERT IGNORE INTO estate_api_integration_tbl_0805 (
         sgg_cd, sgg_nm, umd_nm, jibun,
         building_name, mhouse_type, shouse_type,
         build_year, building_type, source_api,
@@ -366,7 +368,8 @@
     </insert>
 
     <insert id="insertEstateApiIntegrationSalesBatch" parameterType="list">
-        INSERT INTO estate_api_integration_sales_tbl (
+<!--        INSERT INTO estate_api_integration_sales_tbl (-->
+        INSERT INTO estate_api_integration_sales_tbl_0805 (
         estate_id, deal_year, deal_month, deal_day,
         deal_amount, deposit, monthly_rent, trade_type
         ) VALUES

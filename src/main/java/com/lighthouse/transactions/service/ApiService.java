@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.lighthouse.transactions.dto.ApiNameCallDTO;
 import com.lighthouse.transactions.dto.TransactionApiDTO;
 import com.lighthouse.transactions.entity.EstateApiIntegration;
 import com.lighthouse.transactions.entity.EstateApiIntegrationSales;
@@ -23,6 +24,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URL;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -241,6 +244,65 @@ public class ApiService {
         } catch (Exception e) {
             log.error("❌ 법정동코드 데이터 요청 실패", e);
         }
+    }
+
+    /**
+     * estate_api_integration_tbl 및 estate_api_integration_sales_tbl에 데이터 삽입
+     * @param uniqueLawdCdList 시군구코드 List
+     * @param startYmd 시작연월 (예: 202401)
+     * @param endYmd 종료연월 (예: 202412)
+     */
+    public void insertEstateApiIntgAndSalesTbl(List<Integer> uniqueLawdCdList, int startYmd, int endYmd) throws InterruptedException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        YearMonth start = YearMonth.parse(String.valueOf(startYmd), formatter);
+        YearMonth end = YearMonth.parse(String.valueOf(endYmd), formatter);
+
+        // API 함수 목록 정의 (service는 EstateApiService 등으로 가정)
+        List<ApiNameCallDTO> apiList = List.of(
+                new ApiNameCallDTO("아파트 매매", this::insertAptTradesToEstApiIntg),
+                new ApiNameCallDTO("아파트 전월세", this::insertAptRentalsToEstApiIntg),
+                new ApiNameCallDTO("오피스텔 매매", this::insertOffTradesToEstApiIntg),
+                new ApiNameCallDTO("오피스텔 전월세", this::insertOffRentalsToEstApiIntg),
+                new ApiNameCallDTO("연립다세대 매매", this::insertMHTradesToEstApiIntg),
+                new ApiNameCallDTO("연립다세대 전월세", this::insertMHRentalsToEstApiIntg),
+                new ApiNameCallDTO("단독/다가구 매매", this::insertSHTradesToEstApiIntg),
+                new ApiNameCallDTO("단독/다가구 전월세", this::insertSHRentalsToEstApiIntg)
+        );
+
+        log.info("=== 부동산 API 통합 데이터 삽입 시작 ===");
+        log.info("대상 시군구 수: {}, 기간: {} ~ {}", uniqueLawdCdList.size(), startYmd, endYmd);
+
+        int totalLawdCd = uniqueLawdCdList.size();
+        int processedLawdCd = 0;
+
+        // 각 시군구 코드별로 처리
+        for (Integer lawdCd : uniqueLawdCdList) {
+            processedLawdCd++;
+            log.info("진행률: {}/{} - 법정동코드: {} 처리 시작", processedLawdCd, totalLawdCd, lawdCd);
+
+            // 각 연월별로 처리
+            for (YearMonth current = start; !current.isAfter(end); current = current.plusMonths(1)) {
+                int dealYmd = Integer.parseInt(current.format(formatter));
+                log.info("시군구코드: {}, 연월: {}", lawdCd, dealYmd);
+
+                // 각 API별로 처리
+                for (ApiNameCallDTO api : apiList) {
+                    try {
+                        log.debug("{} 호출 - 시군구코드: {}, 연월: {}", api.apiName, lawdCd, dealYmd);
+                        api.apiCall.accept(lawdCd, dealYmd);
+                        log.debug("{} 완료 - 시군구코드: {}, 연월: {}", api.apiName, lawdCd, dealYmd);
+                    } catch (Exception e) {
+                        log.error("{} 실패 - 시군구코드: {}, 연월: {}, 에러: {}",
+                                api.apiName, lawdCd, dealYmd, e.getMessage(), e);
+                        // 실패한 경우에도 계속 진행 (필요에 따라 중단하도록 변경 가능)
+                         throw e; // 중단
+                    }
+                }
+                log.info("시군구코드: {} - 연월: {} 완료", lawdCd, dealYmd);
+            }
+            log.info("시군구코드: {} 전체 처리 완료 ({}/{})", lawdCd, processedLawdCd, totalLawdCd);
+        }
+        log.info("=== 부동산 API 통합 데이터 삽입 완료 ===");
     }
 }
 
