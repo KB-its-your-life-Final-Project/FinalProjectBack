@@ -18,15 +18,23 @@ import java.time.LocalDate;
 public class TransactionDetailService {
     private final TransactionDetailMapper transactionDetailMapper;
 
-    public List<TransactionResponseDTO> getFilteredTransactions(TransactionRequestDTO request) {
-        // 느림 방지를 위헤 처음에는 1년치로 뜨고, 전체 누르면 전체 조회 가능
+
+    public List<TransactionResponseDTO> getFilteredTransactions(TransactionRequestDTO request, double lat, double lng) {
+
+       // 느림 방지를 위헤 처음에는 1년치로 뜨고, 전체 누르면 전체 조회 가능
         if (request.getStartDate() == null || request.getEndDate() == null) {
             LocalDate now = LocalDate.now();
             request.setEndDate(now.toString());
             request.setStartDate(now.minusYears(1).toString());
         }
 
-        List<TransactionGraphVO> rawList = transactionDetailMapper.findDate(request);
+
+        List<TransactionGraphVO> rawList =transactionDetailMapper.findDateByLatLng(lat,
+                lng,
+                request.getTradeType(),
+                request.getStartDate(),
+                request.getEndDate()
+);
 
         return rawList.stream()
                 .map(vo -> {
