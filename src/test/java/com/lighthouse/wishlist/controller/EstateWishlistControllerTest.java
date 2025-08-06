@@ -44,7 +44,7 @@ public class EstateWishlistControllerTest {
 
         var response = controller.addWishlist(dto, token);
 
-        verify(service).saveOrUpdateWishlist(memberId, dto.getEstateId());
+        verify(service).saveOrUpdateWishlist(memberId, dto);
         assertNotNull(response.getBody());
         assertEquals(SuccessCode.WISHLIST_SAVE_SUCCESS.getCode(), response.getBody().getCode());
     }
@@ -52,15 +52,15 @@ public class EstateWishlistControllerTest {
     @Test
     @DisplayName("찜 삭제 - 성공")
     void removeWishlist() {
-        Long estateId = 200L;
+        String jibunAddr = "아주동 1575";
         Long memberId = 2L;
         String rawToken = "mock.jwt.token";
 
         when(jwtProcessor.getSubjectFromToken(rawToken)).thenReturn(memberId.toString());
 
-        var response = controller.removeWishlist(estateId, token);
+        var response = controller.removeWishlist(jibunAddr, token);
 
-        verify(service).deleteWishlist(memberId, estateId);
+        verify(service).deleteWishlist(memberId, jibunAddr);
         assertNotNull(response.getBody());
         assertEquals(SuccessCode.WISHLIST_DELETE_SUCCESS.getCode(), response.getBody().getCode());
     }
@@ -69,15 +69,15 @@ public class EstateWishlistControllerTest {
     @DisplayName("찜 목록 조회 - 성공")
     void getWishlist() {
         Long memberId = 3L;
-        List<EstateWishlistResponseDTO> estates = List.of(new EstateWishlistResponseDTO(602L,"asd"), new EstateWishlistResponseDTO(503L, "zxczx"));
+        List<EstateWishlistResponseDTO> estates = List.of(new EstateWishlistResponseDTO(null,null,null,null,null,5,null), new EstateWishlistResponseDTO(null,null,null,null,null,5,null));
         String rawToken = "mock.jwt.token";
 
         when(jwtProcessor.getSubjectFromToken(rawToken)).thenReturn(memberId.toString());
-        when(service.getEstateIdsByMemberId(memberId)).thenReturn(estates);
+        when(service.getAllEstateByMemberId(memberId)).thenReturn(estates);
 
         var response = controller.getEstateIdsByMemberId(token);
 
-        verify(service).getEstateIdsByMemberId(memberId);
+        verify(service).getAllEstateByMemberId(memberId);
         assertEquals(estates, response.getBody().getData());
         assertEquals(SuccessCode.WISHLIST_GETLIST_SUCCESS.getCode(), response.getBody().getCode());
     }

@@ -23,21 +23,27 @@ public class EstateWishlistController {
     private final EstateWishlistService service;
     private final JwtUtil jwtUtil;
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody EstateWishlistRequestDTO estateId, @CookieValue("accessToken") String token) {
+    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody EstateWishlistRequestDTO dto, @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
-        service.saveOrUpdateWishlist(memberId,estateId.getEstateId());
+        service.saveOrUpdateWishlist(memberId,dto);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_SAVE_SUCCESS));
     }
-    @DeleteMapping("/{estateId}")
-    public ResponseEntity<ApiResponse<Void>> removeWishlist (@PathVariable Long estateId, @CookieValue("accessToken") String token) {
+    @DeleteMapping("")
+    public ResponseEntity<ApiResponse<Void>> removeWishlist (@RequestParam String jibunAddr, @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
-        service.deleteWishlist(memberId,estateId);
+        service.deleteWishlist(memberId,jibunAddr);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_DELETE_SUCCESS));
     }
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<EstateWishlistResponseDTO>>> getEstateIdsByMemberId(@CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
-        List<EstateWishlistResponseDTO> result = service.getEstateIdsByMemberId(memberId);
+        List<EstateWishlistResponseDTO> result = service.getAllEstateByMemberId(memberId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_GETLIST_SUCCESS,result));
+    }
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<Boolean>> existWishlistByJibunAddr (@RequestParam String jibunAddr, @CookieValue("accessToken") String token) {
+        Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
+        boolean exist = service.existByMemberIdAndJibunAddr(memberId, jibunAddr);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_FIND_SUCCESS,exist));
     }
 }
