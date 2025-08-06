@@ -34,9 +34,9 @@ public class SafeReportService {
     private static final int SCORE_SAFE = 10;                // 안전 점수
     private static final int SCORE_CAUTION = 6;              // 주의 점수
     private static final int SCORE_DANGER = 3;               // 위험 점수
-    private static final int AGE_THRESHOLD_1 = 10;           // 연식 기준 1
-    private static final int AGE_THRESHOLD_2 = 20;           // 연식 기준 2
-    private static final int AGE_THRESHOLD_3 = 30;           // 연식 기준 3
+    //private static final int AGE_THRESHOLD_1 = 10;           // 연식 기준 1
+    //private static final int AGE_THRESHOLD_2 = 20;           // 연식 기준 2
+    //private static final int AGE_THRESHOLD_3 = 30;           // 연식 기준 3
     
     private final SafeReportMapper safereportmapper;
     private final EstateService estateService;
@@ -44,7 +44,7 @@ public class SafeReportService {
     private final BuildingRegisterMapper buildingRegisterMapper;
     private final GeoCodingService geoCodingService;
 
-    // 건물의 건축연도 점수, 깡통 전세 점수 계산
+    // 건물의 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
         // 1단계: 위도/경도로 건물 정보 조회
         EstateDTO realEstate = estateService.getEstateByLatLng(dto.getLat(), dto.getLng());
@@ -86,9 +86,9 @@ public class SafeReportService {
         double ratio = calculateRentalRatio(budget, dealAmount);
         int ratioScore = calculateRatioScore(ratio);
         
-        // 건축연도 점수 계산
-        int ageScore = calculateAgeScore(realEstate.getBuildYear());
-        result.setBuildYearScore(ageScore);
+        // 건축연도 점수 계산 (현재는 사용하지 않음)
+        // int ageScore = calculateAgeScore(realEstate.getBuildYear());
+        // result.setBuildYearScore(ageScore);
         
         // 결과 설정
         result.setReverseRentalRatio(ratio);
@@ -117,19 +117,39 @@ public class SafeReportService {
     }
     
     // 건축연도 점수 계산
-    private int calculateAgeScore(Integer buildYear) {
-        int currentYear = LocalDate.now().getYear();
-        int age = currentYear - buildYear;
+    // private int calculateAgeScore(Integer buildYear) {
+    //     int currentYear = LocalDate.now().getYear();
+    //     int age = currentYear - buildYear;
         
-        if(age <= AGE_THRESHOLD_1) {
-            return 1;
-        } else if(age <= AGE_THRESHOLD_2) {
-            return 2;
-        } else if(age <= AGE_THRESHOLD_3) {
-            return 3;
-        } else {
-            return 4;
+    //     if(age <= AGE_THRESHOLD_1) {
+    //         return 1;
+    //     } else if(age <= AGE_THRESHOLD_2) {
+    //         return 2;
+    //     } else if(age <= AGE_THRESHOLD_3) {
+    //         return 3;
+    //     } else {
+    //         return 4;
+    //     }
+    // }
+    
+    // 위반 점수 계산
+    private int calculateViolationScore(String violationStatus) {
+        if (violationStatus == null) {
+            return 0; // 정보가 없으면 0점
         }
+        
+        String trimmedStatus = violationStatus.trim();
+        
+        if (trimmedStatus.isEmpty()) {
+            return 10; // 공백이면 정상 건축물이므로 10점
+        }
+        
+        // "위반건축물"인 경우 위험 점수 부여
+        if ("위반건축물".equals(trimmedStatus)) {
+            return 3; // 위반 건축물 점수
+        }
+        
+        return 10; // 그 외의 경우 정상 건축물로 간주하여 10점
     }
 
     // 위반 여부와 층수/용도 정보 통합 조회
@@ -237,6 +257,9 @@ public class SafeReportService {
         if(building != null) {
             violationStatus = new ViolationStatus();
             violationStatus.setViolationStatus(building.getResViolationStatus());
+            // 위반 점수 계산
+            int violationScore = calculateViolationScore(building.getResViolationStatus());
+            violationStatus.setScore(violationScore);
             log.info("BuildingRegisterMapper에서 위반여부 조회 성공: {}", violationStatus);
         }
         
@@ -297,11 +320,42 @@ public class SafeReportService {
         // 위반 여부와 층수/용도 정보 통합 조회 (건축물 대장 정보)
         BuildingInfoResult buildingInfo = getBuildingInfo(dto);
 
-        return new SafeReportResponseDto(
-            rentalRatioAndBuildyear, 
-            buildingInfo != null ? buildingInfo.getViolationStatus() : null, 
-            buildingInfo != null ? buildingInfo.getFloorAndPurposeList() : null
-        );
+        // 최종 점수 계산
+        Integer totalScore = calculateTotalScore(rentalRatioAndBuildyear, buildingInfo != null ? buildingInfo.getViolationStatus() : null);
+
+        SafeReportResponseDto responseDto = new SafeReportResponseDto();
+        responseDto.setRentalRatioAndBuildyear(rentalRatioAndBuildyear);
+        responseDto.setViolationStatus(buildingInfo != null ? buildingInfo.getViolationStatus() : null);
+        responseDto.setFloorAndPurposeList(buildingInfo != null ? buildingInfo.getFloorAndPurposeList() : null);
+        responseDto.setTotalScore(totalScore);
+        
+        return responseDto;
+    }
+    
+    // 최종 점수 계산 (역전세율 점수 70% + 위반 점수 30%)
+    private Integer calculateTotalScore(RentalRatioAndBuildyear rentalRatioAndBuildyear, ViolationStatus violationStatus) {
+        double totalScore = 0.0;
+        int validFactors = 0;
+        
+        // 역전세율 점수 (70% 비중) - 점수가 0이 아닌 경우만 포함
+        if (rentalRatioAndBuildyear != null && rentalRatioAndBuildyear.getScore() > 0) {
+            totalScore += rentalRatioAndBuildyear.getScore() * 0.7;
+            validFactors++;
+        }
+        
+        // 위반 점수 (30% 비중) - 점수가 0이 아닌 경우만 포함
+        if (violationStatus != null && violationStatus.getScore() > 0) {
+            totalScore += violationStatus.getScore() * 0.3;
+            validFactors++;
+        }
+        
+        // 둘 다 점수가 없는 경우
+        if (validFactors == 0) {
+            return 0;
+        }
+        
+        // 소수점 반올림하여 정수로 반환
+        return (int) Math.round(totalScore);
     }
     
     // 데이터 유효성 검증
@@ -313,10 +367,8 @@ public class SafeReportService {
         return hasRentalInfo || hasBuildingInfo;
     }
     
-    // 최근 본 안심레포트 저장 여부 판단(매매 목록이 있고 전세가율이 100% 미만인 경우)
+    // 최근 본 안심레포트 저장 여부 판단(전세가율이 100% 미만인 경우)
     public boolean shouldSaveToRecentReports(SafeReportResponseDto responseDto) {
-        return responseDto.getRentalRatioAndBuildyear() != null &&
-               responseDto.getRentalRatioAndBuildyear().getDealAmount() != 0 &&
-               responseDto.getRentalRatioAndBuildyear().getReverseRentalRatio() < 100;
+        return responseDto.getRentalRatioAndBuildyear().getReverseRentalRatio() < 100;
     }
 }
