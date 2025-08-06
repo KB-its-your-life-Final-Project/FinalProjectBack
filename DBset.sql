@@ -270,3 +270,6 @@ WHERE locatadd_nm LIKE '전라북도%';
 SELECT * FROM api_lawd_cd WHERE sido_cd=45;
 
 DROP TABLE IF EXISTS sido;
+
+
+ALTER TABLE safe_report_tbl RENAME COLUMN user_id TO member_id;

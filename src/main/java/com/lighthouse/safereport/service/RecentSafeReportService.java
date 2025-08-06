@@ -133,7 +133,7 @@ public class RecentSafeReportService {
     private RecentSafeReport buildRecentSafeReport(Integer userId, Integer estateId, 
                                                   SafeReportRequestDto requestDto, String resultGrade) {
         return RecentSafeReport.builder()
-            .userId(userId)
+            .memberId(userId)
             .estateId(estateId)
             .budget(requestDto.getBudget())
             .resultGrade(resultGrade)

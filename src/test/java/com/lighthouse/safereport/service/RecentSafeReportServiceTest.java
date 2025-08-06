@@ -58,7 +58,7 @@ class RecentSafeReportServiceTest {
 
         recentSafeReport = new RecentSafeReport();
         recentSafeReport.setId(1);
-        recentSafeReport.setUserId(1);
+        recentSafeReport.setMemberId(1);
         recentSafeReport.setEstateId(1);
         recentSafeReport.setBudget(20000);
         recentSafeReport.setResultGrade("안전");
