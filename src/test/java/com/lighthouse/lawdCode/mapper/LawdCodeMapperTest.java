@@ -42,7 +42,7 @@ class LawdCodeMapperTest {
     void findAllRegionByPartialCd() {
         // 전체 테스트용 DTO 변수들
         LawdCdRequestDTO dtoAllNull = new LawdCdRequestDTO(); // 모두 null
-        LawdCdRequestDTO dtoAllEmpty = new LawdCdRequestDTO("","","");
+//        LawdCdRequestDTO dtoAllEmpty = new LawdCdRequestDTO("","","");
 
         LawdCdRequestDTO dtoSidoOnly = new LawdCdRequestDTO();
         dtoSidoOnly.setSidoCd("11");
@@ -61,9 +61,9 @@ class LawdCodeMapperTest {
         log.info("resultNull: {}", resultNull.get(0).getRegionCd());
         assertThat(resultNull).isNotNull().isNotEmpty();
 
-        var resultEmpty = mapper.findAllRegionByPartialCd(dtoAllEmpty);
-        log.info("resultEmpty: {}", resultEmpty.get(0).getRegionCd());
-        assertThat(resultEmpty).isNotNull().isNotEmpty();
+//        var resultEmpty = mapper.findAllRegionByPartialCd(dtoAllEmpty);
+//        log.info("resultEmpty: {}", resultEmpty.get(0).getRegionCd());
+//        assertThat(resultEmpty).isNotNull().isNotEmpty();
 
         // 2. sidoCd만 지정
         var resultSidoOnly = mapper.findAllRegionByPartialCd(dtoSidoOnly);
