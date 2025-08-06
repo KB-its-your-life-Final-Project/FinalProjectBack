@@ -5,11 +5,16 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import com.lighthouse.common.external.naver.NaverMapClient;
 import com.lighthouse.common.geocoding.service.GeoCodingService;
 import com.lighthouse.estate.converter.EstateDTOConverter;
 import com.lighthouse.estate.dto.EstateDTO;
+import com.lighthouse.estate.dto.EstateSalesDTO;
+import com.lighthouse.estate.dto.EstateSquareDTO;
 import com.lighthouse.estate.entity.Estate;
+import com.lighthouse.estate.entity.EstateSales;
 import com.lighthouse.estate.mapper.EstateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,16 @@ public class EstateService {
     private final EstateMapper estateMapper;
     private final EstateDTOConverter estateDTOConverter;
     private final GeoCodingService geoCodingService;
+
+    public List<EstateDTO> getEstateByElement(EstateDTO dto) {
+        try {
+            List<Estate> entities = estateMapper.getEstateByElement(dto);
+            return estateDTOConverter.toDTOList(entities);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+    }
 
     //위경도로 건물 정보 가져오기 (단일)
     public EstateDTO getEstateByLatLng(double lat, double lng) {
@@ -57,4 +72,26 @@ public class EstateService {
             throw e;
         }
     }
+
+    //위도경도 최대최소로 구하기
+    public List<EstateDTO> getEstateBySqaure(EstateSquareDTO dto) {
+        try {
+            List<Estate> entities = estateMapper.getEstateBySqaure(dto);
+            return estateDTOConverter.toDTOList(entities);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+    }
+
+    public List<EstateSalesDTO> getEstateSalesByElement(EstateSalesDTO dto) {
+        try {
+            List<EstateSales> entities = estateMapper.getEstateSalesByElement(dto);
+            return estateDTOConverter.toDTOSalesList(entities);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+    }
+    
 }

@@ -17,13 +17,89 @@
         SELECT
             *
         FROM
-            estate_api_integration_tbl 
+            ${ESTATE_API_INTEGRATION_TBL} 
         WHERE
             latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
           AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
           <!-- 현재는 real_estate와 real_estate_saelse가 1:다가 아닌 다:다라서 limit 적용했습니다. -->
         LIMIT 1
-        
+    </select>
+
+    <select id="getEstateByElement" resultMap="EstateMap">
+        SELECT
+            *
+        FROM
+            ${ESTATE_API_INTEGRATION_TBL}
+        WHERE 1=1
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="sggCd != null">
+                AND `sgg_cd` = #{sggCd}
+            </if>
+            <if test="umdNm != null">
+                AND `umd_nm` = #{umdNm}
+            </if>
+            <if test="jibun != null">
+                AND `jibun` = #{jibun}
+            </if>
+            <if test="buildingName != null">
+                AND `building_name` = #{buildingName}
+            </if>
+            <if test="mhouseType != null">
+                AND `mhouse_type` = #{mhouseType}
+            </if>
+            <if test="shouseType != null">
+                AND `shouse_type` = #{shouseType}
+            </if>
+            <if test="buildYear != null">
+                AND `build_year` = #{buildYear}
+            </if>
+            <if test="jibunAddr != null">
+                AND `jibun_addr` = #{jibunAddr}
+            </if>
+            <if test="latitude != null">
+                AND latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
+            </if>
+            <if test="longitude != null">
+                AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
+            </if>
+    </select>
+
+    <select id="getEstateSalesByElement" resultMap="EstateSalesMap">
+        SELECT
+            *
+        FROM
+            ${ESTATE_API_INTEGRATION_SALES_TBL}
+        WHERE
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="estateId != null">
+                AND `estate_id` = #{estateId}
+            </if>
+            `estate_id` = #{estateId}
+            <if test="dealYear != null">
+                AND `deal_year` = #{dealYear}
+            </if>
+            <if test="dealMonth != null">
+                AND `deal_month` = #{dealMonth}
+            </if>
+            <if test="dealDay != null">
+                AND `deal_day` = #{dealDay}
+            </if>
+            <if test="dealAmount != null">
+                AND `deal_amount` = #{dealAmount}
+            </if>
+            <if test="deposit != null">
+                AND `deposit` = #{deposit}
+            </if>
+            <if test="monthlyRent != null">
+                AND `monthly_rent` = #{monthlyRent}
+            </if>
+            <if test="tradeType != null">
+                AND `trade_type` = #{tradeType}
+            </if>
     </select>
 
     <!-- estate ID로 건물 정보 조회 -->
