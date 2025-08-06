@@ -268,3 +268,5 @@ FROM api_lawd_cd
 WHERE locatadd_nm LIKE '전라북도%';
 
 SELECT * FROM api_lawd_cd WHERE sido_cd=45;
+
+DROP TABLE IF EXISTS sido;
