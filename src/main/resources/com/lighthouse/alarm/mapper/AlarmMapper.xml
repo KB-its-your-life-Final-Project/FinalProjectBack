@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.alarm.mapper.AlarmMapper">
+
+    <!-- 알림 저장 -->
+    <insert id="insertAlarm" parameterType="com.lighthouse.alarm.entity.Alarms">
+        INSERT INTO alarm_tbl(member_id,type,text,time,get_alarm,is_checked)
+        VALUES(#{memberId},#{type},#{text},#{time},#{getAlarm},#{isChecked})
+    </insert>
+
+    <!-- 알림 설정 변경 -->
+    <update id="updateAlarmSetting" parameterType="map">
+        UPDATE alarm_tbl
+        SET get_alarm = #{getAlarm}
+        WHERE member_id = #{memberId}
+        AND type = #{alarmType}
+    </update>
+
+    <!-- 제공 받을 알림 리스트 조회 -->
+    <select id="getAlarmList" resultType="com.lighthouse.alarm.entity.Alarms">
+        SELECT *
+        FROM alarm_tbl
+        WHERE member_id=#{memberId}
+        AND get_alarm=1 AND is_checked=2
+        ORDER BY time DESC
+#         알림 받아야 하는 것 중 아직 확인 안 한 것들
+    </select>
+
+    <!-- 알림 읽음 처리 -->
+    <update id="setAlarmRead" parameterMap="map">
+        UPDATE alarm_tbl
+        SET is_checked=1
+        WHERE member_id=#{memberId}
+        AND id=#{alarmId}
+    </update>
+</mapper>

@@ -54,6 +54,12 @@ public enum ErrorCode implements ResponseCode{
     HOME_REGISTER_FAIL(7001, "집 정보 등록에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ESTATE_NOT_FOUND_BY_COORDINATES(7002, "해당 위치의 부동산 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     UNAUTHORIZED_USER(7003, "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
+
+    // alarm
+    ALARM_SETTING_FAIL(8001,"알림 설정 업데이트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ALARM_FETCH_FAIL(8002, "알림 목록 조회에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ALARM_READ_FAIL(8003, "알림 읽음 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
     //Server Error
     SERVER_NOT_RESPONDING(99001, "서버가 응답하지 않습니다", HttpStatus.SERVICE_UNAVAILABLE),
     ELEMENT_NOT_FOUND(99002, "알맞은 데이터를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);

@@ -43,7 +43,12 @@ public enum SuccessCode implements ResponseCode{
     // LawdCd
     LAWDCD_FETCH_SUCCESS(6001, "지역 코드 조회 성공"),
 	// HomeRegister
-	HOME_REGISTER_SUCCESS(7001, "집 정보 등록 성공");
+	HOME_REGISTER_SUCCESS(7001, "집 정보 등록 성공"),
+
+	// alarm
+	ALARM_FETCH_SUCCESS(8001, "알림 목록 조회 성공"),
+	ALARM_UPDATE_SUCCESS(8002, "알림 설정 변경 성공"),
+	ALARM_READ_SUCCESS(8003,"알림 읽음 처리 성공");
 
 
 	private final int code;
