@@ -47,4 +47,10 @@ public class RegionWishlistController {
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_GETLIST_SUCCESS,response));
     }
+    @GetMapping("/check/{regionCd}")
+    public ResponseEntity<ApiResponse<Boolean>> existWishlistByRegionCd (@PathVariable String regionCd, @CookieValue("accessToken") String token) {
+        Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
+        boolean exist = service.existByMemberIdAndRegionCd(memberId, regionCd);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_FIND_SUCCESS,exist));
+    }
 }

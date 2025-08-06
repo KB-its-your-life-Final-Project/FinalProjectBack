@@ -31,9 +31,9 @@ public enum SuccessCode implements ResponseCode{
 	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),
 	WISHLIST_SAVE_SUCCESS(3002, "찜 목록 추가 성공"),
 	WISHLIST_DELETE_SUCCESS(3003, "찜 목록 삭제 성공"),
+	WISHLIST_FIND_SUCCESS(3004, "찜 유저, 주소 조회 성공"),
 	SEARCH_HISTORY_SAVE_SUCCESS(3004,"검색 기록 저장 성공"),
 	SEARCH_HISTORY_GETLIST_SUCCESS(3005,"검색 기록 조회 성공"),
-
 	// Estate
 	ESTATE_FETCH_SUCCESS(4001, "건물 정보 확인 성공"),
 	ESTATE_SALES_FETCH_SUCCESS(4002, "건물 판매 내역 확인 성공"),
