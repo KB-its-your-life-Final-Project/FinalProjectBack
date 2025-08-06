@@ -1,5 +1,6 @@
 package com.lighthouse.estate.mapper;
 
+import com.lighthouse.estate.dto.BuildingInfoDto;
 import com.lighthouse.estate.entity.Estate;
 import com.lighthouse.estate.entity.EstateSales;
 import org.apache.ibatis.annotations.Mapper;
@@ -47,5 +48,13 @@ public interface EstateMapper {
         @Param("minLng") double minLng,
         @Param("maxLng") double maxLng
     );
+    
+    /**
+     * 지역코드와 읍면동명으로 건물 정보 목록 조회
+     * @param regionCode 지역코드
+     * @param dongName 읍면동명
+     * @return 건물 정보 목록
+     */
+    List<BuildingInfoDto> getBuildingInfosByRegionCodeAndDongName(@Param("regionCode") String regionCode, @Param("dongName") String dongName);
     
 } 

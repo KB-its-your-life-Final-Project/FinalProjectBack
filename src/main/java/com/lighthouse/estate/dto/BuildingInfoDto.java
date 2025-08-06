@@ -1,4 +1,4 @@
-package com.lighthouse.lawdCode.dto;
+package com.lighthouse.estate.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,4 +24,4 @@ public class BuildingInfoDto {
     
     @ApiModelProperty(value = "지번 주소", example = "역삼동 123-45", notes = "건물의 지번 주소")
     private String jibunAddr; // 지번 주소
-} 
+}

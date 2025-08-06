@@ -1,5 +1,6 @@
 package com.lighthouse.lawdCode.dto;
 
+import com.lighthouse.estate.dto.BuildingInfoDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
