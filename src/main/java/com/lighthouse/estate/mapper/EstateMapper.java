@@ -1,5 +1,8 @@
 package com.lighthouse.estate.mapper;
 
+import com.lighthouse.estate.dto.EstateDTO;
+import com.lighthouse.estate.dto.EstateSalesDTO;
+import com.lighthouse.estate.dto.EstateSquareDTO;
 import com.lighthouse.estate.dto.BuildingInfoDto;
 import com.lighthouse.estate.entity.Estate;
 import com.lighthouse.estate.entity.EstateSales;
@@ -18,6 +21,8 @@ public interface EstateMapper {
      * @return 건물 정보
      */
     Estate getEstateByLatLng(@Param("lat") double lat, @Param("lng") double lng);
+
+    List<Estate> getEstateByElement(EstateDTO dto);
     
     /**
      * estate ID로 건물 정보 조회
@@ -36,18 +41,10 @@ public interface EstateMapper {
 
     /**
      * 지도 사각형 영역 내 건물 정보 조회(다건 조회)
-     * @param minLat 최소 위도
-     * @param maxLat 최대 위도
-     * @param minLng 최소 경도
-     * @param maxLng 최대 경도
-     * @return 건물 정보 리스트
      */
-    List<Estate> getEstateBySqaure(
-        @Param("minLat") double minLat,
-        @Param("maxLat") double maxLat,
-        @Param("minLng") double minLng,
-        @Param("maxLng") double maxLng
-    );
+    List<Estate> getEstateBySqaure(EstateSquareDTO dto);
+
+    List<EstateSales> getEstateSalesByElement(EstateSalesDTO dto);
     
     /**
      * 지역코드와 읍면동명으로 건물 정보 목록 조회

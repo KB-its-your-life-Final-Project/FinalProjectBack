@@ -36,6 +36,7 @@ public enum SuccessCode implements ResponseCode{
 
 	// Estate
 	ESTATE_FETCH_SUCCESS(4001, "건물 정보 확인 성공"),
+	ESTATE_SALES_FETCH_SUCCESS(4002, "건물 판매 내역 확인 성공"),
 
 	// localinfo
 	LOCALINFO_FETCH_SUCCESS(5001, "지역 정보 조회 성공"),
