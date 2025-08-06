@@ -1,4 +1,4 @@
-package com.lighthouse.wishlist.entity;
+package com.lighthouse.search.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,10 @@
-package com.lighthouse.wishlist.service;
+package com.lighthouse.search.service;
 
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
-import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
-import com.lighthouse.wishlist.entity.SearchHistory;
-import com.lighthouse.wishlist.mapper.SearchHistoryMapper;
+import com.lighthouse.search.dto.SearchHistoryResponseDTO;
+import com.lighthouse.search.entity.SearchHistory;
+import com.lighthouse.search.mapper.SearchHistoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

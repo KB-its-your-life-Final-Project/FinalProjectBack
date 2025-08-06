@@ -1,7 +1,7 @@
-package com.lighthouse.wishlist.mapper;
+package com.lighthouse.search.mapper;
 
-import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
-import com.lighthouse.wishlist.entity.SearchHistory;
+import com.lighthouse.search.dto.SearchHistoryResponseDTO;
+import com.lighthouse.search.entity.SearchHistory;
 
 import java.util.List;
 

@@ -1,9 +1,10 @@
 package com.lighthouse.wishlist.controller;
 
+import com.lighthouse.search.controller.SearchHistoryController;
 import com.lighthouse.security.util.JwtUtil;
-import com.lighthouse.wishlist.dto.SearchHistoryRequestDTO;
-import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
-import com.lighthouse.wishlist.service.SearchHistoryService;
+import com.lighthouse.search.dto.SearchHistoryRequestDTO;
+import com.lighthouse.search.dto.SearchHistoryResponseDTO;
+import com.lighthouse.search.service.SearchHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;

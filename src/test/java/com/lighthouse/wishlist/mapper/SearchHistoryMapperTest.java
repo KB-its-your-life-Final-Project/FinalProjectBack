@@ -2,8 +2,9 @@ package com.lighthouse.wishlist.mapper;
 
 import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
+import com.lighthouse.search.mapper.SearchHistoryMapper;
 import com.lighthouse.security.config.SecurityConfig;
-import com.lighthouse.wishlist.entity.SearchHistory;
+import com.lighthouse.search.entity.SearchHistory;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

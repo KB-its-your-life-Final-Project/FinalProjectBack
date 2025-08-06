@@ -1,4 +1,4 @@
-package com.lighthouse.wishlist.dto;
+package com.lighthouse.search.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchHistoryRequestDTO {
+public class SearchHistoryResponseDTO {
     private String keyword;
 }

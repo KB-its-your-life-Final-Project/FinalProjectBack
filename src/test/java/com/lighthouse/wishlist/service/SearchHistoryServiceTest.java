@@ -2,8 +2,9 @@ package com.lighthouse.wishlist.service;
 
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
-import com.lighthouse.wishlist.entity.SearchHistory;
-import com.lighthouse.wishlist.mapper.SearchHistoryMapper;
+import com.lighthouse.search.entity.SearchHistory;
+import com.lighthouse.search.mapper.SearchHistoryMapper;
+import com.lighthouse.search.service.SearchHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

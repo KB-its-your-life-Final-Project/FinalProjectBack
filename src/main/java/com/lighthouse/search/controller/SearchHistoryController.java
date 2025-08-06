@@ -1,11 +1,11 @@
-package com.lighthouse.wishlist.controller;
+package com.lighthouse.search.controller;
 
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
 import com.lighthouse.security.util.JwtUtil;
-import com.lighthouse.wishlist.dto.SearchHistoryRequestDTO;
-import com.lighthouse.wishlist.dto.SearchHistoryResponseDTO;
-import com.lighthouse.wishlist.service.SearchHistoryService;
+import com.lighthouse.search.dto.SearchHistoryRequestDTO;
+import com.lighthouse.search.dto.SearchHistoryResponseDTO;
+import com.lighthouse.search.service.SearchHistoryService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,4 +36,5 @@ public class SearchHistoryController {
         List<SearchHistoryResponseDTO> result = service.findSearchHistoryByMemberId(memberId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SEARCH_HISTORY_SAVE_SUCCESS, result));
     }
+
 }
