@@ -194,48 +194,20 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO unregister(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.unregister() 실행 ======");
-        // accessToken 검증
-        String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
-        if (accessToken != null) {
-            boolean isAccessTokenValid = tokenService.isAccessTokenValid(accessToken);
-            if (isAccessTokenValid) {
-                String subject = jwtUtil.getSubjectFromToken(accessToken);
-                log.info("request에서 추출된 accessToken: {}", accessToken);
-                log.info("accessToken에서 추출된 subject(memberId): {}", subject);
-                int memberIdFromToken = Integer.parseInt(subject);
-                Member member = memberMapper.findMemberById(memberIdFromToken);
-                member.setIsDelete(2);
-                memberMapper.updateMember(member);
-                return MemberResponseDTO.toUser(memberMapper.findDeletedMemberById(memberIdFromToken));
-            } else {
-                log.info("accessToken 만료");
+        try {
+            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                throw new Exception("로그인이 필요합니다.");
             }
-        }
-        // accessToken 만료 또는 없음 -> refreshToken 검증
-        log.info("accessToken 없음");
-        String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
-        if (refreshToken != null) {
-            // refreshToken 유효성 검사
-            String subject = jwtUtil.getSubjectFromToken(refreshToken);
-            int memberIdFromToken = Integer.parseInt(subject);
-            log.info("request에서 추출된 refreshToken: {}", refreshToken);
-            log.info("refreshToken에서 추출된 subject(memberId): {}", subject);
-            boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
-            if (!isRefreshTokenValid) {
-                log.info("refreshToken값이 만료되었거나 DB에 저장된 값과 일치하지 않습니다");
-                return null;
-            }
-            // refreshToken 검증 성공 -> accessToken, refreshToken 재발급 및 저장 (HttpOnly 쿠키, DB)
-            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
-            tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
-            Member member = memberMapper.findMemberById(memberIdFromToken);
+            Member member = memberMapper.findMemberById(memberDto.getId());
             member.setIsDelete(2);
             memberMapper.updateMember(member);
-            return MemberResponseDTO.toUser(memberMapper.findDeletedMemberById(memberIdFromToken));
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("회원 탈퇴 중 오류 발생: ", e);
+            return null;
         }
-        // refreshToken 만료 또는 없음
-        log.info("refreshToken 없음");
-        return null;
     }
 
     // 이메일 로그인
@@ -349,21 +321,12 @@ public class MemberService {
 
     // 회원 정보 (이름, 비밀번호) 변경
     public MemberResponseDTO changeMemberInfo(int changeType, String changeInfo, HttpServletRequest req, HttpServletResponse resp) {
-        String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
-        if (accessToken != null) {
-            // accessToken 유효성 검사
-            String subject = jwtUtil.getSubjectFromToken(accessToken);
-            log.info("request에서 추출된 accessToken: {}", accessToken);
-            log.info("accessToken에서 추출된 subject(memberId): {}", subject);
-            int memberIdFromToken = Integer.parseInt(subject);
-            boolean isAccessTokenValid = tokenService.isAccessTokenValid(accessToken);
-            if (!isAccessTokenValid) {
-                log.info("accessToken값이 만료되었습니다");
+        try {
+            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
                 return null;
             }
-            // accessToken 검증 성공
-            Member member = memberMapper.findMemberById(memberIdFromToken);
-            log.info("subject로 찾은 member: {}", member);
+            Member member = memberMapper.findMemberById(memberDto.getId());
             if (changeType == 1) {
                 if (Objects.equals(changeInfo, member.getName())) {
                     log.info("기존 이름과 동일한 이름을 입력했습니다");
@@ -379,67 +342,33 @@ public class MemberService {
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
-            Member updatedMember = memberMapper.findMemberById(memberIdFromToken);
+            Member updatedMember = memberMapper.findMemberById(member.getId());
             log.info("DB updatedMember: {}", updatedMember);
             return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("회원 정보 (이름, 비밀번호) 변경 중 오류 발생: ", e);
+            return null;
         }
-        // accessToken 만료 또는 없음 -> refreshToken 검증
-        log.info("accessToken 없음");
-        String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
-        if (refreshToken != null) {
-            // refreshToken 유효성 검사
-            String subject = jwtUtil.getSubjectFromToken(refreshToken);
-            int memberIdFromToken = Integer.parseInt(subject);
-            log.info("request에서 추출된 refreshToken: {}", refreshToken);
-            log.info("refreshToken에서 추출된 subject(memberId): {}", subject);
-            boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
-            if (!isRefreshTokenValid) {
-                log.info("refreshToken값이 만료되었거나 DB에 저장된 값과 일치하지 않습니다");
-                return null;
-            }
-            // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장, 회원 정보 수정
-            TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
-            tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
-            Member member = memberMapper.findMemberById(memberIdFromToken);
-            if (changeType == 1) {
-                if (Objects.equals(changeInfo, member.getName())) {
-                    log.info("기존 이름과 동일한 이름을 입력했습니다");
-                    return null;
-                }
-                member.setName(changeInfo);
-            } else if (changeType == 2) {
-                if (passwordEncoder.matches(changeInfo, member.getPwd())) {
-                    log.info("기존 비밀번호와 동일한 비밀번호를 입력했습니다");
-                    return null;
-                }
-                member.setPwd(passwordEncoder.encode(changeInfo));
-            }
-            log.info("정보 변경 후 member: {}", member);
-            memberMapper.updateMember(member);
-            Member updatedMember = memberMapper.findMemberById(memberIdFromToken);
-            log.info("DB updatedMember: {}", updatedMember);
-            return MemberResponseDTO.toUser(updatedMember);
-        }
-        // refreshToken 만료 또는 없음
-        log.info("refreshToken 없음");
-        return null;
     }
 
     // 회원 프로필사진 업로드
-    public MemberResponseDTO uploadProfileImg(MultipartFile file, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    public MemberResponseDTO uploadProfileImg(MultipartFile file, HttpServletRequest req, HttpServletResponse resp) {
         try {
             MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
             if (memberDto == null) {
                 throw new Exception("로그인이 필요합니다.");
             }
             Member member = memberMapper.findMemberById(memberDto.getId());
+            log.info("member: {}", member);
             String uploadedImgUrl = fileUploadService.uploadProfileImg(file, memberDto.getId());
+            log.info("uploadedImgUrl: {}", uploadedImgUrl);
+            member.setProfileImg(uploadedImgUrl);
             memberMapper.updateMember(member);
             Member updatedMember = memberMapper.findMemberById(member.getId());
             return MemberResponseDTO.toUser(updatedMember);
         } catch (Exception e) {
             log.error("프로필사진 업로드 중 오류 발생: ", e);
-            throw new Exception("프로필사진 업로드에 실패했습니다.");
+            return null;
         }
     }
 

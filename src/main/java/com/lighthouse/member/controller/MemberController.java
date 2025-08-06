@@ -283,9 +283,9 @@ public class MemberController {
                         .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
         } catch (Exception e) {
-        log.error("프로필 이미지 업로드 실패", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+            log.error("프로필 이미지 업로드 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }
     }
 

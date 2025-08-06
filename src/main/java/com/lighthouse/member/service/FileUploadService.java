@@ -15,8 +15,7 @@ import static com.lighthouse.member.util.ValidateUtil.isEmpty;
 @RequiredArgsConstructor
 public class FileUploadService {
 
-    @Value("${PROFILE_UPLOAD_PATH}") private String uploadPath;
-    @Value("${PROFILE_UPLOAD_URL}") private String uploadUrl;
+    @Value("${FILE_UPLOAD_DIR}") private String uploadPath;
 
     /** 프로필사진 업로드
      * @param file 업로드할 파일
@@ -39,7 +38,7 @@ public class FileUploadService {
             File destinationFile = new File(profileDir + uniqueFileName);
             file.transferTo(destinationFile);
             // 업로드된 파일 url 반환
-            String fileUrl = uploadUrl + "/profile/" + uniqueFileName;
+            String fileUrl = uploadPath + "/profile/" + uniqueFileName;
             log.info("프로필사진 업로드 완료 - 파일: {}, URL: {}", uniqueFileName, fileUrl);
             return fileUrl;
         } catch (Exception e) {
