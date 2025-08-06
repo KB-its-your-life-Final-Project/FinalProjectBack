@@ -133,4 +133,16 @@
     
     </select>
 
+    <!-- 지역코드와 읍면동명으로 건물 정보 목록 조회 -->
+    <select id="getBuildingInfosByRegionCodeAndDongName" parameterType="String" resultType="com.lighthouse.estate.dto.BuildingInfoDto">
+        SELECT DISTINCT 
+            building_name as buildingName,
+            latitude,
+            longitude,
+            jibun_addr as jibunAddr
+        FROM estate_api_integration_tbl
+        WHERE sgg_cd = #{regionCode} AND umd_nm = #{dongName}
+        ORDER BY building_name
+    </select>
+
 </mapper> 

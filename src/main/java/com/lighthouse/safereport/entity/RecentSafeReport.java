@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class RecentSafeReport {
     
     private Integer id;
-    private Integer userId;
+    private Integer memberId;
     private Integer estateId; // estate_api_integration_tbl 참조
     private Integer budget; // 사용자가 입력한 예산
     private String resultGrade; // 안심레포트 결과 등급

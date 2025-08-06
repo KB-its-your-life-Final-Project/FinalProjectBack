@@ -132,7 +132,7 @@ public class SafeReportController {
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DELETE_SUCCESS, null));
     }
     
-    // 사용자 ID 추출 메서드 (JWT 토큰에서)
+    // 사용자 ID 추출 (JWT 토큰에서)
     private Integer getUserId(HttpServletRequest request) {
         try {
             // 1. 쿠키에서 accessToken 추출

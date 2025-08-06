@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.lighthouse.common.external.naver.NaverMapClient;
 import com.lighthouse.common.geocoding.service.GeoCodingService;
 import com.lighthouse.estate.converter.EstateDTOConverter;
+import com.lighthouse.estate.dto.BuildingInfoDto;
 import com.lighthouse.estate.dto.EstateDTO;
 import com.lighthouse.estate.dto.EstateSalesDTO;
 import com.lighthouse.estate.dto.EstateSquareDTO;
@@ -93,5 +94,17 @@ public class EstateService {
             throw e;
         }
     }
-    
+
+    // 지역코드와 읍면동명으로 건물 정보 목록 조회
+    public List<BuildingInfoDto> getBuildingInfosByRegionCodeAndDongName(String regionCode, String dongName) {
+        try {
+            log.info("건물 정보 목록 조회 시작 - regionCode: {}, dongName: {}", regionCode, dongName);
+            List<BuildingInfoDto> buildingInfos = estateMapper.getBuildingInfosByRegionCodeAndDongName(regionCode, dongName);
+            log.info("건물 정보 목록 조회 완료: {}개", buildingInfos != null ? buildingInfos.size() : 0);
+            return buildingInfos;
+        } catch (Exception e) {
+            log.error("건물 정보 목록 조회 중 에러 발생 - regionCode: {}, dongName: {}", regionCode, dongName, e);
+            throw e;
+        }
+    }
 }

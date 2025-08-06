@@ -24,4 +24,7 @@ public class SafeReportResponseDto {
     
     @ApiModelProperty(value = "층수와 용도 목록")
     private List<FloorAndPurpose> floorAndPurposeList;      // 층수와 용도 목록
+    
+    @ApiModelProperty(value = "최종 점수", example = "7", notes = "역전세율 점수 70% + 위반 점수 30%의 가중 평균")
+    private Integer totalScore;                             // 최종 점수
 }
