@@ -53,13 +53,17 @@ public class SelectAddressService {
             log.info("시/군/구 목록 조회 시작 - sidoCd: {}", sidoCd);
             List<SigugunDto> result = addressMapper.selectDistinctSggWithNameBySidoCd(sidoCd);
             
-            // 시군구명 변환
+            // 시군구명 변환 및 중복 제거
             result = result.stream()
                     .map(sigugun -> {
                         String convertedName = addressNameConverter.convertSggName(sidoCd, sigugun.getSggNm());
                         sigugun.setSggNm(convertedName);
                         return sigugun;
                     })
+                    .collect(Collectors.groupingBy(SigugunDto::getSggNm))
+                    .values()
+                    .stream()
+                    .map(list -> list.get(0)) // 각 그룹에서 첫 번째 항목만 선택
                     .collect(Collectors.toList());
                     
             log.info("시/군/구 목록 조회 완료: {}개", result != null ? result.size() : 0);
