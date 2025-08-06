@@ -75,7 +75,10 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(singleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
-            log.info("✅ 단일 시군구코드 다중 연월 테스트 완료 - 소요시간: {}ms", (endTime - startTime));
+            long elapsedMs = endTime - startTime;
+            long minutes = elapsedMs / (1000 * 60);
+            long seconds = (elapsedMs / 1000) % 60;
+            log.info("✅ 단일 시군구코드 다중 연월 테스트 완료 - 소요시간: {}분 {}초", minutes, seconds);
         });
     }
 
@@ -102,7 +105,10 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(multipleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
-            log.info("✅ 다중 시군구코드 단일 연월 테스트 완료 - 소요시간: {}ms", (endTime - startTime));
+            long elapsedMs = endTime - startTime;
+            long minutes = elapsedMs / (1000 * 60);
+            long seconds = (elapsedMs / 1000) % 60;
+            log.info("✅ 다중 시군구코드 단일 연월 테스트 완료 - 소요시간: {}분 {}초", minutes, seconds);
         });
     }
 
@@ -128,7 +134,10 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(smallScaleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
-            log.info("✅ 소규모 다중 시군구코드 다중 연월 테스트 완료 - 소요시간: {}ms", (endTime - startTime));
+            long elapsedMs = endTime - startTime;
+            long minutes = elapsedMs / (1000 * 60);
+            long seconds = (elapsedMs / 1000) % 60;
+            log.info("✅ 소규모 다중 시군구코드 다중 연월 테스트 완료 - 소요시간: {}분 {}초", minutes, seconds);
         });
     }
 
@@ -162,7 +171,10 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(mediumScaleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
-            log.info("✅ 중규모 테스트 완료 - 소요시간: {}ms", (endTime - startTime));
+            long elapsedMs = endTime - startTime;
+            long minutes = elapsedMs / (1000 * 60);
+            long seconds = (elapsedMs / 1000) % 60;
+            log.info("✅ 중규모 테스트 완료 - 소요시간: {}분 {}초", minutes, seconds);
         });
     }
 
