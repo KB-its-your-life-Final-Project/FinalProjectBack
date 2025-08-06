@@ -24,17 +24,15 @@
         </encoder>
     </appender>
 
-    <!-- 애플리케이션 로그 (테스트용) -->
+    <!-- 애플리케이션 로그 -->
     <logger name="com.lighthouse" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="TEST_FILE"/>
     </logger>
-
     <logger name="com.lighthouse.transactions.mapper" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="TEST_FILE"/>
     </logger>
-
     <logger name="com.lighthouse.lawdCode.mapper" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="TEST_FILE"/>
