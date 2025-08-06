@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,61 +38,43 @@ public class LawdCodeService {
     }
 
     /**
-     * api_lawd_cd 테이블에서 시군구 코드(앞 5자리) Set으로 반환
-     * @param dto 조회 조건
-     * @return 중복 제거된 시군구 코드 Set
+     * LawdCdResponseDTO 리스트에서 고유한 시군구코드 추출
+     * @param lawdCodes 시군구코드 응답 DTO 리스트
+     * @return 중복 제거된 시군구코드 Set
      */
-    public Set<Integer> getUniqueRegionCodesAsSet(LawdCdRequestDTO dto) {
-        List<LawdCdResponseDTO> lawdCodes = findAll(dto);
+    public Set<Integer> getAllUniqueRegionCodesAsSet(List<LawdCdResponseDTO> lawdCodes) {
         return lawdCodes.stream()
                 .map(LawdCdResponseDTO::getRegionCd)
                 .filter(regionCd -> regionCd != null && regionCd.length() >= 5)
                 .map(regionCd -> regionCd.substring(0, 5))
                 .map(Integer::parseInt)
                 .collect(Collectors.toSet());
-
-    }
-
-    /**
-     * api_lawd_cd 테이블에서 시군구 코드(앞 5자리) 중복 제거된 List로 반환
-     * @param dto 조회 조건
-     * @return 중복 제거된 시군구 코드 List
-     */
-    public List<Integer> getUniqueRegionCodesAsList(LawdCdRequestDTO dto) {
-        Set<Integer> uniqueRegionCodes = getUniqueRegionCodesAsSet(dto);
-        return uniqueRegionCodes.stream()
-                .sorted()
-                .collect(Collectors.toList());
     }
 
     /**
      * 페이지네이션(offset, limit)을 사용하여 모든 고유 시군구코드 조회
+     * @return 정렬 + 중복 제거된 모든 시군구코드 List
      */
     public List<Integer> getAllUniqueRegionCodesWithPagination() {
         log.debug("LawdCodeService.getAllUniqueRegionCodesWithPagination() 실행=======");
         Set<Integer> allUniqueCodes = new HashSet<>();
         int currentOffset = 0;
-        int limit = 1000; // 한 번에 조회건수 설정
-
+        int limit = 1000;
         while (true) {
-            LawdCdRequestDTO dto = new LawdCdRequestDTO();
-            dto.setLimit(limit);
-            dto.setOffset(currentOffset);
-            List<Integer> pageResult = getUniqueRegionCodesAsList(dto);
+            LawdCdRequestDTO dto = LawdCdRequestDTO.createForPagination(currentOffset, limit);
+            List<LawdCdResponseDTO> pageResult = findAll(dto);
             if (pageResult.isEmpty()) {
-                break; // 더 이상 데이터가 없으면 중단
+                break;
             }
-            allUniqueCodes.addAll(pageResult);
+            Set<Integer> pageUniqueCodes = getAllUniqueRegionCodesAsSet(pageResult);
+            allUniqueCodes.addAll(pageUniqueCodes);
             currentOffset += limit;
-            log.debug("페이지 처리 완료 - offset: {}, 조회된 고유 코드 수: {}",
-                    currentOffset - limit, pageResult.size());
+            log.debug("✅ 페이지 처리 완료 - offset: {}, 조회된 고유 코드 수: {}",
+                    currentOffset - limit, pageUniqueCodes.size());
         }
 
-        List<Integer> result = allUniqueCodes.stream()
-                .sorted()
-                .collect(Collectors.toList());
-
-        log.debug("모든 시군구 코드 조회 완료 - 총 {}개", result.size());
+        List<Integer> result = new ArrayList<>(new TreeSet<>(allUniqueCodes)); // 리스트화, 정렬
+        log.debug("✅ 모든 시군구 코드 조회 완료 - 총 {}개", result.size());
         return result;
     }
 }
