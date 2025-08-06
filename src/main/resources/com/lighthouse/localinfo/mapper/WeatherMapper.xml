@@ -2,40 +2,78 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.localinfo.mapper.WeatherMapper">
 
-    <!-- 모든 지역 조회 -->
-    <select id="findAll" resultType="com.lighthouse.localinfo.entity.Weather">
-        SELECT id, sido_cd as sidoCd, sgg_cd as sggCd, region,
-               grid_x as gridX, grid_y as gridY,
-               sky_condition as skyCondition, temperature, max_temperature as maxTemperature,
-               min_temperature as minTemperature, base_date as baseDate, base_time as baseTime,
-               fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
-               updated_at as updatedAt
-        FROM api_weather_tbl
+    <!-- [신규 추가] sidoCd로 날씨 정보 조회 -->
+    <select id="findBySidoCd" resultType="com.lighthouse.localinfo.entity.Weather">
+        SELECT
+            id, sido_cd as sidoCd, sgg_cd as sggCd, region,
+            grid_x as gridX, grid_y as gridY,
+            sky_condition as skyCondition, temperature, max_temperature as maxTemperature,
+            min_temperature as minTemperature, base_date as baseDate, base_time as baseTime,
+            fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
+            updated_at as updatedAt
+        FROM
+            api_weather_tbl
+        WHERE
+            sido_cd = #{sidoCd}
     </select>
 
+    <!-- 격자 좌표로 가장 최신 날씨 정보 조회 -->
     <select id="findByGrid" resultType="com.lighthouse.localinfo.entity.Weather">
-        SELECT id, sido_cd as sidoCd, sgg_cd as sggCd, region,
-               grid_x as gridX, grid_y as gridY,
-               sky_condition as skyCondition, temperature, max_temperature as maxTemperature,
-               min_temperature as minTemperature, base_date as baseDate, base_time as baseTime,
-               fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
-               updated_at as updatedAt
-        FROM api_weather_tbl
-        WHERE grid_x = #{gridX} AND grid_y = #{gridY}
+        SELECT
+            id, sido_cd as sidoCd, sgg_cd as sggCd, region,
+            grid_x as gridX, grid_y as gridY,
+            sky_condition as skyCondition, temperature, max_temperature as maxTemperature,
+            min_temperature as minTemperature, base_date as baseDate, base_time as baseTime,
+            fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
+            updated_at as updatedAt
+        FROM
+            api_weather_tbl
+        WHERE
+            grid_x = #{gridX} AND grid_y = #{gridY}
+        ORDER BY
+            base_date DESC, base_time DESC
+            LIMIT 1
     </select>
 
-    <!-- 날씨 데이터 업데이트 -->
+    <!-- [신규 추가] 새로운 날씨 정보 삽입 -->
+    <insert id="insertWeather" parameterType="com.lighthouse.localinfo.entity.Weather">
+        INSERT INTO api_weather_tbl
+        (sido_cd, sgg_cd, region, grid_x, grid_y, sky_condition, temperature, max_temperature, min_temperature, base_date, base_time)
+        VALUES
+            (#{sidoCd}, #{sggCd}, #{region}, #{gridX}, #{gridY}, #{skyCondition}, #{temperature}, #{maxTemperature}, #{minTemperature}, #{baseDate}, #{baseTime})
+    </insert>
+
+    <!-- 기존 날씨 정보 업데이트 -->
     <update id="updateWeather" parameterType="com.lighthouse.localinfo.entity.Weather">
-        UPDATE api_weather_tbl
-        SET sky_condition = #{skyCondition},
+        UPDATE
+            api_weather_tbl
+        SET
+            sky_condition = #{skyCondition},
             temperature = #{temperature},
             max_temperature = #{maxTemperature},
             min_temperature = #{minTemperature},
             base_date = #{baseDate},
-            base_time = #{baseTime},
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = #{id}
+            base_time = #{baseTime}
+        WHERE
+            id = #{id}
     </update>
 
+    <!-- 모든 날씨 정보 조회 -->
+    <select id="findAll" resultType="com.lighthouse.localinfo.entity.Weather">
+        SELECT
+            id, sido_cd as sidoCd, sgg_cd as sggCd, region,
+            grid_x as gridX, grid_y as gridY,
+            sky_condition as skyCondition, temperature, max_temperature as maxTemperature,
+            min_temperature as minTemperature, base_date as baseDate, base_time as baseTime,
+            fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
+            updated_at as updatedAt
+        FROM
+            api_weather_tbl
+    </select>
 
+    <select id="findByIdRange" resultType="com.lighthouse.localinfo.entity.Weather">
+        SELECT * FROM api_weather_tbl
+        WHERE id BETWEEN #{startId} AND #{endId}
+        ORDER BY id
+    </select>
 </mapper>

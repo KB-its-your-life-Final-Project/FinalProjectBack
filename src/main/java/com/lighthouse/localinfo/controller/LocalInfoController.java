@@ -37,9 +37,6 @@ public class LocalInfoController {
     @Autowired
     private SafetyService safetyService;
 
-    @Autowired
-    private WeatherMapper weatherMapper;
-
     /**
      * 키워드로 지역 목록을 검색하는 API
      */
@@ -136,7 +133,6 @@ public class LocalInfoController {
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, safetyInfoOptional.get()));
     }
-
     @GetMapping("/weather")
     public ResponseEntity<ApiResponse<Weather>> getWeatherByRegionCd(
             @RequestParam("regionCd") String regionCd) {
@@ -151,9 +147,11 @@ public class LocalInfoController {
                 );
             }
 
+            // 날씨 데이터를 포함하여 반환
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.WEATHER_FETCH_SUCCESS, weather));
 
         } catch (Exception e) {
+
             return new ResponseEntity<>(
                     ApiResponse.error(ErrorCode.SERVER_NOT_RESPONDING),
                     ErrorCode.SERVER_NOT_RESPONDING.getStatus()

@@ -1,64 +1,63 @@
 package com.lighthouse.localinfo.service;
 
 import com.lighthouse.localinfo.dto.LocalInfoResponseDTO;
+import com.lighthouse.localinfo.entity.Weather;
 import com.lighthouse.localinfo.mapper.LocalInfoMapper;
 import com.lighthouse.localinfo.mapper.WeatherMapper;
-import com.lighthouse.localinfo.entity.Weather;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LocalInfoService {
 
     private final LocalInfoMapper localInfoMapper;
-    private final WeatherService weatherService;
+    private final WeatherMapper weatherMapper;
+    private final WeatherService weatherService; // WeatherService를 주입받음
 
-    /**
-     * 키워드를 포함하는 지역 목록을 검색합니다.
-     */
     public List<LocalInfoResponseDTO> searchRegions(String keyword) {
         return localInfoMapper.searchByKeyword(keyword);
     }
 
     /**
-     * 법정동 코드(regionCd)로 특정 지역의 상세 정보를 조회
-     */
-    public LocalInfoResponseDTO getRegionByRegionCd(String regionCd) {
-        return localInfoMapper.findByRegionCd(regionCd)
-                .orElse(null);
-    }
-
-    /**
-     * [수정] 지역코드(regionCd)로 날씨 정보를 조회하는 통합 메서드
-     * @param regionCd 조회할 지역의 법정동 코드
-     * @return 최종적으로 조합된 날씨 정보 Entity
+     * [수정됨] 날씨 조회의 모든 과정을 총괄하는 최종 메소드
      */
     public Weather getWeatherByRegionCd(String regionCd) {
-        // 1. 지역 좌표 조회 (regionCd 사용)
-        LocalInfoResponseDTO regionInfo = getRegionByRegionCd(regionCd);
+        // 1. regionCd로 지역 정보(격자 좌표, 지역 이름 등) 조회
+        LocalInfoResponseDTO regionInfo = localInfoMapper.findByRegionCd(regionCd).orElse(null);
         if (regionInfo == null) {
-            // 지역 정보가 DB에 없으면 null 반환
+            log.warn("DB에 해당 regionCd({})가 없습니다.", regionCd);
             return null;
         }
 
-        if (regionInfo.getGridX() == 0 && regionInfo.getGridY() == 0) {
-            // log.warn("경고: 지역 [{}] ({}) 에 대한 격자 좌표가 0,0 입니다. 유효하지 않은 좌표입니다.", regionCd, regionInfo.getLocataddNm());
-            // 유효하지 않은 좌표로 판단하고 null 반환 (또는 적절한 에러 처리)
-            return null;
-        }
-        // 2. 날씨 정보 요청 (WeatherService는 순수 날씨 데이터인 Entity를 반환)
-        Weather weatherDataEntity = weatherService.getWeatherFromKMA(regionInfo.getGridX(), regionInfo.getGridY());
-        if (weatherDataEntity == null) {
-            // 날씨 정보 조회에 실패하면 null 반환 (WeatherService 내부에서 이미 로그 남김)
-            return null;
-        }
-        weatherDataEntity.setRegion(regionInfo.getRegion());    // 지역명만 설정
-        weatherDataEntity.setGridX(regionInfo.getGridX());
-        weatherDataEntity.setGridY(regionInfo.getGridY());
+        // 2. 해당 지역의 격자 좌표로 DB에서 날씨 정보 조회
+        Weather dbWeather = weatherMapper.findByGrid(regionInfo.getGridX(), regionInfo.getGridY());
 
-        return weatherDataEntity;
-    }
+        // 3. DB에 유효한 날씨 정보가 있으면 바로 반환 (캐시 히트)
+        if (dbWeather != null && dbWeather.getTemperature() != null) {
+            log.info("DB에서 유효한 날씨 정보 조회 성공: {}", regionInfo.getLocataddNm());
+            return dbWeather;
+        }
+
+        // 4. DB에 없거나 불완전하면 API 호출
+        log.info("DB 날씨 정보가 없거나 불완전하여 API 호출: {}", regionInfo.getLocataddNm());
+        Weather apiWeather = weatherService.fetchWeatherFromApi(regionInfo.getGridX(), regionInfo.getGridY());
+
+
+            //  DB에 저장 또는 업데이트
+            if (dbWeather == null) { // 데이터가 아예 없었으면 INSERT
+                weatherMapper.insertWeather(apiWeather);
+                log.info("새 날씨 정보를 DB에 저장했습니다: {}", regionInfo.getLocataddNm());
+            } else { // 불완전한 데이터가 있었으면 UPDATE
+                apiWeather.setId(dbWeather.getId()); // 기존 id 설정
+                weatherMapper.updateWeather(apiWeather);
+                log.info("기존 날씨 정보를 DB에서 업데이트했습니다: {}", regionInfo.getLocataddNm());
+            }
+            return apiWeather;
+        }
+
 }

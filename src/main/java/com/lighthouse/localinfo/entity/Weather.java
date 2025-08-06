@@ -5,12 +5,13 @@ import java.time.LocalDateTime;
 
 @Data
 public class Weather {
-    private Long id;
+    private Long id;  // 롬복으로 getter/setter 자동 생성
+
     private String sidoCd;
     private String sggCd;
     private String region;
-    private int gridX;
-    private int gridY;
+    private Integer gridX;
+    private Integer gridY;
     private String skyCondition;
     private Integer temperature;
     private Integer maxTemperature;
@@ -19,6 +20,4 @@ public class Weather {
     private String baseTime;
     private String fcstDate;
     private String fcstTime;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
