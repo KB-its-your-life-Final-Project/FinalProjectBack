@@ -20,7 +20,7 @@
                 WHEN sido_cd = '42' THEN '강원'
                 WHEN sido_cd = '43' THEN '충북'
                 WHEN sido_cd = '44' THEN '충남'
-                WHEN sido_cd = '45' THEN '전북'
+                WHEN sido_cd = '52' THEN '전북'
                 WHEN sido_cd = '46' THEN '전남'
                 WHEN sido_cd = '47' THEN '경북'
                 WHEN sido_cd = '48' THEN '경남'
@@ -49,11 +49,11 @@
                     CASE 
                         WHEN locatadd_nm LIKE '%구%' THEN 
                             CONCAT(
-                                SUBSTRING_INDEX(SUBSTRING(locatadd_nm, 4), ' ', 1),
+                                SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1),
                                 ' ',
-                                SUBSTRING_INDEX(SUBSTRING(locatadd_nm, 4), ' ', 2)
+                                SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 3), ' ', -1)
                             )
-                        ELSE SUBSTRING_INDEX(SUBSTRING(locatadd_nm, 4), ' ', 1)
+                        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1)
                     END
                 WHEN sido_cd = '43' THEN 
                     CASE 
@@ -97,8 +97,18 @@
                     END
                 WHEN sido_cd = '42' THEN SUBSTRING_INDEX(locatadd_nm, ' ', -1)
                 WHEN sido_cd = '45' THEN SUBSTRING_INDEX(locatadd_nm, ' ', -1)
-                WHEN sido_cd = '46' THEN SUBSTRING_INDEX(locatadd_nm, ' ', -1)
-                WHEN sido_cd = '50' THEN SUBSTRING_INDEX(locatadd_nm, ' ', -1)
+                WHEN sido_cd = '46' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1)
+                WHEN sido_cd = '50' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1)
+                WHEN sido_cd = '52' THEN 
+                    CASE 
+                        WHEN locatadd_nm LIKE '%구%' THEN 
+                            CONCAT(
+                                SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1),
+                                ' ',
+                                SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 3), ' ', -1)
+                            )
+                        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(locatadd_nm, ' ', 2), ' ', -1)
+                    END
                 ELSE locatadd_nm
             END as sggNm,
             #{sidoCd} as sidoCd
@@ -115,11 +125,15 @@
         ORDER BY umd_cd
     </select>
     
-    <!-- 건물명 목록 조회 (지역코드와 읍면동명으로) -->
-    <select id="selectBuildingNamesByRegionCodeAndDongName" parameterType="String" resultType="String">
-        SELECT DISTINCT building_name
+    <!-- 건물 정보 목록 조회 (지역코드와 읍면동명으로) -->
+    <select id="selectBuildingNamesByRegionCodeAndDongName" parameterType="String" resultType="com.lighthouse.lawdCode.dto.BuildingInfoDto">
+        SELECT DISTINCT 
+            building_name as buildingName,
+            latitude,
+            longitude,
+            jibun_addr as jibunAddr
         FROM estate_api_integration_tbl
-        WHERE sgg_cd = CAST(#{regionCode} AS UNSIGNED) AND building_name = #{dongName}
+        WHERE sgg_cd = #{regionCode} AND umd_nm = #{dongName}
         ORDER BY building_name
     </select>
 </mapper>

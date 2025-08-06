@@ -53,20 +53,20 @@ public class SelectAddressService {
         }
     }
     
-    // 건물명 목록 조회 (지역코드와 읍면동명으로)
+    // 건물 정보 목록 조회 (지역코드와 읍면동명으로)
     public BuildingResponseDto getBuildingList(String regionCode, String dongName) {
         try {
-            log.info("건물명 목록 조회 시작 - regionCode: {}, dongName: {}", regionCode, dongName);
-            List<String> buildingNames = addressMapper.selectBuildingNamesByRegionCodeAndDongName(regionCode, dongName);
-            log.info("건물명 목록 조회 완료: {}개", buildingNames != null ? buildingNames.size() : 0);
+            log.info("건물 정보 목록 조회 시작 - regionCode: {}, dongName: {}", regionCode, dongName);
+            List<BuildingInfoDto> buildingInfos = addressMapper.selectBuildingNamesByRegionCodeAndDongName(regionCode, dongName);
+            log.info("건물 정보 목록 조회 완료: {}개", buildingInfos != null ? buildingInfos.size() : 0);
             
             return BuildingResponseDto.builder()
                     .regionCode(regionCode)
                     .dongName(dongName)
-                    .buildingNames(buildingNames)
+                    .buildingInfos(buildingInfos)
                     .build();
         } catch (Exception e) {
-            log.error("건물명 목록 조회 중 에러 발생 - regionCode: {}, dongName: {}", regionCode, dongName, e);
+            log.error("건물 정보 목록 조회 중 에러 발생 - regionCode: {}, dongName: {}", regionCode, dongName, e);
             throw e;
         }
     }

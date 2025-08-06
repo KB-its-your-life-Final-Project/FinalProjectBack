@@ -21,6 +21,6 @@ public class BuildingResponseDto {
     @ApiModelProperty(value = "읍면동 이름", example = "목동", notes = "검색한 읍면동 이름")
     private String dongName; // 읍면동 이름
     
-    @ApiModelProperty(value = "건물명 목록", example = "[\"목동아파트\", \"목동빌라\"]", notes = "해당 지역의 건물명 리스트")
-    private List<String> buildingNames; // 건물명 목록
+    @ApiModelProperty(value = "건물 정보 목록", example = "[{\"buildingName\": \"목동아파트\", \"latitude\": 37.5665, \"longitude\": 126.9780}]", notes = "해당 지역의 건물 정보 리스트")
+    private List<BuildingInfoDto> buildingInfos; // 건물 정보 목록
 } 
