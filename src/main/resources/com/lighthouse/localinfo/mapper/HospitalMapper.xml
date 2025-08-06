@@ -4,15 +4,12 @@
 
     <select id="findHospitalDetailsByRegionCd" resultType="com.lighthouse.localinfo.dto.HospitalDTO">
         SELECT
-            region_cd AS regionCd,
+            SUBSTRING(#{regionCd}, 1, 5) AS regionCd,
             COUNT(*) AS totalCount
         FROM
             csv_hospital_tbl
         WHERE
-            region_cd = #{regionCd}
-        GROUP BY
-            region_cd
-            LIMIT 1
+            SUBSTRING(region_cd, 1, 5) = SUBSTRING(#{regionCd}, 1, 5)
     </select>
 
 </mapper>
