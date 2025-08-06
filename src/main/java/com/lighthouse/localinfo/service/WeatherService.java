@@ -89,7 +89,7 @@ public class WeatherService {
         }
     }
 
-    @Scheduled(cron = "0 19 5/3 * * ?")
+    @Scheduled(cron = "0 0 5/3 * * ?")
     public void scheduleSeoulWeatherUpdate() {
         log.info("서울 지역 날씨 업데이트를 위한 스케줄링 작업 시작 (ID: 254~278)");
 
