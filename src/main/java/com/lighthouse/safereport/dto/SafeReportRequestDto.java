@@ -16,7 +16,7 @@ public class SafeReportRequestDto {
     @ApiModelProperty(value = "지번 주소", example = "서울특별시 강남구 역삼동 123-45")
     private String jibunAddress;
     
-    @ApiModelProperty(value = "동명", example = "문동동동")
+    @ApiModelProperty(value = "동명", example = "문동동")
     private String dongName;
     
     @ApiModelProperty(value = "위도", example = "37.5665")

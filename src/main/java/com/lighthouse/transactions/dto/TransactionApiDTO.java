@@ -1,5 +1,6 @@
 package com.lighthouse.transactions.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Getter;
@@ -11,8 +12,11 @@ import java.util.List;
  */
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionApiDTO<T> {
+    @JacksonXmlProperty(localName = "header")
     private Header header;
+    @JacksonXmlProperty(localName = "body")
     private Body<T> body;
 
     @Setter

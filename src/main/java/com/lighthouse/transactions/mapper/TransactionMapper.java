@@ -50,7 +50,7 @@ public interface TransactionMapper {
 
     Integer findIdByUniqueCombination(Map<String, Object> params);
 
-    void insertEstateApiIntegrationBatch(@Param("list") List<EstateApiIntegration> integrationList);
+    Integer insertEstateApiIntegrationBatch(@Param("list") List<EstateApiIntegration> integrationList);
 
-    void insertEstateApiIntegrationSalesBatch(@Param("list") List<EstateApiIntegrationSales> integrationSalesList);
+    Integer insertEstateApiIntegrationSalesBatch(@Param("list") List<EstateApiIntegrationSales> integrationSalesList);
 }
