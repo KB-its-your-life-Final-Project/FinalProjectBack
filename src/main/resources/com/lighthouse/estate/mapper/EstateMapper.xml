@@ -71,14 +71,13 @@
             *
         FROM
             ${ESTATE_API_INTEGRATION_SALES_TBL}
-        WHERE
+        WHERE 1=1
             <if test="id != null">
                 AND `id` = #{id}
             </if>
             <if test="estateId != null">
                 AND `estate_id` = #{estateId}
             </if>
-            `estate_id` = #{estateId}
             <if test="dealYear != null">
                 AND `deal_year` = #{dealYear}
             </if>
