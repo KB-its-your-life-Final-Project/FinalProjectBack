@@ -24,16 +24,14 @@ public class SearchHistoryController {
     private final SearchHistoryService service;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Void>> saveSearchHistory(@RequestBody SearchHistoryRequestDTO dto, @RequestHeader("Authorization") String authHeader){
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<Void>> saveSearchHistory(@RequestBody SearchHistoryRequestDTO dto, @CookieValue("accessToken") String token){
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         service.saveSearchHistory(memberId, dto.getKeyword());
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SEARCH_HISTORY_SAVE_SUCCESS));
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<SearchHistoryResponseDTO>>> getSearchHistory(@RequestHeader("Authorization") String authHeader){
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<List<SearchHistoryResponseDTO>>> getSearchHistory(@CookieValue("accessToken") String token){
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         List<SearchHistoryResponseDTO> result = service.findSearchHistoryByMemberId(memberId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.SEARCH_HISTORY_SAVE_SUCCESS, result));
