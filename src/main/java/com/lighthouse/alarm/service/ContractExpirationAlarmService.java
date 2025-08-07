@@ -5,7 +5,6 @@ import com.lighthouse.alarm.entity.Alarms;
 import com.lighthouse.alarm.mapper.AlarmMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +24,8 @@ public class ContractExpirationAlarmService {
     private static final int ALARM_TYPE_7_DAYS = 2;
 
     /**
-     * 매일 자정에 실행되어 계약 만료 30일 전 알림을 발송
+     * 계약 만료 30일 전 알림을 발송
      */
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정
     @Transactional
     public void sendContractExpiration30DaysAlarm() {
         log.info("계약 만료 30일 전 알림 발송 시작");
@@ -46,9 +44,8 @@ public class ContractExpirationAlarmService {
     }
 
     /**
-     * 매일 자정에 실행되어 계약 만료 7일 전 알림을 발송
+     * 계약 만료 7일 전 알림을 발송
      */
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정
     @Transactional
     public void sendContractExpiration7DaysAlarm() {
         log.info("계약 만료 7일 전 알림 발송 시작");
@@ -86,7 +83,7 @@ public class ContractExpirationAlarmService {
             
             // 알림 저장
             Alarms alarm = Alarms.builder()
-                .userId(target.getUserId())
+                .memberId(target.getUserId())
                 .type(alarmType)
                 .text(alarmMessage)
                 .time(LocalDateTime.now())

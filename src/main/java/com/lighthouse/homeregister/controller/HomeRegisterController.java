@@ -6,7 +6,6 @@ import com.lighthouse.homeregister.entity.HomeRegister;
 import com.lighthouse.homeregister.service.HomeRegisterService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
-import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.util.JwtUtil;
 import com.lighthouse.response.ErrorCode;
 import io.swagger.annotations.Api;
@@ -16,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping("/api/myhome")
 @RequiredArgsConstructor
@@ -26,19 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 public class HomeRegisterController {
 
     private final HomeRegisterService homeRegisterService;
-    private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/info")
     @ApiOperation(value = "나의 집 정보 조회", notes = "사용자의 집 정보를 조회합니다.")
-    public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> getHomeInfo(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> getHomeInfo(@CookieValue("accessToken") String token) {
         try {
-            Integer userId = getUserId(request);
-            
-            if (userId == null) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED_USER));
-            }
+            Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
             
             HomeRegister homeInfo = homeRegisterService.getHomeInfo(userId);
             
@@ -73,18 +64,13 @@ public class HomeRegisterController {
     @ApiOperation(value = "나의 집 정보 등록", notes = "사용자의 집 정보를 등록합니다.")
     public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> registerHome(
             @RequestBody HomeRegisterRequestDTO requestDTO,
-            HttpServletRequest request) {
+            @CookieValue("accessToken") String token) {
         
         try {
-            // 사용자 ID 추출출
-            Integer userId = getUserId(request);
+            // 사용자 ID 추출
+            Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
             
-            if (userId == null) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED_USER));
-            }
-            
-            HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, request);
+            HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, null);
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
             
         } catch (RuntimeException e) {
@@ -99,32 +85,6 @@ public class HomeRegisterController {
             log.error("집 정보 등록 중 예상치 못한 오류 발생", e);
             return ResponseEntity.internalServerError()
                 .body(ApiResponse.error(ErrorCode.HOME_REGISTER_FAIL));
-        }
-    }
-    
-    private Integer getUserId(HttpServletRequest request) {
-        try {
-            // 1. 쿠키에서 accessToken 추출
-            String accessToken = jwtCookieUtil.getAccessTokenFromRequest(request);
-            if (accessToken == null) {
-                // 2. accessToken이 없으면 refreshToken으로 재시도
-                String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(request);
-                if (refreshToken == null) {
-                    log.info("JWT 토큰이 없습니다.");
-                    return null;
-                }
-                // refreshToken에서 사용자 ID 추출
-                String subject = jwtUtil.getSubjectFromToken(refreshToken);
-                return Integer.valueOf(subject);
-            }
-            
-            // 3. accessToken에서 사용자 ID 추출
-            String subject = jwtUtil.getSubjectFromToken(accessToken);
-            return Integer.valueOf(subject);
-            
-        } catch (Exception e) {
-            log.warn("JWT 토큰에서 사용자 ID 추출 실패: {}", e.getMessage());
-            return null;
         }
     }
 }

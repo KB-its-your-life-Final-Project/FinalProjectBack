@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class ContractExpirationAlarmDto {
-    private Integer userId;
+    private Integer memberId;
     private String buildingName;
     private String buildingNumber;
     private LocalDate contractEnd;

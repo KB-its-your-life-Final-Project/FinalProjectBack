@@ -1,126 +1,198 @@
-# 계약 만료 알림 시스템 구현
+# 알림 시스템 (Polling 방식)
 
 ## 개요
-`myhome_tbl`의 계약 기간(`contract_end`)을 기준으로 계약 만료 30일 전과 7일 전에 자동으로 알림을 발송하는 시스템을 구현했습니다.
 
-## 구현된 기능
+이 프로젝트는 서버에서 주기적으로 알림을 생성하고, 프론트엔드에서 polling 방식으로 알림을 조회하는 시스템입니다. 사용자가 등록한 집의 계약 만료일과 관심 지역의 시세 변화에 대한 알림을 자동으로 생성합니다.
 
-### 1. 자동 알림 발송
-- **30일 전 알림**: 계약 만료 30일 전에 자동 발송
-- **7일 전 알림**: 계약 만료 7일 전에 자동 발송
-- **스케줄링**: 매일 자정에 실행 (`@Scheduled(cron = "0 0 0 * * ?")`)
-- **중복 방지**: 같은 날 같은 타입의 알림은 중복 발송되지 않음
+## 주요 기능
 
-### 2. 알림 관리 기능
-- **알림 목록 조회**: 사용자별 알림 목록 조회
-- **알림 확인 처리**: 알림 읽음 처리
-- **미확인 알림 개수**: 미확인 알림 개수 조회
+### 1. 자동 알림 생성
+- **계약 만료 알림**: 30일 전, 7일 전, 1일 전
+- **시세 변화 알림**: 관심 지역의 시세 변화 시
+- **스케줄링**: 매일 정해진 시간에 자동 실행
 
-### 3. 테스트 기능
-- **수동 알림 발송**: 테스트를 위한 수동 알림 발송 API
+### 2. 알림 관리
+- 알림 설정 (활성화/비활성화)
+- 알림 읽음 처리
+- 알림 목록 조회
+- 미확인 알림 개수 조회
 
-## 파일 구조
+### 3. 로그인 시 알림 체크
+- 사용자가 로그인할 때마다 해당 사용자의 알림 조건 체크
+- 계약 만료 알림: 30일 전, 7일 전, 1일 전
+- 시세 변화 알림: 관심 지역의 시세 변화율 5% 이상
 
-### Entity
-- `Alarms.java`: 알림 엔티티
+## 기술 스택
 
-### DTO
-- `ContractExpirationAlarmDto.java`: 계약 만료 알림 DTO
-- `AlarmResponseDto.java`: 알림 응답 DTO
+- **Backend**: Spring Framework 5.3.38, MyBatis
+- **스케줄링**: Spring @Scheduled
+- **데이터베이스**: MySQL 8.4.0
 
-### Mapper
-- `AlarmMapper.java`: 알림 데이터베이스 접근 인터페이스
-- `AlarmMapper.xml`: SQL 쿼리 정의
+## 아키텍처
 
-### Service
-- `ContractExpirationAlarmService.java`: 계약 만료 알림 처리 서비스
-- `AlarmService.java`: 일반 알림 관리 서비스
+```
+사용자 로그인 → 알림 조건 체크 → 알림 생성 → 데이터베이스 저장
+    ↓
+프론트엔드 (Polling) → API 호출 → 사용자별 알림 조회
+```
 
-### Controller
-- `AlarmController.java`: 알림 API 컨트롤러
+### 컴포넌트 구조
 
-### Config
-- `SchedulingConfig.java`: 스케줄링 활성화 설정
+1. **AlarmSchedulerService**: 로그인 시 알림 체크 서비스
+2. **AlarmService**: 알림 생성 및 관리 (로그인 시 알림 조건 체크 포함)
+3. **AlarmController**: REST API 엔드포인트
+4. **AlarmMapper**: 데이터베이스 접근
+5. **MemberController**: 로그인 시 알림 체크 호출
 
 ## API 엔드포인트
 
-### 1. 알림 목록 조회
-```
-GET /api/alarms
-```
+### 알림 관리
+- `GET /api/alarm/list`: 알림 목록 조회
+- `GET /api/alarm/count`: 미확인 알림 개수 조회
+- `PUT /api/alarm/settings`: 알림 설정 변경
+- `PUT /api/alarm/{alarmId}/read`: 알림 읽음 처리
 
-### 2. 알림 확인 처리
-```
-PUT /api/alarms/{alarmId}/check
-```
+## 데이터베이스 스키마
 
-### 3. 미확인 알림 개수 조회
-```
-GET /api/alarms/unchecked-count
-```
-
-### 4. 테스트 알림 발송
-```
-POST /api/alarms/test/contract-expiration
-?userId=1&buildingName=테스트빌딩&contractEnd=2024-12-31&daysUntilExpiration=30
-```
-
-## 데이터베이스
-
-### alarms_tbl 테이블
+### alarms_tbl (알림 테이블)
 ```sql
 CREATE TABLE alarms_tbl (
     alarm_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    type INT NOT NULL COMMENT '1: 계약만료 30일전, 2: 계약만료 7일전',
+    type INT NOT NULL COMMENT '1: 계약만료, 2: 시세변화',
     text TEXT NOT NULL COMMENT '알림 내용',
     time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_checked INT NOT NULL DEFAULT 0 COMMENT '0: 미확인, 1: 확인'
 );
 ```
 
-## 알림 메시지 형식
+### alarm_settings_tbl (알림 설정 테이블)
+```sql
+CREATE TABLE alarm_settings_tbl (
+    setting_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    alarm_type INT NOT NULL COMMENT '1: 계약만료, 2: 시세변화',
+    get_alarm INT NOT NULL DEFAULT 1 COMMENT '0: 비활성화, 1: 활성화'
+);
 ```
-[계약 만료 알림] {건물명} {동호수}에 거주 중인 {건물명}의 계약이 {30일/7일} 전 만료됩니다. (2024-12-31)
-```
 
-## 설정 사항
-
-### 1. 스케줄링 활성화
-`@EnableScheduling` 어노테이션으로 스케줄링 기능을 활성화했습니다.
-
-### 2. 알림 타입
-- `type = 1`: 계약 만료 30일 전
-- `type = 2`: 계약 만료 7일 전
-
-### 3. 확인 상태
-- `is_checked = 0`: 미확인
-- `is_checked = 1`: 확인
-
-## 사용 방법
+## 설치 및 설정
 
 ### 1. 데이터베이스 설정
 ```sql
--- alarms_tbl 테이블 생성
+-- 알림 테이블 생성
 source alarms_tbl.sql;
+
+-- 알림 설정 테이블 생성
+source alarm_settings_tbl.sql;
 ```
 
-### 2. 애플리케이션 실행
-- Spring Boot 애플리케이션을 실행하면 자동으로 스케줄링이 시작됩니다.
-- 매일 자정에 계약 만료 알림이 자동으로 발송됩니다.
+### 2. 스케줄링 활성화
+`SchedulingConfig.java`에서 `@EnableScheduling` 어노테이션이 활성화되어 있는지 확인
 
-### 3. 테스트
-```bash
-# 테스트 알림 발송
-curl -X POST "http://localhost:8080/api/alarms/test/contract-expiration?userId=1&buildingName=테스트빌딩&contractEnd=2024-12-31&daysUntilExpiration=30"
+## 사용법
+
+### 1. 프론트엔드에서 알림 조회
+```javascript
+// 주기적으로 알림 개수 확인 (30초마다)
+setInterval(async () => {
+    try {
+        const response = await fetch('/api/alarm/count', {
+            credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (data.success && data.data > 0) {
+            // 새로운 알림이 있으면 알림 표시
+            showNotification(data.data);
+        }
+    } catch (error) {
+        console.error('알림 개수 조회 실패:', error);
+    }
+}, 30000);
+
+// 알림 목록 조회
+async function getAlarmList() {
+    const response = await fetch('/api/alarm/list', {
+        credentials: 'include'
+    });
+    const data = await response.json();
+    return data.data;
+}
 ```
 
-## 주의사항
+### 2. 알림 읽음 처리
+```javascript
+async function markAsRead(alarmId) {
+    await fetch(`/api/alarm/${alarmId}/read`, {
+        method: 'PUT',
+        credentials: 'include'
+    });
+}
+```
 
-1. **JWT 토큰 처리**: 현재 `getUserId()` 메서드는 하드코딩되어 있습니다. 실제 JWT 토큰에서 사용자 ID를 추출하는 로직으로 교체해야 합니다.
+## 로그인 시 알림 체크 설정
 
-2. **에러 처리**: 각 단계별로 적절한 에러 처리가 되어 있습니다.
+### 계약 만료 알림
+- **시점**: 사용자 로그인 시
+- **조건**: 해당 사용자의 계약 종료일이 30일, 7일, 1일 전인 매물
+- **쿼리**: `myhome_tbl`에서 `member_id`와 `contract_end` 기준
+- **중복 방지**: 같은 날 같은 타입의 알림은 중복 발송되지 않음
 
-3. **로깅**: 모든 주요 작업에 대한 로깅이 추가되어 있습니다.
+### 시세 변화 알림
+- **시점**: 사용자 로그인 시
+- **조건**: 해당 사용자의 관심 지역의 시세 변화율이 5% 이상
+- **쿼리**: `wishlist_tbl`과 `transactions_tbl` 조인 (사용자별 필터링)
 
-4. **트랜잭션**: 데이터베이스 작업에 `@Transactional` 어노테이션이 적용되어 있습니다. 
+## 알림 타입
+
+1. **계약 만료 알림 (type=1)**
+   - 30일 전: "등록하신 매물 'OOO'의 계약이 30일 후 만료됩니다."
+   - 7일 전: "등록하신 매물 'OOO'의 계약이 7일 후 만료됩니다."
+   - 1일 전: "등록하신 매물 'OOO'의 계약이 1일 후 만료됩니다."
+
+2. **시세 변화 알림 (type=2)**
+   - "관심 지역 'OOO'의 시세가 변화율: 5.2%"
+
+## 모니터링 및 로깅
+
+### 로그 레벨
+- **INFO**: 스케줄러 실행, 알림 생성 성공
+- **WARN**: 알림 생성 실패, 데이터 없음
+- **ERROR**: 스케줄러 오류, 데이터베이스 오류
+
+### 모니터링 지표
+- 스케줄러 실행 상태
+- 알림 생성 성공/실패율
+- 데이터베이스 연결 상태
+
+## 트러블슈팅
+
+### 일반적인 문제
+
+1. **알림이 생성되지 않음**
+   - 스케줄러 실행 상태 확인
+   - 데이터베이스 연결 확인
+   - 관련 테이블 데이터 존재 여부 확인
+
+2. **스케줄러가 실행되지 않음**
+   - `@EnableScheduling` 어노테이션 확인
+   - 애플리케이션 로그에서 스케줄러 실행 로그 확인
+
+3. **알림 설정이 적용되지 않음**
+   - `alarm_settings_tbl` 테이블 데이터 확인
+   - 사용자별 알림 설정 데이터 존재 여부 확인
+
+## 성능 최적화
+
+1. **인덱싱**: 자주 조회되는 컬럼에 인덱스 추가
+2. **배치 처리**: 대량 알림 생성 시 배치 처리
+3. **캐싱**: 자주 조회되는 데이터 캐싱
+4. **쿼리 최적화**: 복잡한 조인 쿼리 최적화
+
+## 확장 가능성
+
+1. **다중 채널 지원**: 이메일, SMS, 푸시 알림 추가
+2. **알림 템플릿**: 다양한 알림 템플릿 지원
+3. **실시간 통신**: WebSocket이나 SSE로 실시간 알림 전송
+4. **알림 우선순위**: 중요도에 따른 알림 우선순위 설정 

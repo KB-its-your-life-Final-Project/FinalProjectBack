@@ -8,7 +8,6 @@ import com.lighthouse.safereport.dto.SafeReportResponseDto;
 import com.lighthouse.safereport.dto.RecentSafeReportResponseDto;
 import com.lighthouse.safereport.service.SafeReportService;
 import com.lighthouse.safereport.service.RecentSafeReportService;
-import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -28,7 +26,6 @@ import java.util.List;
 public class SafeReportController {
     private final SafeReportService safeReportService;
     private final RecentSafeReportService recentSafeReportService;
-    private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
     
     // 사용자로부터 건물, 예산 전달 받아 안심레포트 생성 + 제공
@@ -41,7 +38,7 @@ public class SafeReportController {
     public ResponseEntity<ApiResponse<SafeReportResponseDto>> generateSafeReport(
         @ApiParam(value = "안심 레포트 요청 데이터", required = true) 
         @RequestBody SafeReportRequestDto dto,
-        HttpServletRequest request
+        @CookieValue("accessToken") String token
     ){
         // 안심레포트 데이터 생성
         SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(dto);
@@ -54,8 +51,8 @@ public class SafeReportController {
         
         // 최근 본 안심레포트에 저장
         try {
-            Integer userId = getUserId(request);
-            if (userId != null && safeReportService.shouldSaveToRecentReports(responseDto)) {
+            Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
+            if (safeReportService.shouldSaveToRecentReports(responseDto)) {
                 recentSafeReportService.saveRecentSafeReport(userId, dto);
             }
         } catch (Exception e) {
@@ -74,13 +71,9 @@ public class SafeReportController {
         notes = "사용자가 최근에 본 안심레포트 목록을 조회합니다."
     )
     public ResponseEntity<ApiResponse<List<RecentSafeReportResponseDto>>> getRecentReports(
-        HttpServletRequest request
+        @CookieValue("accessToken") String token
     ){
-        Integer userId = getUserId(request);
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-        }
+        Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
         
         List<RecentSafeReportResponseDto> recentReports = recentSafeReportService.getRecentReports(userId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_LIST_SUCCESS, recentReports));
@@ -94,13 +87,9 @@ public class SafeReportController {
     )
     public ResponseEntity<ApiResponse<SafeReportResponseDto>> getRecentReportDetail(
         @PathVariable Integer id,
-        HttpServletRequest request
+        @CookieValue("accessToken") String token
     ){
-        Integer userId = getUserId(request);
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-        }
+        Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
         
         SafeReportResponseDto report = recentSafeReportService.getRecentReportDetail(id, userId);
         
@@ -120,43 +109,12 @@ public class SafeReportController {
     )
     public ResponseEntity<ApiResponse<Void>> deleteRecentReport(
         @PathVariable Integer id,
-        HttpServletRequest request
+        @CookieValue("accessToken") String token
     ){
-        Integer userId = getUserId(request);
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-        }
+        Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
         
         recentSafeReportService.deleteRecentReport(id, userId);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DELETE_SUCCESS, null));
-    }
-    
-    // 사용자 ID 추출 메서드 (JWT 토큰에서)
-    private Integer getUserId(HttpServletRequest request) {
-        try {
-            // 1. 쿠키에서 accessToken 추출
-            String accessToken = jwtCookieUtil.getAccessTokenFromRequest(request);
-            if (accessToken == null) {
-                // 2. accessToken이 없으면 refreshToken으로 재시도
-                String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(request);
-                if (refreshToken == null) {
-                    log.info("JWT 토큰이 없습니다.");
-                    return null;
-                }
-                // refreshToken에서 사용자 ID 추출
-                String subject = jwtUtil.getSubjectFromToken(refreshToken);
-                return Integer.valueOf(subject);
-            }
-            
-            // 3. accessToken에서 사용자 ID 추출
-            String subject = jwtUtil.getSubjectFromToken(accessToken);
-            return Integer.valueOf(subject);
-            
-        } catch (Exception e) {
-            log.warn("JWT 토큰에서 사용자 ID 추출 실패: {}", e.getMessage());
-            return null;
-        }
     }
 }
 
