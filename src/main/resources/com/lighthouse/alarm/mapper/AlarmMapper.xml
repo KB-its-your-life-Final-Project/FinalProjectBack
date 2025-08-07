@@ -34,6 +34,21 @@
         AND is_checked = 0
         ORDER BY reg_date DESC
     </select>
+    
+    <!-- 모든 알림 조회 (디버깅용) -->
+    <select id="getAllAlarmsByMember" resultType="com.lighthouse.alarm.dto.AlarmResponseDto">
+        SELECT 
+            id,
+            member_id as memberId,
+            type,
+            text,
+            DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as regDate,
+            is_checked as isChecked,
+            get_alarm as getAlarm
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        ORDER BY reg_date DESC
+    </select>
 
     <!-- 알림 읽음 처리 (is_checked를 1로 변경) -->
     <update id="setAlarmRead" parameterType="map">
@@ -86,11 +101,22 @@
     <update id="updateAlarmText" parameterType="map">
         UPDATE alarm_tbl
         SET text = #{text},
-            reg_date = NOW()
+            reg_date = NOW(),
+            is_checked = 0
         WHERE member_id = #{memberId}
         AND type = #{type}
-        AND is_checked = 0
+        ORDER BY is_checked ASC, reg_date DESC
         LIMIT 1
+    </update>
+    
+    <!-- 동일한 사용자의 동일한 유형 모든 알림 업데이트 (집 정보 수정 시) -->
+    <update id="updateAllAlarmsByMemberAndType" parameterType="map">
+        UPDATE alarm_tbl
+        SET text = #{text},
+            reg_date = NOW(),
+            is_checked = 0
+        WHERE member_id = #{memberId}
+        AND type = #{type}
     </update>
     
     <!-- 동일한 사용자의 동일한 유형 알림 존재 여부 확인 -->
@@ -99,6 +125,5 @@
         FROM alarm_tbl
         WHERE member_id = #{memberId}
         AND type = #{type}
-        AND is_checked = 0
     </select>
 </mapper>

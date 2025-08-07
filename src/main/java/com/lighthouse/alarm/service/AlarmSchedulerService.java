@@ -16,4 +16,10 @@ public class AlarmSchedulerService {
         log.info("사용자 {} 로그인 시 알림 체크 시작", memberId);
         alarmService.checkUserAlarmsOnLogin(memberId, regIp);
     }
+    
+    // 집 정보 수정 시 사용자의 알림 조건 체크 (homeRegisterController에서 호출)
+    public void checkUserAlarmsOnHomeUpdate(Integer memberId, String regIp) {
+        log.info("사용자 {} 집 정보 수정 시 알림 체크 시작", memberId);
+        alarmService.checkUserAlarmsOnHomeUpdate(memberId, regIp);
+    }
 } 

@@ -80,9 +80,17 @@ public class AlarmService {
                 log.info("집 정보 수정 시 기존 알림 존재 여부: memberId={}, type={}, exists={}", memberId, type, exists);
                 
                 if (exists) {
-                    // 기존 알림 업데이트
-                    int updatedRows = alarmMapper.updateAlarmText(memberId, type, text);
-                    log.info("집 정보 수정 기존 알림 업데이트 완료: memberId={}, type={}, updatedRows={}", memberId, type, updatedRows);
+                    // 기존 알림 업데이트 (집 정보 수정 시에는 모든 같은 타입 알림 업데이트)
+                    log.info("업데이트 전 알림 상태 확인: memberId={}, type={}", memberId, type);
+                    List<AlarmResponseDto> beforeAlarms = alarmMapper.getAllAlarmsByMember(memberId);
+                    log.info("업데이트 전 모든 알림 목록: {}", beforeAlarms);
+                    
+                    int updatedRows = alarmMapper.updateAllAlarmsByMemberAndType(memberId, type, text);
+                    log.info("집 정보 수정 모든 같은 타입 알림 업데이트 완료: memberId={}, type={}, updatedRows={}", memberId, type, updatedRows);
+                    
+                    log.info("업데이트 후 알림 상태 확인: memberId={}, type={}", memberId, type);
+                    List<AlarmResponseDto> afterAlarms = alarmMapper.getAllAlarmsByMember(memberId);
+                    log.info("업데이트 후 모든 알림 목록: {}", afterAlarms);
                 } else {
                     // 기존 알림이 없으면 새로 생성
                     log.info("집 정보 수정 시 기존 알림이 없어서 새로 생성: memberId={}, type={}", memberId, type);
@@ -113,7 +121,7 @@ public class AlarmService {
         }
     }
     
-    // 계약 만료 알림 생성
+    // 계약 만료 알림 생성 (로그인 시)
     public void createContractExpirationNotification(Integer memberId, String propertyAddress, int daysLeft, String regIp) {
         String alarmText;
         
@@ -125,8 +133,31 @@ public class AlarmService {
             alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다.";
         }
         
-        // 집 정보 수정 시 강제 업데이트 (계약 종료일이 같든 다르든 항상 업데이트)
+        // 로그인 시에는 forceUpdate=false로 호출
+        createSmartAlarm(memberId, 3, alarmText, regIp, false);
+    }
+    
+    // 계약 만료 알림 생성 (집 정보 수정 시)
+    public void createContractExpirationNotificationForUpdate(Integer memberId, String propertyAddress, int daysLeft, String regIp) {
+        log.info("=== 집 정보 수정 시 계약 만료 알림 생성 시작 ===");
+        log.info("집 정보 수정 시 계약 만료 알림 생성: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
+        
+        String alarmText;
+        
+        if (daysLeft == 1) {
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 내일 만료됩니다!";
+        } else if (daysLeft <= 7) {
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다. (긴급)";
+        } else {
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다.";
+        }
+        
+        log.info("생성할 알림 텍스트: {}", alarmText);
+        
+        // 집 정보 수정 시에는 forceUpdate=true로 호출
+        log.info("forceUpdate=true로 createSmartAlarm 호출");
         createSmartAlarm(memberId, 3, alarmText, regIp, true);
+        log.info("=== 집 정보 수정 시 계약 만료 알림 생성 완료 ===");
     }
     
     // 시세 변화 알림 생성
@@ -173,6 +204,48 @@ public class AlarmService {
         }
     }
     
+    // 사용자 집 정보 수정 시 알림 조건 체크
+    public void checkUserAlarmsOnHomeUpdate(Integer memberId, String regIp) {
+        try {
+            log.info("=== 집 정보 수정 시 알림 체크 시작 ===");
+            log.info("사용자 {} 집 정보 수정 시 알림 조건 체크 시작", memberId);
+            
+            // 사용자의 집 정보 확인
+            log.info("사용자 {}의 집 정보 확인 중...", memberId);
+            List<Map<String, Object>> userHomes = alarmMapper.getAllUserHomes(memberId);
+            log.info("사용자 {}의 모든 집 정보: {}건", memberId, userHomes.size());
+            
+            if (!userHomes.isEmpty()) {
+                for (Map<String, Object> home : userHomes) {
+                    log.info("집 정보: {}", home);
+                }
+                
+                // 계약 만료 알림 체크 (집이 있는 경우에만) - forceUpdate=true 사용
+                try {
+                    log.info("=== 집 정보 수정 시 계약 만료 알림 체크 시작 ===");
+                    checkUserContractExpirationForUpdate(memberId, regIp);
+                    log.info("=== 집 정보 수정 시 계약 만료 알림 체크 완료 ===");
+                } catch (Exception e) {
+                    log.error("사용자 {}의 계약 만료 알림 체크 중 오류 발생: {}", memberId, e.getMessage(), e);
+                }
+                
+                // 시세 변화 알림 체크 (집이 있는 경우에만)
+                try {
+                    checkUserPriceChanges(memberId, regIp);
+                } catch (Exception e) {
+                    log.warn("사용자 {}의 시세 변화 알림 체크 중 오류 발생 (무시하고 계속 진행): {}", memberId, e.getMessage());
+                }
+            } else {
+                log.info("사용자 {}의 등록된 집이 없어서 알림 체크를 건너뜁니다.", memberId);
+            }
+            
+            log.info("사용자 {} 집 정보 수정 시 알림 조건 체크 완료", memberId);
+            log.info("=== 집 정보 수정 시 알림 체크 완료 ===");
+        } catch (Exception e) {
+            log.error("사용자 {} 집 정보 수정 시 알림 조건 체크 중 예상치 못한 오류 발생: {}", memberId, e.getMessage(), e);
+        }
+    }
+    
     // 사용자 계약 만료 알림 체크
     public void checkUserContractExpiration(Integer memberId, String regIp) {
         log.info("사용자 {}의 계약 만료 알림 체크 시작", memberId);
@@ -184,6 +257,19 @@ public class AlarmService {
         }
         
         log.info("사용자 {}의 계약 만료 알림 체크 완료", memberId);
+    }
+    
+    // 사용자 계약 만료 알림 체크 (집 정보 수정 시)
+    public void checkUserContractExpirationForUpdate(Integer memberId, String regIp) {
+        log.info("사용자 {}의 계약 만료 알림 체크 시작 (집 정보 수정 시)", memberId);
+        
+        // 30일 전부터 1일 전까지 매일 체크
+        for (int daysLeft = 30; daysLeft >= 1; daysLeft--) {
+            log.info("사용자 {}의 {}일 전 만료 계약 체크 시작 (집 정보 수정 시)", memberId, daysLeft);
+            checkUserExpiringContractsForUpdate(memberId, daysLeft, regIp);
+        }
+        
+        log.info("사용자 {}의 계약 만료 알림 체크 완료 (집 정보 수정 시)", memberId);
     }
     
     // 특정 일수 후 만료되는 계약 체크
@@ -201,11 +287,36 @@ public class AlarmService {
             log.info("계약 정보: {}", contract);
             log.info("계약 만료 예정 매물: {}", propertyAddress);
             
-            // 집 정보 수정 시 항상 알림 업데이트 (계약 종료일이 같든 다르든)
-            log.info("집 정보 수정으로 인한 계약 만료 알림 업데이트: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
+            // 로그인 시 알림 생성
+            log.info("로그인 시 계약 만료 알림 생성: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
             createContractExpirationNotification(memberId, propertyAddress, daysLeft, regIp);
-            log.info("사용자 {}의 {}일 전 만료 계약 알림 업데이트 완료: {}건", memberId, daysLeft, 1);
+            log.info("사용자 {}의 {}일 전 만료 계약 알림 생성 완료: {}건", memberId, daysLeft, 1);
         }
+    }
+    
+    // 특정 일수 후 만료되는 계약 체크 (집 정보 수정 시)
+    private void checkUserExpiringContractsForUpdate(Integer memberId, int daysLeft, String regIp) {
+        log.info("=== 집 정보 수정 시 {}일 전 만료 계약 체크 시작 ===", daysLeft);
+        List<Map<String, Object>> expiringContracts = alarmMapper.getExpiringContractsByUser(memberId, daysLeft);
+        log.info("사용자 {}의 {}일 전 만료 계약 조회 결과: {}건", memberId, daysLeft, expiringContracts.size());
+        
+        if (expiringContracts.isEmpty()) {
+            log.info("사용자 {}의 {}일 전 만료 계약이 없습니다.", memberId, daysLeft);
+            log.info("=== 집 정보 수정 시 {}일 전 만료 계약 체크 완료 (계약 없음) ===", daysLeft);
+            return;
+        }
+        
+        for (Map<String, Object> contract : expiringContracts) {
+            String propertyAddress = (String) contract.get("property_address");
+            log.info("계약 정보: {}", contract);
+            log.info("계약 만료 예정 매물: {}", propertyAddress);
+            
+            // 집 정보 수정 시 강제 알림 업데이트 (계약 종료일이 같든 다르든)
+            log.info("집 정보 수정으로 인한 계약 만료 알림 강제 업데이트: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
+            createContractExpirationNotificationForUpdate(memberId, propertyAddress, daysLeft, regIp);
+            log.info("사용자 {}의 {}일 전 만료 계약 알림 강제 업데이트 완료: {}건", memberId, daysLeft, 1);
+        }
+        log.info("=== 집 정보 수정 시 {}일 전 만료 계약 체크 완료 ===", daysLeft);
     }
     
     // 사용자 시세 변화 알림 체크

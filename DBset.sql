@@ -265,4 +265,4 @@ CREATE TABLE myhome_tbl (
 
 SELECT * FROM alarm_tbl;
 ALTER TABLE alarm_tbl MODIFY COLUMN get_alarm INT COMMENT '0:알림 받기 싫음 , 1: 알림 받고 싶음';
-DELETE FROM alarm_tbl WHERE id=2;
+DELETE FROM alarm_tbl WHERE id=4;

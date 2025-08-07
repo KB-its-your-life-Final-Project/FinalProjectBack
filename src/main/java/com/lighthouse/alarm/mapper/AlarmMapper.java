@@ -17,6 +17,9 @@ public interface AlarmMapper {
 
     // 제공 받을 알림 리스트 조회
     List<AlarmResponseDto> getAlarmList(@Param("memberId") Integer memberId);
+    
+    // 모든 알림 조회 (디버깅용)
+    List<AlarmResponseDto> getAllAlarmsByMember(@Param("memberId") Integer memberId);
 
     // 알림 읽음 처리
     void setAlarmRead(@Param("memberId")Integer memberId, @Param("alarmId")Integer alarmId);
@@ -35,6 +38,9 @@ public interface AlarmMapper {
     
     // 동일한 사용자의 동일한 유형 알림 업데이트
     int updateAlarmText(@Param("memberId") Integer memberId, @Param("type") Integer type, @Param("text") String text);
+    
+    // 동일한 사용자의 동일한 유형 모든 알림 업데이트 (집 정보 수정 시)
+    int updateAllAlarmsByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type, @Param("text") String text);
     
     // 동일한 사용자의 동일한 유형 알림 존재 여부 확인
     boolean existsAlarmByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type);

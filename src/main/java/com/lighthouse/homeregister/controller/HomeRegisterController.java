@@ -77,14 +77,14 @@ public class HomeRegisterController {
             
             HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, req);
             
-            // 집 등록 성공 후 알림 체크
+            // 집 등록/수정 성공 후 알림 체크
             try {
                 String regIp = req.getRemoteAddr();
-                alarmSchedulerService.checkUserAlarmsOnLogin(userId, regIp);
-                log.info("집 등록 후 알림 체크 완료: userId={}", userId);
+                alarmSchedulerService.checkUserAlarmsOnHomeUpdate(userId, regIp);
+                log.info("집 등록/수정 후 알림 체크 완료: userId={}, actionType={}", userId, response.getActionType());
             } catch (Exception e) {
-                log.error("집 등록 후 알림 체크 실패: userId={}", userId, e);
-                // 알림 체크 실패는 집 등록 성공에 영향을 주지 않음
+                log.error("집 등록/수정 후 알림 체크 실패: userId={}", userId, e);
+                // 알림 체크 실패는 집 등록/수정 성공에 영향을 주지 않음
             }
             
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
