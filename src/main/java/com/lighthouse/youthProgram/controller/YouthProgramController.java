@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/youthprogram")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
+@CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
 public class YouthProgramController {
     private final YouthProgramService youthProgramService;
     final YouthProgramClient youthProgramClient;

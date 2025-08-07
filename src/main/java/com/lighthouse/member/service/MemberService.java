@@ -3,8 +3,8 @@ package com.lighthouse.member.service;
 import com.lighthouse.member.dto.*;
 import com.lighthouse.member.service.external.*;
 import com.lighthouse.member.util.ClientIpUtil;
-import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.util.ValidateUtil;
+import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
 import com.lighthouse.security.util.JwtCookieUtil;
@@ -23,8 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static com.lighthouse.member.util.ValidateUtil.isEmpty;
 
 @Slf4j
 @Service
@@ -133,12 +131,12 @@ public class MemberService {
 
     // 이메일 유효성 검사
     public boolean isValidEmail(String email) {
-        return !isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
+        return !ValidateUtil.isEmpty(email) && ValidateUtil.isValidEmailFormat(email);
     }
 
     // 비밀번호 유효성 검사
     public boolean isValidPassword(String password) {
-        return !isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
+        return !ValidateUtil.isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
     }
 
     // 비밀번호 검증
@@ -263,12 +261,10 @@ public class MemberService {
             member.setRecentIp(clientIp);
             memberMapper.insertMember(member);
         }
-
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-
         return findMemberByKakaoId(member.getKakaoId());
     }
 
@@ -298,12 +294,10 @@ public class MemberService {
             member.setRecentIp(clientIp);
             memberMapper.insertMember(member);
         }
-
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-
         return findMemberByGoogleId(member.getGoogleId());
     }
 
@@ -320,25 +314,31 @@ public class MemberService {
     }
 
     // 회원 정보 (이름, 비밀번호) 변경
-    public MemberResponseDTO changeMemberInfo(int changeType, String changeInfo, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO changeMemberInfo(int changeType, String changeInfo, MemberResponseDTO memberDto) {
         try {
-            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
-            if (memberDto == null) {
-                return null;
-            }
             Member member = memberMapper.findMemberById(memberDto.getId());
             if (changeType == 1) {
-                if (Objects.equals(changeInfo, member.getName())) {
+                String newName = changeInfo;
+                if (Objects.equals(newName, member.getName())) {
                     log.info("기존 이름과 동일한 이름을 입력했습니다");
                     return null;
                 }
-                member.setName(changeInfo);
+                if (!ValidateUtil.isValidNameFormat(newName)) {
+                    log.info("올바르지 않은 형식의 이름을 입력했습니다");
+                    return null;
+                }
+                member.setName(newName);
             } else if (changeType == 2) {
-                if (passwordEncoder.matches(changeInfo, member.getPwd())) {
+                String newPwd = changeInfo;
+                if (passwordEncoder.matches(newPwd, member.getPwd())) {
                     log.info("기존 비밀번호와 동일한 비밀번호를 입력했습니다");
                     return null;
                 }
-                member.setPwd(passwordEncoder.encode(changeInfo));
+                if (!ValidateUtil.isValidPasswordFormat(newPwd)) {
+                    log.info("올바르지 않은 형식의 비밀번호를 입력했습니다");
+                    return null;
+                }
+                member.setPwd(passwordEncoder.encode(newPwd));
             }
             log.info("정보 변경 후 member: {}", member);
             memberMapper.updateMember(member);
@@ -380,7 +380,7 @@ public class MemberService {
                 throw new Exception("로그인이 필요합니다.");
             }
             Member member = memberMapper.findMemberById(memberDto.getId());
-            if (!isEmpty(member.getProfileImg())) {
+            if (!ValidateUtil.isEmpty(member.getProfileImg())) {
                 fileUploadService.deleteFile(member.getProfileImg());
             }
             member.setProfileImg("");
