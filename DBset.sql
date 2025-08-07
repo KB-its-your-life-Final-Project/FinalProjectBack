@@ -263,13 +263,6 @@ CREATE TABLE myhome_tbl (
                                 PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='아파트 정보 및 계약 정보';
 
-SELECT *
-FROM api_lawd_cd
-WHERE locatadd_nm LIKE '전라북도%';
-
-SELECT * FROM api_lawd_cd WHERE sido_cd=45;
-
-DROP TABLE IF EXISTS sido;
-
-
-ALTER TABLE safe_report_tbl RENAME COLUMN user_id TO member_id;
+SELECT * FROM alarm_tbl;
+ALTER TABLE alarm_tbl MODIFY COLUMN get_alarm INT COMMENT '0:알림 받기 싫음 , 1: 알림 받고 싶음';
+DELETE FROM alarm_tbl WHERE id=2;

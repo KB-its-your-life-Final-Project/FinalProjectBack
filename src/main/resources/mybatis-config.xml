@@ -47,6 +47,8 @@
     </settings>
     <!-- vo 경로 생략을 위해 작성. alias로 각 클래스 별칭 지정가능 -->
     <typeAliases>
+        <package name="com.lighthouse.alarm.entity" />
+        <package name="com.lighthouse.alarm.dto" />
         <package name="com.lighthouse.member.entity" />
         <package name="com.lighthouse.security.entity" />
         <package name="com.lighthouse.transactions.entity" />
