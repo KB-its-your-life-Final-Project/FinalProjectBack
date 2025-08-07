@@ -6,11 +6,11 @@
 
     <!-- 알림 저장 -->
     <insert id="insertAlarm" parameterType="com.lighthouse.alarm.entity.Alarms">
-        INSERT INTO alarms_tbl(user_id,type,text,time,is_checked)
-        VALUES(#{memberId},#{type},#{text},#{time},#{isChecked})
+        INSERT INTO alarm_tbl(member_id,type,text,reg_ip,reg_date,is_checked,get_alarm)
+        VALUES(#{alarm.memberId},#{alarm.type},#{alarm.text},#{alarm.regIp},#{alarm.regDate},#{alarm.isChecked},#{alarm.getAlarm})
     </insert>
 
-    <!-- 알림 설정 변경 -->
+    <!-- 알림 설정 변경 (get_alarm 업데이트) -->
     <update id="updateAlarmSetting" parameterType="map">
         UPDATE alarm_tbl
         SET get_alarm = #{getAlarm}
@@ -18,59 +18,38 @@
         AND type = #{alarmType}
     </update>
 
-    <!-- 제공 받을 알림 리스트 조회 -->
+    <!-- 제공 받을 알림 리스트 조회 (get_alarm=1이고 is_checked=0인 것들) -->
     <select id="getAlarmList" resultType="com.lighthouse.alarm.dto.AlarmResponseDto">
         SELECT 
-            alarm_id,
-            user_id as memberId,
+            id,
+            member_id as memberId,
             type,
             text,
-            time,
-            is_checked as isChecked
-        FROM alarms_tbl
-        WHERE user_id = #{memberId}
+            reg_date as regDate,
+            is_checked as isChecked,
+            get_alarm as getAlarm
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND get_alarm = 1
         AND is_checked = 0
-        ORDER BY time DESC
+        ORDER BY reg_date DESC
     </select>
 
-    <!-- 알림 읽음 처리 -->
-    <update id="setAlarmRead" parameterMap="map">
+    <!-- 알림 읽음 처리 (is_checked를 1로 변경) -->
+    <update id="setAlarmRead" parameterType="map">
         UPDATE alarm_tbl
-        SET is_checked=1
-        WHERE member_id=#{memberId}
-        AND id=#{alarmId}
+        SET is_checked = 1
+        WHERE member_id = #{memberId}
+        AND id = #{alarmId}
     </update>
-    
-    <!-- 만료 예정인 계약 목록 조회 (알림 생성용) -->
-    <select id="getExpiringContracts" resultType="map">
-        SELECT 
-            h.member_id,
-            h.address as property_address
-        FROM home_register_tbl h
-        WHERE h.contract_end_date = DATE_ADD(CURDATE(), INTERVAL #{daysLeft} DAY)
-        AND h.is_active = 1
-    </select>
-    
-    <!-- 관심 지역의 시세 변화 목록 조회 (알림 생성용) -->
-    <select id="getInterestAreaPriceChanges" resultType="map">
-        SELECT 
-            w.member_id,
-            w.area_name,
-            CONCAT('변화율: ', ROUND((t.current_price - t.previous_price) / t.previous_price * 100, 2), '%') as change_info
-        FROM wishlist_tbl w
-        JOIN transactions_tbl t ON w.area_code = t.area_code
-        WHERE t.update_date = CURDATE()
-        AND ABS((t.current_price - t.previous_price) / t.previous_price) > 0.05
-        AND w.is_active = 1
-    </select>
     
     <!-- 특정 사용자의 만료 예정 계약 조회 -->
     <select id="getExpiringContractsByUser" resultType="map">
         SELECT 
-            member_id,
+            user_id as member_id,
             building_name as property_address
         FROM myhome_tbl
-        WHERE member_id = #{memberId}
+        WHERE user_id = #{memberId}
         AND contract_end = DATE_ADD(CURDATE(), INTERVAL #{daysLeft} DAY)
         AND is_delete = 1
     </select>
@@ -89,10 +68,27 @@
         AND w.is_active = 1
     </select>
     
-    <!-- 모든 사용자 목록 조회 (알림 생성 대상) -->
-    <select id="getAllUserIds" resultType="integer">
-        SELECT DISTINCT member_id
-        FROM member_tbl
-        WHERE is_disable = 1
+    <!-- 오늘 이미 생성된 계약 만료 알림이 있는지 체크 -->
+    <select id="checkTodayContractAlarmExists" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND type = 3
+        AND DATE(reg_date) = CURDATE()
+        AND text LIKE CONCAT('%', #{propertyAddress}, '%')
+    </select>
+    
+    <!-- 디버깅용: 사용자의 모든 집 정보 조회 -->
+    <select id="getAllUserHomes" resultType="map">
+        SELECT 
+            user_id,
+            building_name,
+            contract_end,
+            is_delete,
+            CURDATE() as today,
+            DATEDIFF(contract_end, CURDATE()) as days_until_expiry
+        FROM myhome_tbl
+        WHERE user_id = #{memberId}
+        AND is_delete = 1
     </select>
 </mapper>

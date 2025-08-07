@@ -126,9 +126,6 @@ public class MemberController {
         log.info("로그인 POST 요청==========");
         log.info("LoginDTO: {}", loginDto);
         log.info("createType = " + loginDto.getCreatedType());
-        
-        MemberDTO memberDto = null;
-        
         // 이메일 로그인
         if (loginDto.getCreatedType() == 1) {
             String email = loginDto.getEmail();
@@ -140,21 +137,42 @@ public class MemberController {
             boolean isMember = memberService.checkDuplicateEmail(email);
             if (isMember) {
                 try {
-                    memberDto = memberService.loginByEmail(loginDto, req, resp);
+                    MemberDTO memberDto = memberService.loginByEmail(loginDto, req, resp);
                     if (memberDto == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
                     }
+                    
+                    // 로그인 성공 후 알림 체크
+                    try {
+                        String regIp = req.getRemoteAddr();
+                        alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                    } catch (Exception e) {
+                        log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
+                        // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
+                    }
+                    
+                    return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
                 } catch (Exception e) {
                     log.error("이메일 로그인 실패", e);
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_LOGIN_FAIL));
                 }
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             // 카카오 로그인
         } else if (loginDto.getCreatedType() == 2) {
             try {
-                memberDto = memberService.loginOrRegisterByKakaoCode(loginDto, req, resp);
+                MemberDTO memberDto = memberService.loginOrRegisterByKakaoCode(loginDto, req, resp);
+                
+                // 로그인 성공 후 알림 체크 
+                try {
+                    String regIp = req.getRemoteAddr();
+                    alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                } catch (Exception e) {
+                    log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
+                    // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
+                }
+                
+                return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("카카오 회원가입/로그인 실패", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
@@ -162,7 +180,18 @@ public class MemberController {
             // 구글 로그인
         } else if (loginDto.getCreatedType() == 3) {
             try {
-                memberDto = memberService.loginOrRegisterByGoogleCode(loginDto, req, resp);
+                MemberDTO memberDto = memberService.loginOrRegisterByGoogleCode(loginDto, req, resp);
+                
+                // 로그인 성공 후 알림 체크 
+                try {
+                    String regIp = req.getRemoteAddr();
+                    alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                } catch (Exception e) {
+                    log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
+                    // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
+                }
+                
+                return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("구글 회원가입/로그인 실패", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
@@ -170,25 +199,6 @@ public class MemberController {
             // 지원하지 않는 로그인 타입
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_LOGIN_TYPE));
-        }
-        
-        // 로그인 성공 후 알림 체크
-        if (memberDto != null && memberDto.getId() != null) {
-            try {
-                alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId());
-            } catch (Exception e) {
-                log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
-                // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
-            }
-        }
-        
-        // 로그인 성공 응답
-        if (loginDto.getCreatedType() == 1) {
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
-        } else if (loginDto.getCreatedType() == 2) {
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, memberDto));
-        } else {
-            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS, memberDto));
         }
     }
 

@@ -10,6 +10,12 @@ public class ClientIpUtil {
         log.info("ClientIpUtils.getClientIp 실행  ======");
         log.info("받은 request 객체: " + req);
 
+        // null 체크
+        if (req == null) {
+            log.warn("HttpServletRequest가 null입니다. 기본값 'unknown'을 반환합니다.");
+            return "unknown";
+        }
+
         // Proxy / Load Balancer를 통해 전달된 경우
         String ip = req.getHeader("X-Forwarded-For");
         log.info("X-Forwarded-For: {}", ip);

@@ -1,5 +1,6 @@
 package com.lighthouse.homeregister.controller;
 
+import com.lighthouse.alarm.service.AlarmSchedulerService;
 import com.lighthouse.homeregister.dto.HomeRegisterRequestDTO;
 import com.lighthouse.homeregister.dto.HomeRegisterResponseDTO;
 import com.lighthouse.homeregister.entity.HomeRegister;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/myhome")
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class HomeRegisterController {
 
     private final HomeRegisterService homeRegisterService;
     private final JwtUtil jwtUtil;
+    private final AlarmSchedulerService alarmSchedulerService;
 
     @GetMapping("/info")
     @ApiOperation(value = "나의 집 정보 조회", notes = "사용자의 집 정보를 조회합니다.")
@@ -64,13 +68,25 @@ public class HomeRegisterController {
     @ApiOperation(value = "나의 집 정보 등록", notes = "사용자의 집 정보를 등록합니다.")
     public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> registerHome(
             @RequestBody HomeRegisterRequestDTO requestDTO,
-            @CookieValue("accessToken") String token) {
+            @CookieValue("accessToken") String token,
+            HttpServletRequest req) {
         
         try {
             // 사용자 ID 추출
             Integer userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
             
-            HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, null);
+            HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, req);
+            
+            // 집 등록 성공 후 알림 체크 (안전하게 추가)
+            try {
+                String regIp = req.getRemoteAddr();
+                alarmSchedulerService.checkUserAlarmsOnLogin(userId, regIp);
+                log.info("집 등록 후 알림 체크 완료: userId={}", userId);
+            } catch (Exception e) {
+                log.error("집 등록 후 알림 체크 실패: userId={}", userId, e);
+                // 알림 체크 실패는 집 등록 성공에 영향을 주지 않음
+            }
+            
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
             
         } catch (RuntimeException e) {

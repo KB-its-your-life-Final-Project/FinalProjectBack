@@ -262,3 +262,7 @@ CREATE TABLE myhome_tbl (
 
                                 PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='아파트 정보 및 계약 정보';
+
+SELECT * FROM alarm_tbl;
+ALTER TABLE alarm_tbl MODIFY COLUMN get_alarm INT COMMENT '0:알림 받기 싫음 , 1: 알림 받고 싶음';
+DELETE FROM alarm_tbl WHERE id=2;
