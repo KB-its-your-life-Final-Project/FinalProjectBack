@@ -80,11 +80,34 @@ public class HomeRegisterController {
             // 집 등록/수정 성공 후 알림 체크
             try {
                 String regIp = req.getRemoteAddr();
-                alarmSchedulerService.checkUserAlarmsOnHomeUpdate(userId, regIp);
+                alarmSchedulerService.checkAlarmsOnHomeUpdate(userId, regIp);
                 log.info("집 등록/수정 후 알림 체크 완료: userId={}, actionType={}", userId, response.getActionType());
             } catch (Exception e) {
                 log.error("집 등록/수정 후 알림 체크 실패: userId={}", userId, e);
                 // 알림 체크 실패는 집 등록/수정 성공에 영향을 주지 않음
+            }
+            
+            // 집 정보 등록/수정 시 단계별 알림 처리
+            if ("NEW".equals(response.getActionType())) {
+                // 새로 등록하는 경우: 첫 번째 단계별 알림 생성
+                try {
+                    String regIp = req.getRemoteAddr();
+                    alarmSchedulerService.createInitialHouseContractAlarm(userId, regIp);
+                    log.info("집 정보 등록 시 첫 번째 단계별 알림 생성 완료: userId={}", userId);
+                } catch (Exception e) {
+                    log.error("집 정보 등록 시 첫 번째 단계별 알림 생성 실패: userId={}", userId, e);
+                    // 알림 생성 실패는 집 등록 성공에 영향을 주지 않음
+                }
+            } else if ("UPDATE".equals(response.getActionType())) {
+                // 수정하는 경우: 기존 Type 1 알림들을 모두 삭제하고 새로운 1단계 알림 생성
+                try {
+                    String regIp = req.getRemoteAddr();
+                    alarmSchedulerService.resetHouseContractAlarms(userId, regIp);
+                    log.info("집 정보 수정 시 알림 초기화 완료: userId={}", userId);
+                } catch (Exception e) {
+                    log.error("집 정보 수정 시 알림 초기화 실패: userId={}", userId, e);
+                    // 알림 초기화 실패는 집 수정 성공에 영향을 주지 않음
+                }
             }
             
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));

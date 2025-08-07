@@ -11,15 +11,52 @@ public class AlarmSchedulerService {
     
     private final AlarmService alarmService;
     
-    // 로그인 시 사용자의 알림 조건 체크 (memberController에서 호출)
-    public void checkUserAlarmsOnLogin(Integer memberId, String regIp) {
-        log.info("사용자 {} 로그인 시 알림 체크 시작", memberId);
-        alarmService.checkUserAlarmsOnLogin(memberId, regIp);
+    /**
+     * 사용자 로그인 시 알림 조건 체크
+     * - 계약 만료 알림 체크
+     * - 관심 건물 시세 변동 알림 체크
+     */
+    public void checkAlarmsOnLogin(Integer memberId, String regIp) {
+        try {
+            alarmService.checkUserAlarmsOnLogin(memberId, regIp);
+        } catch (Exception e) {
+            log.error("사용자 {} 로그인 시 알림 체크 중 오류 발생: {}", memberId, e.getMessage(), e);
+        }
     }
     
-    // 집 정보 수정 시 사용자의 알림 조건 체크 (homeRegisterController에서 호출)
-    public void checkUserAlarmsOnHomeUpdate(Integer memberId, String regIp) {
-        log.info("사용자 {} 집 정보 수정 시 알림 체크 시작", memberId);
-        alarmService.checkUserAlarmsOnHomeUpdate(memberId, regIp);
+    /**
+     * 사용자 집 정보 등록/수정 시 알림 조건 체크
+     * - 계약 만료 알림 체크 (강제 업데이트)
+     * - 관심 건물 시세 변동 알림 체크
+     * - 집 계약 관련 알림 생성 (Type 1)
+     */
+    public void checkAlarmsOnHomeUpdate(Integer memberId, String regIp) {
+        try {
+            alarmService.checkUserAlarmsOnHomeUpdate(memberId, regIp);
+        } catch (Exception e) {
+            log.error("사용자 {} 집 정보 등록/수정 시 알림 체크 중 오류 발생: {}", memberId, e.getMessage(), e);
+        }
     }
-} 
+    
+    /**
+     * 집 정보 등록 시 첫 번째 단계별 알림 생성
+     */
+    public void createInitialHouseContractAlarm(Integer memberId, String regIp) {
+        try {
+            alarmService.createInitialHouseContractAlarm(memberId, regIp);
+        } catch (Exception e) {
+            log.error("사용자 {} 집 정보 등록 시 첫 번째 단계별 알림 생성 중 오류 발생: {}", memberId, e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * 집 정보 수정 시 기존 Type 1 알림들을 모두 삭제하고 새로운 1단계 알림 생성
+     */
+    public void resetHouseContractAlarms(Integer memberId, String regIp) {
+        try {
+            alarmService.resetHouseContractAlarms(memberId, regIp);
+        } catch (Exception e) {
+            log.error("사용자 {} 집 정보 수정 시 알림 초기화 중 오류 발생: {}", memberId, e.getMessage(), e);
+        }
+    }
+}

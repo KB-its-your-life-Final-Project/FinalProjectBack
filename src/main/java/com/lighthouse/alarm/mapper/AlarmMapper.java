@@ -22,7 +22,7 @@ public interface AlarmMapper {
     List<AlarmResponseDto> getAllAlarmsByMember(@Param("memberId") Integer memberId);
 
     // 알림 읽음 처리
-    void setAlarmRead(@Param("memberId")Integer memberId, @Param("alarmId")Integer alarmId);
+    int setAlarmRead(@Param("memberId")Integer memberId, @Param("alarmId")Integer alarmId);
     
     // 새로운 알림 삽입
     void insertAlarm(@Param("alarm") Alarms alarm);
@@ -44,10 +44,18 @@ public interface AlarmMapper {
     // 동일한 사용자의 동일한 유형 알림 존재 여부 확인
     boolean existsAlarmByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type);
     
+    // 사용자의 type 1 알림 중 미확인 알림 개수 조회
+    int getUnreadType1AlarmCount(@Param("memberId") Integer memberId);
+    
+    // 사용자의 모든 type 1 알림 삭제
+    void deleteAllType1AlarmsByMember(@Param("memberId") Integer memberId);
+    
     // 사용자가 관심을 갖는 건물의 시세 변동 감지
     List<Map<String, Object>> getPriceChangesForLikedEstates(@Param("memberId") Integer memberId);
     
     // 특정 건물의 이전 거래 정보 조회 (관심 설정 시점 이전의 가장 최근 거래)
     List<Map<String, Object>> getPreviousPriceForEstate(@Param("estateId") Integer estateId,
-                                                        @Param("likedDate") String likedDate);
+                                                        @Param("likedYear") int likedYear,
+                                                        @Param("likedMonth") int likedMonth,
+                                                        @Param("likedDay") int likedDay);
 }

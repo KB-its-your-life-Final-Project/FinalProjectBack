@@ -265,4 +265,7 @@ CREATE TABLE myhome_tbl (
 
 SELECT * FROM alarm_tbl;
 ALTER TABLE alarm_tbl MODIFY COLUMN get_alarm INT COMMENT '0:알림 받기 싫음 , 1: 알림 받고 싶음';
-DELETE FROM alarm_tbl WHERE id=4;
+DELETE FROM alarm_tbl WHERE id=5;
+INSERT INTO alarm_tbl (member_id, type, text, reg_ip, reg_date, is_checked, get_alarm)
+VALUES (38, 2, '관심 건물 ''목동 아파트''의 최근 시세가 변했습니다', '127.0.0.1', NOW(), 0, 1);
+UPDATE alarm_tbl SET text= '관심 건물 "목동 아파트"의 최근 시세가 변했습니다.' WHERE id=13;

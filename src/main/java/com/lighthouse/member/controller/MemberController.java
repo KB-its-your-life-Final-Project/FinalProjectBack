@@ -145,7 +145,7 @@ public class MemberController {
                     // 로그인 성공 후 알림 체크
                     try {
                         String regIp = req.getRemoteAddr();
-                        alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                        alarmSchedulerService.checkAlarmsOnLogin(memberDto.getId(), regIp);
                     } catch (Exception e) {
                         log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
                         // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
@@ -166,7 +166,7 @@ public class MemberController {
                 // 로그인 성공 후 알림 체크 
                 try {
                     String regIp = req.getRemoteAddr();
-                    alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                    alarmSchedulerService.checkAlarmsOnLogin(memberDto.getId(), regIp);
                 } catch (Exception e) {
                     log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
                     // 알림 체크 실패는 로그인 성공에 영향을 주지 않음
@@ -185,7 +185,7 @@ public class MemberController {
                 // 로그인 성공 후 알림 체크 
                 try {
                     String regIp = req.getRemoteAddr();
-                    alarmSchedulerService.checkUserAlarmsOnLogin(memberDto.getId(), regIp);
+                    alarmSchedulerService.checkAlarmsOnLogin(memberDto.getId(), regIp);
                 } catch (Exception e) {
                     log.error("로그인 후 알림 체크 실패: memberId={}", memberDto.getId(), e);
                     // 알림 체크 실패는 로그인 성공에 영향을 주지 않음

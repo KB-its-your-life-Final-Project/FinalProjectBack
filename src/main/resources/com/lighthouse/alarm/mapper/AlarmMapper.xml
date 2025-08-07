@@ -51,7 +51,7 @@
     </select>
 
     <!-- 알림 읽음 처리 (is_checked를 1로 변경) -->
-    <update id="setAlarmRead" parameterType="map">
+    <update id="setAlarmRead">
         UPDATE alarm_tbl
         SET is_checked = 1
         WHERE member_id = #{memberId}
@@ -69,8 +69,6 @@
         AND is_delete = 1
     </select>
     
-
-    
     <!-- 디버깅용: 사용자의 모든 집 정보 조회 -->
     <select id="getAllUserHomes" resultType="map">
         SELECT 
@@ -85,7 +83,7 @@
         AND is_delete = 1
     </select>
     
-    <!-- 동일한 사용자의 동일한 유형 알림 업데이트 -->
+    <!-- 동일한 사용자의 동일한 유형 미확인 알림 업데이트 -->
     <update id="updateAlarmText" parameterType="map">
         UPDATE alarm_tbl
         SET text = #{text},
@@ -93,7 +91,8 @@
             is_checked = 0
         WHERE member_id = #{memberId}
         AND type = #{type}
-        ORDER BY is_checked ASC, reg_date DESC
+        AND is_checked = 0
+        ORDER BY reg_date DESC
         LIMIT 1
     </update>
     
@@ -115,6 +114,22 @@
         AND type = #{type}
     </select>
     
+    <!-- 사용자의 type 1 알림 중 미확인 알림 개수 조회 -->
+    <select id="getUnreadType1AlarmCount" resultType="int">
+        SELECT COUNT(*)
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND type = 1
+        AND is_checked = 0
+    </select>
+    
+    <!-- 사용자의 모든 type 1 알림 삭제 -->
+    <delete id="deleteAllType1AlarmsByMember">
+        DELETE FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND type = 1
+    </delete>
+    
     <!-- 사용자가 관심을 갖는 건물의 시세 변동 감지 -->
     <select id="getPriceChangesForLikedEstates" resultType="map">
         SELECT 
@@ -135,15 +150,10 @@
         JOIN estate_api_integration_sales_tbl eais ON eai.id = eais.estate_id
         WHERE le.member_id = #{memberId}
         AND le.is_like = 1
-        AND (
-            eais.deal_year > YEAR(le.update_date)
-            OR (eais.deal_year = YEAR(le.update_date) AND eais.deal_month > MONTH(le.update_date))
-            OR (eais.deal_year = YEAR(le.update_date) AND eais.deal_month = MONTH(le.update_date) AND eais.deal_day > DAY(le.update_date))
-        )
         ORDER BY eais.deal_year DESC, eais.deal_month DESC, eais.deal_day DESC
     </select>
     
-    <!-- 특정 건물의 이전 거래 정보 조회 (관심 설정 시점 이전의 가장 최근 거래) -->
+    <!-- 특정 건물의 이전 거래 정보 조회 (찜한 시점 이전의 가장 최근 거래) -->
     <select id="getPreviousPriceForEstate" resultType="map">
         SELECT 
             deal_amount,
@@ -154,12 +164,13 @@
             deal_day
         FROM estate_api_integration_sales_tbl
         WHERE estate_id = #{estateId}
-        AND (
-            deal_year < YEAR(#{likedDate})
-            OR (deal_year = YEAR(#{likedDate}) AND deal_month < MONTH(#{likedDate}))
-            OR (deal_year = YEAR(#{likedDate}) AND deal_month = MONTH(#{likedDate}) AND deal_day <= DAY(#{likedDate}))
-        )
+            AND (
+                deal_year &lt; #{likedYear}
+                OR (deal_year = #{likedYear} AND deal_month &lt; #{likedMonth})
+                OR (deal_year = #{likedYear} AND deal_month = #{likedMonth} AND deal_day &lt;= #{likedDay})
+            )
         ORDER BY deal_year DESC, deal_month DESC, deal_day DESC
         LIMIT 1
     </select>
+
 </mapper>
