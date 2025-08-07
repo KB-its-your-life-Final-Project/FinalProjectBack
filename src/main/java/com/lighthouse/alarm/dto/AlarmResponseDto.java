@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,8 +25,8 @@ public class AlarmResponseDto {
     @ApiModelProperty(value = "알림 내용", example = "등록하신 매물 'OOO아파트'의 계약이 30일 후 만료됩니다.")
     private String text;
     
-    @ApiModelProperty(value = "등록 날짜", example = "2024-01-01T10:00:00")
-    private LocalDateTime regDate;
+    @ApiModelProperty(value = "등록 날짜", example = "2024-01-01 10:00:00")
+    private String regDate;
     
     @ApiModelProperty(value = "확인 여부 (0: 확인 안함, 1: 확인함)", example = "0")
     private Integer isChecked;

@@ -30,9 +30,12 @@ public interface AlarmMapper {
     // 특정 사용자의 관심 지역 시세 변화 조회
     List<Map<String, Object>> getInterestAreaPriceChangesByUser(@Param("memberId") Integer memberId);
     
-    // 오늘 이미 생성된 계약 만료 알림이 있는지 체크
-    boolean checkTodayContractAlarmExists(@Param("memberId") Integer memberId, @Param("propertyAddress") String propertyAddress);
-    
     // 디버깅용: 사용자의 모든 집 정보 조회
     List<Map<String, Object>> getAllUserHomes(@Param("memberId") Integer memberId);
+    
+    // 동일한 사용자의 동일한 유형 알림 업데이트
+    int updateAlarmText(@Param("memberId") Integer memberId, @Param("type") Integer type, @Param("text") String text);
+    
+    // 동일한 사용자의 동일한 유형 알림 존재 여부 확인
+    boolean existsAlarmByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type);
 }

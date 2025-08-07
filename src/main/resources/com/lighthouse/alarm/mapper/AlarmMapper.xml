@@ -25,7 +25,7 @@
             member_id as memberId,
             type,
             text,
-            reg_date as regDate,
+            DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as regDate,
             is_checked as isChecked,
             get_alarm as getAlarm
         FROM alarm_tbl
@@ -68,16 +68,6 @@
         AND w.is_active = 1
     </select>
     
-    <!-- 오늘 이미 생성된 계약 만료 알림이 있는지 체크 -->
-    <select id="checkTodayContractAlarmExists" resultType="boolean">
-        SELECT COUNT(*) > 0
-        FROM alarm_tbl
-        WHERE member_id = #{memberId}
-        AND type = 3
-        AND DATE(reg_date) = CURDATE()
-        AND text LIKE CONCAT('%', #{propertyAddress}, '%')
-    </select>
-    
     <!-- 디버깅용: 사용자의 모든 집 정보 조회 -->
     <select id="getAllUserHomes" resultType="map">
         SELECT 
@@ -90,5 +80,25 @@
         FROM myhome_tbl
         WHERE user_id = #{memberId}
         AND is_delete = 1
+    </select>
+    
+    <!-- 동일한 사용자의 동일한 유형 알림 업데이트 -->
+    <update id="updateAlarmText" parameterType="map">
+        UPDATE alarm_tbl
+        SET text = #{text},
+            reg_date = NOW()
+        WHERE member_id = #{memberId}
+        AND type = #{type}
+        AND is_checked = 0
+        LIMIT 1
+    </update>
+    
+    <!-- 동일한 사용자의 동일한 유형 알림 존재 여부 확인 -->
+    <select id="existsAlarmByMemberAndType" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND type = #{type}
+        AND is_checked = 0
     </select>
 </mapper>

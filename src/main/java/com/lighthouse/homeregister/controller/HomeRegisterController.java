@@ -1,6 +1,5 @@
 package com.lighthouse.homeregister.controller;
 
-import com.lighthouse.alarm.service.AlarmSchedulerService;
 import com.lighthouse.homeregister.dto.HomeRegisterRequestDTO;
 import com.lighthouse.homeregister.dto.HomeRegisterResponseDTO;
 import com.lighthouse.homeregister.entity.HomeRegister;
@@ -9,6 +8,7 @@ import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
 import com.lighthouse.security.util.JwtUtil;
 import com.lighthouse.response.ErrorCode;
+import com.lighthouse.alarm.service.AlarmSchedulerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +77,7 @@ public class HomeRegisterController {
             
             HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, req);
             
-            // 집 등록 성공 후 알림 체크 (안전하게 추가)
+            // 집 등록 성공 후 알림 체크
             try {
                 String regIp = req.getRemoteAddr();
                 alarmSchedulerService.checkUserAlarmsOnLogin(userId, regIp);

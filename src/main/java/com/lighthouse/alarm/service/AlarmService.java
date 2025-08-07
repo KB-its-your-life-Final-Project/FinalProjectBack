@@ -40,25 +40,76 @@ public class AlarmService {
         try {
             log.info("알림 생성 시작: memberId={}, type={}, text={}, regIp={}", memberId, type, text, regIp);
             
-            // alarm_tbl에 알림 저장
             Alarms alarm = Alarms.builder()
                     .memberId(memberId)
                     .type(type)
                     .text(text)
                     .regIp(regIp)
-                    .regDate(LocalDateTime.now())
-                    .isChecked(0) // 0: 확인 안함, 1: 확인함
-                    .getAlarm(1) // 0: 알림 받지 않음, 1: 알림 받기
+                    .regDate(java.time.LocalDateTime.now())
+                    .isChecked(0)  // 0: 확인 안함
+                    .getAlarm(1)   // 1: 수신함 (기본값)
                     .build();
             
             log.info("알림 엔티티 생성 완료: {}", alarm);
             
             alarmMapper.insertAlarm(alarm);
-            
-            log.info("알림 생성 완료: memberId={}, type={}, text={}", memberId, type, text);
+            log.info("알림 DB 저장 완료: memberId={}, type={}", memberId, type);
             
         } catch (Exception e) {
             log.error("알림 생성 실패: memberId={}, type={}", memberId, type, e);
+            throw e;
+        }
+    }
+    
+    // 알림 생성 (동일한 유형이 있으면 업데이트, 없으면 새로 생성)
+    public void createSmartAlarm(Integer memberId, Integer type, String text, String regIp) {
+        createSmartAlarm(memberId, type, text, regIp, false);
+    }
+    
+    // 알림 생성 (집 정보 수정 시 강제 업데이트 옵션 포함)
+    public void createSmartAlarm(Integer memberId, Integer type, String text, String regIp, boolean forceUpdate) {
+        try {
+            log.info("스마트 알림 생성 시작: memberId={}, type={}, text={}, forceUpdate={}", memberId, type, text, forceUpdate);
+            
+            if (forceUpdate) {
+                // 집 정보 수정 시 강제 업데이트
+                log.info("집 정보 수정으로 인한 강제 알림 업데이트: memberId={}, type={}", memberId, type);
+                
+                // 기존 알림이 있는지 확인
+                boolean exists = alarmMapper.existsAlarmByMemberAndType(memberId, type);
+                log.info("집 정보 수정 시 기존 알림 존재 여부: memberId={}, type={}, exists={}", memberId, type, exists);
+                
+                if (exists) {
+                    // 기존 알림 업데이트
+                    int updatedRows = alarmMapper.updateAlarmText(memberId, type, text);
+                    log.info("집 정보 수정 기존 알림 업데이트 완료: memberId={}, type={}, updatedRows={}", memberId, type, updatedRows);
+                } else {
+                    // 기존 알림이 없으면 새로 생성
+                    log.info("집 정보 수정 시 기존 알림이 없어서 새로 생성: memberId={}, type={}", memberId, type);
+                    createAlarm(memberId, type, text, regIp);
+                    log.info("집 정보 수정 새 알림 생성 완료: memberId={}, type={}", memberId, type);
+                }
+                return;
+            }
+            
+            // 동일한 사용자의 동일한 유형 알림이 이미 존재하는지 확인
+            boolean exists = alarmMapper.existsAlarmByMemberAndType(memberId, type);
+            log.info("동일한 유형 알림 존재 여부: memberId={}, type={}, exists={}", memberId, type, exists);
+            
+            if (exists) {
+                // 기존 알림 업데이트
+                log.info("기존 알림 업데이트: memberId={}, type={}", memberId, type);
+                int updatedRows = alarmMapper.updateAlarmText(memberId, type, text);
+                log.info("알림 업데이트 완료: memberId={}, type={}, updatedRows={}", memberId, type, updatedRows);
+            } else {
+                // 새 알림 생성
+                log.info("새 알림 생성: memberId={}, type={}", memberId, type);
+                createAlarm(memberId, type, text, regIp);
+                log.info("알림 생성 완료: memberId={}, type={}", memberId, type);
+            }
+        } catch (Exception e) {
+            log.error("스마트 알림 생성 실패: memberId={}, type={}, text={}", memberId, type, text, e);
+            throw e;
         }
     }
     
@@ -67,120 +118,118 @@ public class AlarmService {
         String alarmText;
         
         if (daysLeft == 1) {
-            alarmText = "등록하신 매물 '" + propertyAddress + "'의 계약이 내일 만료됩니다!";
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 내일 만료됩니다!";
         } else if (daysLeft <= 7) {
-            alarmText = "등록하신 매물 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다. (긴급)";
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다. (긴급)";
         } else {
-            alarmText = "등록하신 매물 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다.";
+            alarmText = "현재 살고 있는 집 '" + propertyAddress + "'의 계약이 " + daysLeft + "일 후 만료됩니다.";
         }
         
-        createAlarm(memberId, 3, alarmText, regIp); // type=3: 계약 만료 알림
+        // 집 정보 수정 시 강제 업데이트 (계약 종료일이 같든 다르든 항상 업데이트)
+        createSmartAlarm(memberId, 3, alarmText, regIp, true);
     }
     
     // 시세 변화 알림 생성
     public void createPriceChangeNotification(Integer memberId, String areaName, String changeInfo, String regIp) {
         String text = String.format("관심 지역 '%s'의 시세가 %s", areaName, changeInfo);
-        createAlarm(memberId, 2, text, regIp); // type 2: 시세변화 알림
+        createSmartAlarm(memberId, 2, text, regIp); // type 2: 시세변화 알림
     }
     
-    // 로그인 시 사용자의 알림 조건 체크
+    // 사용자 로그인 시 알림 조건 체크
     public void checkUserAlarmsOnLogin(Integer memberId, String regIp) {
-        log.info("사용자 {} 로그인 시 알림 조건 체크 시작", memberId);
-        
         try {
+            log.info("사용자 {} 로그인 시 알림 조건 체크 시작", memberId);
+            
             // 사용자의 집 정보 확인
             log.info("사용자 {}의 집 정보 확인 중...", memberId);
+            List<Map<String, Object>> userHomes = alarmMapper.getAllUserHomes(memberId);
+            log.info("사용자 {}의 모든 집 정보: {}건", memberId, userHomes.size());
             
-            // 디버깅: 사용자의 모든 집 정보 조회
-            List<Map<String, Object>> allHomes = alarmMapper.getAllUserHomes(memberId);
-            log.info("사용자 {}의 모든 집 정보: {}건", memberId, allHomes.size());
-            for (Map<String, Object> home : allHomes) {
-                log.info("집 정보: {}", home);
+            if (!userHomes.isEmpty()) {
+                for (Map<String, Object> home : userHomes) {
+                    log.info("집 정보: {}", home);
+                }
+                
+                // 계약 만료 알림 체크 (집이 있는 경우에만)
+                try {
+                    checkUserContractExpiration(memberId, regIp);
+                } catch (Exception e) {
+                    log.error("사용자 {}의 계약 만료 알림 체크 중 오류 발생: {}", memberId, e.getMessage(), e);
+                }
+                
+                // 시세 변화 알림 체크 (집이 있는 경우에만)
+                try {
+                    checkUserPriceChanges(memberId, regIp);
+                } catch (Exception e) {
+                    log.warn("사용자 {}의 시세 변화 알림 체크 중 오류 발생 (무시하고 계속 진행): {}", memberId, e.getMessage());
+                }
+            } else {
+                log.info("사용자 {}의 등록된 집이 없어서 알림 체크를 건너뜁니다.", memberId);
             }
-            
-            // 1. 계약 만료 알림 체크
-            checkUserContractExpiration(memberId, regIp);
-            
-            // 2. 시세 변화 알림 체크
-            checkUserPriceChanges(memberId, regIp);
             
             log.info("사용자 {} 로그인 시 알림 조건 체크 완료", memberId);
-            
         } catch (Exception e) {
-            log.error("사용자 {} 로그인 시 알림 조건 체크 중 오류", memberId, e);
+            log.error("사용자 {} 로그인 시 알림 조건 체크 중 예상치 못한 오류 발생: {}", memberId, e.getMessage(), e);
         }
     }
     
-    // 특정 사용자의 계약 만료 알림 체크
-    private void checkUserContractExpiration(Integer memberId, String regIp) {
-        // 30일 전부터 매일 만료 계약 체크
+    // 사용자 계약 만료 알림 체크
+    public void checkUserContractExpiration(Integer memberId, String regIp) {
+        log.info("사용자 {}의 계약 만료 알림 체크 시작", memberId);
+        
+        // 30일 전부터 1일 전까지 매일 체크
         for (int daysLeft = 30; daysLeft >= 1; daysLeft--) {
+            log.info("사용자 {}의 {}일 전 만료 계약 체크 시작", memberId, daysLeft);
             checkUserExpiringContracts(memberId, daysLeft, regIp);
         }
+        
+        log.info("사용자 {}의 계약 만료 알림 체크 완료", memberId);
     }
     
-    // 특정 사용자의 만료 예정 계약 체크
+    // 특정 일수 후 만료되는 계약 체크
     private void checkUserExpiringContracts(Integer memberId, int daysLeft, String regIp) {
-        try {
-            log.info("사용자 {}의 {}일 전 만료 계약 체크 시작", memberId, daysLeft);
+        List<Map<String, Object>> expiringContracts = alarmMapper.getExpiringContractsByUser(memberId, daysLeft);
+        log.info("사용자 {}의 {}일 전 만료 계약 조회 결과: {}건", memberId, daysLeft, expiringContracts.size());
+        
+        if (expiringContracts.isEmpty()) {
+            log.info("사용자 {}의 {}일 전 만료 계약이 없습니다.", memberId, daysLeft);
+            return;
+        }
+        
+        for (Map<String, Object> contract : expiringContracts) {
+            String propertyAddress = (String) contract.get("property_address");
+            log.info("계약 정보: {}", contract);
+            log.info("계약 만료 예정 매물: {}", propertyAddress);
             
-            List<Map<String, Object>> expiringContracts = alarmMapper.getExpiringContractsByUser(memberId, daysLeft);
-            log.info("사용자 {}의 {}일 전 만료 계약 조회 결과: {}건", memberId, daysLeft, expiringContracts.size());
-            
-            // 조회 결과 상세 로그
-            if (expiringContracts.isEmpty()) {
-                log.info("사용자 {}의 {}일 전 만료 계약이 없습니다.", memberId, daysLeft);
-            } else {
-                for (Map<String, Object> contract : expiringContracts) {
-                    log.info("계약 정보: {}", contract);
-                }
-            }
-            
-            for (Map<String, Object> contract : expiringContracts) {
-                String propertyAddress = (String) contract.get("property_address");
-                log.info("계약 만료 예정 매물: {}", propertyAddress);
-                
-                if (propertyAddress != null) {
-                    // 오늘 이미 해당 매물의 계약 만료 알림이 생성되었는지 체크
-                    boolean alarmExists = alarmMapper.checkTodayContractAlarmExists(memberId, propertyAddress);
-                    log.info("오늘 생성된 알림 존재 여부: {}", alarmExists);
-                    
-                    if (!alarmExists) {
-                        log.info("계약 만료 알림 생성: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
-                        createContractExpirationNotification(memberId, propertyAddress, daysLeft, regIp);
-                    } else {
-                        log.info("오늘 이미 생성된 계약 만료 알림이 있습니다: memberId={}, propertyAddress={}", memberId, propertyAddress);
-                    }
-                }
-            }
-            
-            if (!expiringContracts.isEmpty()) {
-                log.info("사용자 {}의 {}일 전 만료 계약 알림 생성 완료: {}건", memberId, daysLeft, expiringContracts.size());
-            }
-        } catch (Exception e) {
-            log.error("사용자 {}의 {}일 전 만료 계약 알림 생성 중 오류", memberId, daysLeft, e);
+            // 집 정보 수정 시 항상 알림 업데이트 (계약 종료일이 같든 다르든)
+            log.info("집 정보 수정으로 인한 계약 만료 알림 업데이트: memberId={}, propertyAddress={}, daysLeft={}", memberId, propertyAddress, daysLeft);
+            createContractExpirationNotification(memberId, propertyAddress, daysLeft, regIp);
+            log.info("사용자 {}의 {}일 전 만료 계약 알림 업데이트 완료: {}건", memberId, daysLeft, 1);
         }
     }
     
-    // 특정 사용자의 시세 변화 알림 체크
-    private void checkUserPriceChanges(Integer memberId, String regIp) {
+    // 사용자 시세 변화 알림 체크
+    public void checkUserPriceChanges(Integer memberId, String regIp) {
         try {
+            log.info("사용자 {}의 시세 변화 알림 체크 시작", memberId);
+            
             List<Map<String, Object>> priceChanges = alarmMapper.getInterestAreaPriceChangesByUser(memberId);
+            log.info("사용자 {}의 시세 변화 조회 결과: {}건", memberId, priceChanges.size());
             
             for (Map<String, Object> change : priceChanges) {
                 String areaName = (String) change.get("area_name");
                 String changeInfo = (String) change.get("change_info");
                 
                 if (areaName != null && changeInfo != null) {
+                    log.info("시세 변화 알림 생성: memberId={}, areaName={}, changeInfo={}", memberId, areaName, changeInfo);
                     createPriceChangeNotification(memberId, areaName, changeInfo, regIp);
                 }
             }
             
-            if (!priceChanges.isEmpty()) {
-                log.info("사용자 {}의 시세 변화 알림 생성 완료: {}건", memberId, priceChanges.size());
-            }
+            log.info("사용자 {}의 시세 변화 알림 체크 완료", memberId);
         } catch (Exception e) {
-            log.error("사용자 {}의 시세 변화 알림 생성 중 오류", memberId, e);
+            log.warn("사용자 {}의 시세 변화 알림 체크 중 오류 발생 (무시하고 계속 진행): {}", memberId, e.getMessage());
+            // 시세 변화 알림 오류는 전체 알림 체크를 중단시키지 않음
         }
     }
 }
