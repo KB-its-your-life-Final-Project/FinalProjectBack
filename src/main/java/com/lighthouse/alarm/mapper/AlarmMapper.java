@@ -30,8 +30,7 @@ public interface AlarmMapper {
     // 특정 사용자의 만료 예정 계약 조회
     List<Map<String, Object>> getExpiringContractsByUser(@Param("memberId") Integer memberId, @Param("daysLeft") int daysLeft);
     
-    // 특정 사용자의 관심 지역 시세 변화 조회
-    List<Map<String, Object>> getInterestAreaPriceChangesByUser(@Param("memberId") Integer memberId);
+
     
     // 디버깅용: 사용자의 모든 집 정보 조회
     List<Map<String, Object>> getAllUserHomes(@Param("memberId") Integer memberId);
@@ -44,4 +43,11 @@ public interface AlarmMapper {
     
     // 동일한 사용자의 동일한 유형 알림 존재 여부 확인
     boolean existsAlarmByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type);
+    
+    // 사용자가 관심을 갖는 건물의 시세 변동 감지
+    List<Map<String, Object>> getPriceChangesForLikedEstates(@Param("memberId") Integer memberId);
+    
+    // 특정 건물의 이전 거래 정보 조회 (관심 설정 시점 이전의 가장 최근 거래)
+    List<Map<String, Object>> getPreviousPriceForEstate(@Param("estateId") Integer estateId,
+                                                        @Param("likedDate") String likedDate);
 }
