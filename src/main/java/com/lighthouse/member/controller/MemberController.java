@@ -74,7 +74,7 @@ public class MemberController {
     }
 
     // 비밀번호 검증
-    @PostMapping("/verifypwd") // Get은 @RequestBody 사용 불가
+    @PostMapping("/verify/pwd") // Get은 @RequestBody 사용 불가
     public ResponseEntity<ApiResponse<Boolean>> verifyPwd(@RequestBody VerifyPwdRequestDTO verifyPwdReqDto) {
         boolean isVerified = memberService.isVerifiedPwd(verifyPwdReqDto);
         log.info("isVerified: {}", isVerified);
@@ -139,7 +139,7 @@ public class MemberController {
             if (memberDto == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
-            MemberResponseDTO unregisteredMemberDto = memberService.unregister(req, resp);
+            MemberResponseDTO unregisteredMemberDto = memberService.unregister(memberDto);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UNREGISTER_SUCCESS, unregisteredMemberDto));
         } catch (Exception e) {
             log.error("회원 탈퇴 실패", e);
@@ -267,6 +267,10 @@ public class MemberController {
     @PostMapping("/profileimg")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest req, HttpServletResponse resp) {
         log.info("회원 프로필사진 변경 POST 요청==========");
+        log.info("=== CORS Headers Debug ===");
+        log.info("Origin: {}", req.getHeader("Origin"));
+        log.info("Content-Type: {}", req.getContentType());
+        log.info("Method: {}", req.getMethod());
         try {
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
@@ -286,14 +290,14 @@ public class MemberController {
             if (!isValidImgType(contentType)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_FILE_TYPE));
             }
-            MemberResponseDTO updatedMember = memberService.uploadProfileImg(file, req, resp);
+            MemberResponseDTO updatedMember = memberService.uploadProfileImg(memberDto, file);
             if (updatedMember != null) {
                 log.info("프로필 이미지 업로드 성공 - 회원ID: {}", updatedMember.getId());
                 return ResponseEntity.ok()
                         .body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
             }
         } catch (Exception e) {
             log.error("프로필 이미지 업로드 실패", e);
@@ -307,7 +311,11 @@ public class MemberController {
     public ResponseEntity<ApiResponse<MemberResponseDTO>> deleteProfileImage(HttpServletRequest req, HttpServletResponse resp) {
         log.info("회원 프로필사진 삭제 DELETE 요청==========");
         try {
-            MemberResponseDTO updatedMember = memberService.deleteProfileImg(req, resp);
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+            MemberResponseDTO updatedMember = memberService.deleteProfileImg(memberDto);
             if (updatedMember != null) {
                 log.info("프로필사진 삭제 성공, 요청자: {}",updatedMember.getName());
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
@@ -315,7 +323,7 @@ public class MemberController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
         } catch (Exception e) {
-            log.error("프로필 이미지 삭제 실패", e);
+            log.error("프로필사진 삭제 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }

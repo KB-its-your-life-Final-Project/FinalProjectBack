@@ -1,6 +1,7 @@
 package com.lighthouse.config;
 
 import com.lighthouse.security.config.SecurityConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -9,7 +10,7 @@ import javax.servlet.ServletRegistration;
 
 
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-    final String LOCATION = "/uploads/"; // 프로필사진 업로드 저장 경로
+    @Value("${FILE_UPLOAD_DIR}") String LOCATION; // 프로필사진 업로드 저장 경로
     final long MAX_FILE_SIZE = 1024 * 1024 * 5L; // 5M
     final long MAX_REQUEST_SIZE = 1024 * 1024 * 10L; // 10M
     final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5; // 5M 넘으면 디스크에 저장

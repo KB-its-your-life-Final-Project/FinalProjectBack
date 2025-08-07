@@ -58,27 +58,6 @@ public class MemberService {
         return MemberResponseDTO.toUser(member);
     }
 
-    // 이메일로 회원 조회
-    public MemberResponseDTO findMemberByEmail(String email) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByEmail(email))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberResponseDTO.toUser(member);
-    }
-
-    // 카카오 회원ID로 회원 조회
-    public MemberResponseDTO findMemberByKakaoId(String kakaoUserId) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByKakaoId(kakaoUserId))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberResponseDTO.toUser(member);
-    }
-
-    // 구글 ID로 회원 조회
-    public MemberResponseDTO findMemberByGoogleId(String googleId) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByGoogleId(googleId))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberResponseDTO.toUser(member);
-    }
-
     // 로그인된 회원 조회
     public MemberResponseDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
@@ -145,7 +124,7 @@ public class MemberService {
         return passwordEncoder.matches(verifyPwdReqDto.getPwd(), member.getPwd());
     }
 
-    // 인증 번호 전송
+    // 이메일 인증 번호 전송
 //    public void sendVerificationCode(String email) throws Exception {
 //        String code = generateCode();
 //        verificationCodeStore.put(email, code);
@@ -158,7 +137,7 @@ public class MemberService {
 //        mailSender.send(message);
 //    }
 
-    // 인증 번호 검사
+    // 이메일 인증 번호 검사
 //    public boolean verifyCode(String email, String code) {
 //        String stored = verificationCodeStore.get(email);
 //        LocalDateTime sentAt = codeTimestamps.get(email);
@@ -167,7 +146,7 @@ public class MemberService {
 //        return stored.equals(code);
 //    }
 
-    // 인증 번호 생성
+    // 이메일 인증 번호 생성
 //    private String generateCode() {
 //        return String.valueOf((int) ((Math.random() * 900000) + 100000)); // 6자리 숫자
 //    }
@@ -185,23 +164,20 @@ public class MemberService {
         member.setRegIp(clientIp);
         member.setRecentIp(clientIp);
         memberMapper.insertMember(member);
-        return findMemberByEmail(member.getEmail());
+        Member newMember = memberMapper.findMemberByEmail(member.getEmail());
+        return MemberResponseDTO.toUser(newMember);
     }
 
     // 회원 탈퇴
     @Transactional
-    public MemberResponseDTO unregister(HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO unregister(MemberResponseDTO memberDto) {
         log.info("MemberService.unregister() 실행 ======");
         try {
-            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
-            if (memberDto == null) {
-                throw new Exception("로그인이 필요합니다.");
-            }
             Member member = memberMapper.findMemberById(memberDto.getId());
             member.setIsDelete(2);
             memberMapper.updateMember(member);
-            Member updatedMember = memberMapper.findMemberById(member.getId());
-            return MemberResponseDTO.toUser(updatedMember);
+            Member deletedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(deletedMember);
         } catch (Exception e) {
             log.error("회원 탈퇴 중 오류 발생: ", e);
             return null;
@@ -234,7 +210,8 @@ public class MemberService {
             log.info("Token sub로 사용할 memberId: {}", memberId);
             TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
             tokenService.saveRefreshToken(memberId, tokenDto);
-            return findMemberByEmail(member.getEmail());
+            Member newMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(newMember);
         }
     }
 
@@ -265,7 +242,8 @@ public class MemberService {
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-        return findMemberByKakaoId(member.getKakaoId());
+        Member loggedInMember = memberMapper.findMemberById(member.getId());
+        return MemberResponseDTO.toUser(loggedInMember);
     }
 
     // 구글 로그인 또는 회원가입
@@ -298,7 +276,8 @@ public class MemberService {
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-        return findMemberByGoogleId(member.getGoogleId());
+        Member loggedInMember = memberMapper.findMemberById(member.getId());
+        return MemberResponseDTO.toUser(loggedInMember);
     }
 
     // 로그아웃
@@ -352,12 +331,8 @@ public class MemberService {
     }
 
     // 회원 프로필사진 업로드
-    public MemberResponseDTO uploadProfileImg(MultipartFile file, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO uploadProfileImg(MemberResponseDTO memberDto, MultipartFile file) {
         try {
-            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
-            if (memberDto == null) {
-                throw new Exception("로그인이 필요합니다.");
-            }
             Member member = memberMapper.findMemberById(memberDto.getId());
             log.info("member: {}", member);
             String uploadedImgUrl = fileUploadService.uploadProfileImg(file, memberDto.getId());
@@ -373,12 +348,8 @@ public class MemberService {
     }
 
     // 회원 프로필사진 삭제 (기본 이미지로 변경)
-    public MemberResponseDTO deleteProfileImg(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    public MemberResponseDTO deleteProfileImg(MemberResponseDTO memberDto) {
         try {
-            MemberResponseDTO memberDto = findMemberLoggedIn(req, resp);
-            if (memberDto == null) {
-                throw new Exception("로그인이 필요합니다.");
-            }
             Member member = memberMapper.findMemberById(memberDto.getId());
             if (!ValidateUtil.isEmpty(member.getProfileImg())) {
                 fileUploadService.deleteFile(member.getProfileImg());
@@ -388,7 +359,7 @@ public class MemberService {
             return MemberResponseDTO.toUser(updatedMember);
         } catch (Exception e) {
             log.error("프로필사진 삭제 중 오류 발생: ", e);
-            throw new Exception("프로필사진 삭제에 실패했습니다.");
+            return null;
         }
     }
 }
