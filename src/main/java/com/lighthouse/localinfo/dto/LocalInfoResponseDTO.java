@@ -10,9 +10,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocalInfoResponseDTO {
-    private String region;
+
     private String regionCd;
-    private int gridX;
-    private int gridY;
     private String locataddNm;
+    private Integer gridX;
+    private Integer gridY;
+    private String sidoCd;
+    private String sggCd;
 }

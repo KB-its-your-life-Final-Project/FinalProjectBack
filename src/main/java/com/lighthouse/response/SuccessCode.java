@@ -45,6 +45,7 @@ public enum SuccessCode implements ResponseCode{
 
 	// localinfo
 	LOCALINFO_FETCH_SUCCESS(5001, "지역 정보 조회 성공"),
+	WEATHER_FETCH_SUCCESS(5002, "날씨 조회 성공"),
 
     // LawdCd
     LAWDCD_FETCH_SUCCESS(6001, "지역 코드 조회 성공"),

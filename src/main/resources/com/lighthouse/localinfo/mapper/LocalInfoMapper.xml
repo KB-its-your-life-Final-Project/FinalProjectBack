@@ -8,7 +8,8 @@
             region_cd    AS regionCd,
             grid_x       AS gridX,
             grid_y       AS gridY,
-            locatadd_nm  AS locataddNm,  locatadd_nm  AS region       FROM
+            locatadd_nm  AS locataddNm,  locatadd_nm  AS region
+        FROM
             api_lawd_cd
         WHERE
             locatadd_nm = #{locataddnm}
@@ -20,7 +21,10 @@
             region_cd    AS regionCd,
             grid_x       AS gridX,
             grid_y       AS gridY,
-            locatadd_nm  AS locataddNm,  locatadd_nm  AS region       FROM
+            sido_cd     AS sidoCd,
+            sgg_cd      AS sggCd,
+            locatadd_nm  AS locataddNm,  locatadd_nm  AS region
+        FROM
             api_lawd_cd
         WHERE
             locatadd_nm LIKE CONCAT('%', #{keyword}, '%')
@@ -35,17 +39,18 @@
     </select>
 
     <select id="findByRegionCd" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
-        SELECT
-            region_cd    AS regionCd,
-            grid_x       AS gridX,
-            grid_y       AS gridY,
-            locatadd_nm  AS locataddNm,
-            locatadd_nm  AS region
-        FROM
-            api_lawd_cd
-        WHERE
-            region_cd = #{regionCd}
-            LIMIT 1
-    </select>
+    SELECT
+    region_cd   AS regionCd,
+    locatadd_nm AS locataddNm,
+    grid_x      AS gridX,
+    grid_y      AS gridY,
+    sido_cd     AS sidoCd,
+    sgg_cd      AS sggCd
 
+    FROM
+        api_lawd_cd
+    WHERE
+    region_cd = #{regionCd}
+    LIMIT 1
+    </select>
 </mapper>

@@ -14,4 +14,5 @@ public class PopulationDTO {
         private String locataddNm;        // 풀 주소명
         private Long populationTotal;
         private Long populationYouth;
+        private Double youthRatio;
 }
