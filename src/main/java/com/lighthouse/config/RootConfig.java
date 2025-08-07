@@ -58,6 +58,16 @@ public class RootConfig {
     }
 
     @Configuration
+    @Profile("test")
+    @PropertySource("classpath:application-test.properties")
+    static class TestProperties {
+        @Bean
+        public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+            return new PropertySourcesPlaceholderConfigurer();
+        }
+    }
+
+    @Configuration
     @Profile("prod")
     @PropertySource("classpath:application-prod.properties")
     static class ProdProperties {

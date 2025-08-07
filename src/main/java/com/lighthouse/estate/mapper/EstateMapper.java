@@ -45,6 +45,11 @@ public interface EstateMapper {
     List<Estate> getEstateBySqaure(EstateSquareDTO dto);
 
     List<EstateSales> getEstateSalesByElement(EstateSalesDTO dto);
+
+    /*
+     * 주변 건물 가져오기
+     */
+    List<Estate> getNearyByEstate(@Param("lat") double lat, @Param("lng") double lng);
     
     /**
      * 지역코드와 읍면동명으로 건물 정보 목록 조회

@@ -95,6 +95,16 @@ public class EstateService {
         }
     }
 
+    public List<EstateDTO> getNearyByLatLng (double lat, double lng) {
+        try {
+            List<Estate> entites = estateMapper.getNearyByEstate(lat, lng);
+            return estateDTOConverter.toDTOList(entites);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+    }
+
     // 지역코드와 읍면동명으로 건물 정보 목록 조회
     public List<BuildingInfoDto> getBuildingInfosByRegionCodeAndDongName(String regionCode, String dongName) {
         try {
