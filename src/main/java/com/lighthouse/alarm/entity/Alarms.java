@@ -1,5 +1,7 @@
 package com.lighthouse.alarm.entity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,16 +10,32 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@ApiModel(description = "알림 엔티티")
 public class Alarms {
-    private Integer id; 
+    @ApiModelProperty(value = "알림 ID (자동 증가)", example = "1")
+    private Integer id;
+    
+    @ApiModelProperty(value = "회원 ID", example = "123")
     private Integer memberId;
-    private Integer type; // 1: 계약만료 30일전, 2: 계약만료 7일전
-    private String text; // 알림 내용
+    
+    @ApiModelProperty(value = "알림 타입 (2: 시세변화, 3: 계약만료)", example = "3")
+    private Integer type;
+    
+    @ApiModelProperty(value = "알림 내용", example = "등록하신 매물 'OOO아파트'의 계약이 30일 후 만료됩니다.")
+    private String text;
+    
+    @ApiModelProperty(value = "등록 IP", example = "192.168.1.1")
     private String regIp;
+    
+    @ApiModelProperty(value = "등록 날짜", example = "2024-01-01T10:00:00")
     private LocalDateTime regDate;
-    private Integer isChecked; // 0: 미확인, 1: 확인
-    private Integer getAlarm; // 0: 비활성화, 1: 활성화
+    
+    @ApiModelProperty(value = "확인 여부 (0: 확인 안함, 1: 확인함)", example = "0")
+    private Integer isChecked;
+    
+    @ApiModelProperty(value = "알림 수신 여부 (0: 수신안함, 1: 수신함)", example = "1")
+    private Integer getAlarm;
 }
