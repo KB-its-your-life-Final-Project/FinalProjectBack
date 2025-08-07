@@ -37,7 +37,7 @@ public class EstateController {
       return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.ESTATE_FETCH_SUCCESS, estateList));
     }
     catch(Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
+      return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
     }
   }
 
@@ -49,7 +49,7 @@ public class EstateController {
       EstateDTO dto = estateService.getEstateByLatLng(lat, lng);
       return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.ESTATE_FETCH_SUCCESS, dto));
     } catch (NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
+        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
     }
   }
 
@@ -64,7 +64,7 @@ public class EstateController {
       return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.ESTATE_FETCH_SUCCESS, dto));
     }
     catch(NoSuchElementException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
+      return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
     }
   }
 
@@ -75,7 +75,7 @@ public class EstateController {
       List<EstateDTO> estateList = estateService.getEstateBySqaure(dto);
       return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.ESTATE_FETCH_SUCCESS, estateList));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
+      return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
     }
   }
 
@@ -87,7 +87,7 @@ public class EstateController {
       return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.ESTATE_FETCH_SUCCESS, estateSalesList));
     }
     catch(Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.ESTATE_SALES_NOT_FOUND));
+      return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
     }
   }
 }
