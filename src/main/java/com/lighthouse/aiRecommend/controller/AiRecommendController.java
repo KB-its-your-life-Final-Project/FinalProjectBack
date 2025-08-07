@@ -25,9 +25,9 @@ public class AiRecommendController {
         try {
             log.info("AI 추천 요청 - memberId: {}", memberId);
             
-            aiRecommendService.getAiRecommend(memberId);
+            String aiResponse = aiRecommendService.getAiRecommend(memberId);
             
-            return ResponseEntity.ok("AI 추천 처리 완료 - 콘솔 로그를 확인하세요");
+            return ResponseEntity.ok(aiResponse);
             
         } catch (Exception e) {
             log.error("AI 추천 처리 중 에러 발생 - memberId: {}", memberId, e);
