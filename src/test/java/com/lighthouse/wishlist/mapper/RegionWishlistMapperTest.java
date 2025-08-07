@@ -45,7 +45,7 @@ class RegionWishlistMapperTest {
 
         // when
         int inserted = mapper.saveLikeRegion(likeRegion);
-        LikeRegion found = mapper.findByMemberIdAndRegionCd(34L, "11", "110", "111");
+        LikeRegion found = mapper.findByMemberIdAndRegionCd(34L, "11", "110", "111",false);
 
         // then
         assertThat(inserted).isEqualTo(1);
@@ -68,7 +68,7 @@ class RegionWishlistMapperTest {
         // when
         likeRegion.setIsLike(1);
         int updated = mapper.updateLikeRegion(likeRegion);
-        LikeRegion found = mapper.findByMemberIdAndRegionCd(34L, "11", "110", "111");
+        LikeRegion found = mapper.findByMemberIdAndRegionCd(34L, "11", "110", "111", false);
 
         // then
         assertThat(updated).isEqualTo(1);

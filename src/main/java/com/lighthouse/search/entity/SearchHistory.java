@@ -1,4 +1,4 @@
-package com.lighthouse.wishlist.entity;
+package com.lighthouse.search.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SearchHistory {
-    Long memberId;
-    String keyword;
+    private Long memberId;
+    private String keyword;
+    private Integer type;
 }

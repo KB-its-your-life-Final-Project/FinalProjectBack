@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.search.mapper.SearchHistoryMapper">
+    <insert id="saveSearchHistory">
+        INSERT INTO ${SEARCH_HISTORY_TBL} (
+            member_id, keyword, type
+        ) VALUES (
+            #{memberId}, #{keyword}, #{type}
+        )
+    </insert>
+    <select id="findAllSearchHistoryByCondition" resultType="SearchHistory">
+        SELECT member_id, keyword, type
+        FROM ${SEARCH_HISTORY_TBL}
+        <where>
+            <if test="memberId != null and memberId != ''">
+                member_id = #{memberId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+        </where>
+        <if test="limit != null">
+            ORDER BY reg_date DESC
+            LIMIT #{limit}
+        </if>
+    </select>
+</mapper>
