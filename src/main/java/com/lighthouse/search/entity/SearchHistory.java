@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SearchHistory {
+    private Integer id;
     private Long memberId;
     private String keyword;
     private Integer type;

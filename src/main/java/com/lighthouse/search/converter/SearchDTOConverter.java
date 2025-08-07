@@ -1,4 +1,4 @@
-package com.lighthouse.search.convertor;
+package com.lighthouse.search.converter;
 
 
 import com.lighthouse.search.dto.SearchHistoryDTO;
