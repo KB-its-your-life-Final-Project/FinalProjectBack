@@ -41,14 +41,17 @@ public enum ErrorCode implements ResponseCode{
     SEARCH_HISTORY_PROCESS_FAIL(3004, "검색 기록 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     // Estate
     ESTATE_NOT_FOUND(4001, "건물에 대한 정보가 없습니다.", HttpStatus.NOT_FOUND),
+    ESTATE_SALES_NOT_FOUND(4002, "건물에 대한 판매 정보가 없습니다.", HttpStatus.NOT_FOUND),
     // localinfo
     REGION_NOT_FOUND( 5001, "지역 정보를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    WEATHER_NOT_FOUND(5002,"날씨 정보를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 
 
 
     //LawdCd
     LAWDCD_NOT_FOUND(6001, "지역 코드 조회 실패", HttpStatus.NOT_FOUND),
     LAWDCD_TARGET_NOT_FOUND(6002, "해당 지역 코드를 찾을 수 업습니다.", HttpStatus.NOT_FOUND),
+    LAWDCD_SQUARE_EMPTY(6002, "해당 지역에서 정보가 없습니다.", HttpStatus.NOT_FOUND),
 
     // HomeRegister
     HOME_REGISTER_FAIL(7001, "집 정보 등록에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -59,6 +62,7 @@ public enum ErrorCode implements ResponseCode{
     ALARM_SETTING_FAIL(8001,"알림 설정 업데이트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ALARM_FETCH_FAIL(8002, "알림 목록 조회에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ALARM_READ_FAIL(8003, "알림 읽음 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
 
     //Server Error
     SERVER_NOT_RESPONDING(99001, "서버가 응답하지 않습니다", HttpStatus.SERVICE_UNAVAILABLE),

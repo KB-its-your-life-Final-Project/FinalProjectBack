@@ -3,7 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lighthouse.transactions.mapper.TransactionMapper">
-
     <insert id="insertApartmentTrade" parameterType="ApartmentTradeVO">
         INSERT INTO apartment_trade_0715 (
             umd_nm, sgg_cd, apt_dong, apt_nm, build_year,
@@ -340,7 +339,9 @@
 
     <select id="findIdByUniqueCombination" parameterType="map" resultType="java.lang.Integer">
         SELECT id
-        FROM estate_api_integration_tbl
+--        FROM estate_api_integration_tbl
+--        FROM estate_api_integration_tbl_0805
+        FROM estate_api_integration_tbl_0806
         WHERE mhouse_type = #{mhouseType}
           AND shouse_type = #{shouseType}
           AND build_year = #{buildYear}
@@ -348,8 +349,10 @@
           AND jibun_addr = #{jibunAddr}
     </select>
 
-    <insert id="insertEstateApiIntegrationBatch" parameterType="list">
-        INSERT IGNORE INTO estate_api_integration_tbl (
+    <insert id="insertEstateApiIntegrationBatch" parameterType="map">
+--        INSERT IGNORE INTO estate_api_integration_tbl (
+--        INSERT IGNORE INTO estate_api_integration_tbl_0805 (
+        INSERT IGNORE INTO estate_api_integration_tbl_0806 (
         sgg_cd, sgg_nm, umd_nm, jibun,
         building_name, mhouse_type, shouse_type,
         build_year, building_type, source_api,
@@ -365,8 +368,10 @@
         </foreach>
     </insert>
 
-    <insert id="insertEstateApiIntegrationSalesBatch" parameterType="list">
-        INSERT INTO estate_api_integration_sales_tbl (
+    <insert id="insertEstateApiIntegrationSalesBatch" parameterType="map">
+--        INSERT INTO estate_api_integration_sales_tbl (
+--        INSERT IGNORE INTO estate_api_integration_sales_tbl_0805 (
+        INSERT IGNORE INTO estate_api_integration_sales_tbl_0806 (
         estate_id, deal_year, deal_month, deal_day,
         deal_amount, deposit, monthly_rent, trade_type
         ) VALUES

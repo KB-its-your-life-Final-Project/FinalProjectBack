@@ -20,7 +20,7 @@ public class NewsService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String YOUTH_CONTENT_URL = "https://www.youthcenter.go.kr/go/ythip/getContent";
 
-    @Value("${YOUTH_CONTENT_API_KEY}")
+    @Value("${YOUTH_PROGRAM_API_KEY}")
     private String apiKey;
 
     public List<YouthContentDTO> getNews() {
