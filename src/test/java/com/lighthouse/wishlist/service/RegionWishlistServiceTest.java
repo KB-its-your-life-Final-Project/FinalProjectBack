@@ -33,7 +33,7 @@ class RegionWishlistServiceTest {
     void saveOrUpdateWishlist_updateSuccess() {
         LikeRegion existing = new LikeRegion();
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101")).thenReturn(existing);
+        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101",false)).thenReturn(existing);
         when(mapper.updateLikeRegion(existing)).thenReturn(1);
 
         assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, "1120010100000"));
@@ -44,7 +44,7 @@ class RegionWishlistServiceTest {
     void saveOrUpdateWishlist_updateFail() {
         LikeRegion existing = new LikeRegion();
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString())).thenReturn(existing);
+        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString(), anyBoolean())).thenReturn(existing);
         when(mapper.updateLikeRegion(any())).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, "1120010100000"));
@@ -54,7 +54,7 @@ class RegionWishlistServiceTest {
     @Test
     void saveOrUpdateWishlist_insertSuccess() {
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString())).thenReturn(null);
+        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString(), anyBoolean())).thenReturn(null);
         when(mapper.saveLikeRegion(any())).thenReturn(1);
 
         assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, "1120010100000"));
@@ -64,7 +64,7 @@ class RegionWishlistServiceTest {
     @Test
     void saveOrUpdateWishlist_insertFail() {
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString())).thenReturn(null);
+        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString(), anyBoolean())).thenReturn(null);
         when(mapper.saveLikeRegion(any())).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, "1120010100000"));
@@ -83,7 +83,7 @@ class RegionWishlistServiceTest {
     void deleteWishlist_success() {
         LikeRegion existing = new LikeRegion();
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101")).thenReturn(existing);
+        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101", false)).thenReturn(existing);
         when(mapper.updateLikeRegion(existing)).thenReturn(1);
 
         assertDoesNotThrow(() -> service.deleteWishlist(1L, "1120010100000"));
@@ -94,7 +94,7 @@ class RegionWishlistServiceTest {
     void deleteWishlist_failUpdate() {
         LikeRegion existing = new LikeRegion();
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101")).thenReturn(existing);
+        when(mapper.findByMemberIdAndRegionCd(1L, "11", "200", "101", false)).thenReturn(existing);
         when(mapper.updateLikeRegion(existing)).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "1120010100000"));
@@ -104,7 +104,7 @@ class RegionWishlistServiceTest {
     @Test
     void deleteWishlist_notFound() {
         when(lawdCodeService.findRegionByRegionCd("1120010100").getLocallowNm()).thenReturn("강남동");
-        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString())).thenReturn(null);
+        when(mapper.findByMemberIdAndRegionCd(anyLong(), anyString(), anyString(), anyString(), anyBoolean())).thenReturn(null);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "1120010100000"));
         assertEquals(ErrorCode.WISHLIST_NOT_FOUND, ex.getErrorCode());

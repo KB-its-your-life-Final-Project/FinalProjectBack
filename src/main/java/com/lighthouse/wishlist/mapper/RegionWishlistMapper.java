@@ -12,6 +12,7 @@ public interface RegionWishlistMapper {
     LikeRegion findByMemberIdAndRegionCd(@Param("memberId") Long memberId,
                                          @Param("sidoCd") String sidoCd,
                                          @Param("ssgCd") String ssgCd,
-                                         @Param("umdCd") String umdCd);
+                                         @Param("umdCd") String umdCd,
+                                         @Param("checkLike") Boolean checkLike);
     List<SeparatedRegionDTO> findRegionsByMemberId(Long memberId);
 }

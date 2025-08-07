@@ -19,9 +19,8 @@
         FROM
             ${ESTATE_API_INTEGRATION_TBL} 
         WHERE
-            latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
-          AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
-          <!-- 현재는 real_estate와 real_estate_saelse가 1:다가 아닌 다:다라서 limit 적용했습니다. -->
+            latitude BETWEEN #{lat} - 0.0002 AND #{lat} + 0.0002
+          AND longitude BETWEEN #{lng} - 0.0002 AND #{lng} + 0.0002
         LIMIT 1
     </select>
 
@@ -59,10 +58,10 @@
                 AND `jibun_addr` = #{jibunAddr}
             </if>
             <if test="latitude != null">
-                AND latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
+                AND latitude BETWEEN #{lat} - 0.0002 AND #{lat} + 0.0002
             </if>
             <if test="longitude != null">
-                AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
+                AND longitude BETWEEN #{lng} - 0.0002 AND #{lng} + 0.0002
             </if>
     </select>
 
@@ -106,7 +105,7 @@
         SELECT
             *
         FROM
-            estate_api_integration_tbl 
+            ${ESTATE_API_INTEGRATION_TBL}
         WHERE
             id = #{estateId}
     </select>
@@ -116,7 +115,7 @@
         SELECT
             *
         FROM
-            estate_api_integration_sales_tbl 
+            ${ESTATE_API_INTEGRATION_SALES_TBL} 
         WHERE
             estate_id = #{estateId}
     </select>
@@ -126,7 +125,7 @@
         SELECT
             *
         FROM
-            estate_api_integration_tbl 
+            ${ESTATE_API_INTEGRATION_TBL}
         WHERE
             latitude BETWEEN #{minLat} AND #{maxLat}
           AND longitude BETWEEN #{minLng} AND #{maxLng}
