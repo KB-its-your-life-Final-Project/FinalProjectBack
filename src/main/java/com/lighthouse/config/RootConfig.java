@@ -36,6 +36,7 @@ import java.util.Properties;
     "com.lighthouse.localinfo.mapper",
     "com.lighthouse.homeregister.mapper",
     "com.lighthouse.lawdCode.mapper",
+    "com.lighthouse.search.mapper",
 })
 @ComponentScan(
         basePackages = {"com.lighthouse"},

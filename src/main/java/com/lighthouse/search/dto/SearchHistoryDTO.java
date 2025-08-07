@@ -9,6 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchHistoryRequestDTO {
+public class SearchHistoryDTO {
+    private Long memberId;
     private String keyword;
+    private Integer type;
+    private Integer limit;
 }
