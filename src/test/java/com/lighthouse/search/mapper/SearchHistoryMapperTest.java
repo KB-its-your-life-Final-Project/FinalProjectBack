@@ -2,7 +2,7 @@ package com.lighthouse.search.mapper;
 
 import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
-import com.lighthouse.search.convertor.SearchDTOConverter;
+import com.lighthouse.search.converter.SearchDTOConverter;
 import com.lighthouse.search.dto.SearchHistoryDTO;
 import com.lighthouse.security.config.SecurityConfig;
 import com.lighthouse.search.entity.SearchHistory;

@@ -2,7 +2,7 @@ package com.lighthouse.search.service;
 
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
-import com.lighthouse.search.convertor.SearchDTOConverter;
+import com.lighthouse.search.converter.SearchDTOConverter;
 import com.lighthouse.search.dto.SearchHistoryDTO;
 import com.lighthouse.search.entity.SearchHistory;
 import com.lighthouse.search.mapper.SearchHistoryMapper;
