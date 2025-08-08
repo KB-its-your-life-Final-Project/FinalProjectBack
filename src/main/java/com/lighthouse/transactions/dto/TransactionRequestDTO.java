@@ -11,4 +11,9 @@ public class TransactionRequestDTO {
     private String startDate;
     private String endDate;
 
+
+    private String jibunAddress;
+    private Double lat;
+    private Double lng;
+
 }
