@@ -54,7 +54,6 @@ public class FileUploadService {
             Path destinationPath = profileDir.resolve(uniqueFileName);
             file.transferTo(destinationPath.toFile());
             // 회원에게 반환할 URL 경로 생성
-//            String fileUrl = profileDir.resolve(uniqueFileName).toString().replace("\\", "/");
             String fileUrl = "/" + relativeUploadDir + "/profile/" + uniqueFileName;
             log.info("프로필사진 업로드 완료 - 파일: {}, URL: {}", uniqueFileName, fileUrl);
             return fileUrl;

@@ -334,8 +334,9 @@ public class MemberService {
     public MemberResponseDTO uploadProfileImg(MemberResponseDTO memberDto, MultipartFile file) {
         try {
             Member member = memberMapper.findMemberById(memberDto.getId());
-            log.info("member: {}", member);
+            fileUploadService.deleteFile(member.getProfileImg());  // 기존 파일 삭제
             String uploadedImgUrl = fileUploadService.uploadProfileImg(file, memberDto.getId());
+            log.info("member: {}", member);
             log.info("uploadedImgUrl: {}", uploadedImgUrl);
             member.setProfileImg(uploadedImgUrl);
             memberMapper.updateMember(member);
