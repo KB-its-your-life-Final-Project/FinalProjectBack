@@ -70,7 +70,7 @@ public class HomeRegisterService {
                 .estateId(estateInfo.getId())
                     .buildingNumber(requestDTO.getBuildingNumber())
                 .buildingName(estateInfo.getBuildingName())
-                .actionType("INSERT")
+                .actionType("NEW")
                 .contractStart(requestDTO.getContractStart())
                 .contractEnd(requestDTO.getContractEnd())
                 .rentType(requestDTO.getRentType())

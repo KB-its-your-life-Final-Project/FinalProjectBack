@@ -31,6 +31,7 @@ public class AlarmService {
     // 새로운 알림 생성
     public void createAlarm(Integer memberId, Integer type, String text, String regIp) {
         try {
+            log.info("알림 생성 시작: memberId={}, type={}, text={}", memberId, type, text);
             Alarms alarm = Alarms.builder()
                     .memberId(memberId)
                     .type(type)
@@ -42,6 +43,7 @@ public class AlarmService {
                     .build();
             
             alarmMapper.insertAlarm(alarm);
+            log.info("알림 생성 완료: memberId={}, type={}", memberId, type);
         } catch (Exception e) {
             log.error("알림 생성 실패: memberId={}, type={}", memberId, type, e);
             throw e;
@@ -267,14 +269,19 @@ public class AlarmService {
     // 1단계: 집 정보 등록 시 첫 번째 알림 생성
     public void createInitialHouseContractAlarm(Integer memberId, String regIp) {
         String alarmText = "집을 계약하셨다면 권리 변동사항을 확인하세요";
+        log.info("Type 1 알림 생성 시작: memberId={}, text={}", memberId, alarmText);
         createAlarm(memberId, 1, alarmText, regIp);
+        log.info("Type 1 알림 생성 완료: memberId={}", memberId);
     }
     
     // 집 정보 수정 시 기존 Type 1 알림들을 모두 삭제하고 새로운 1단계 알림 생성
     public void resetHouseContractAlarms(Integer memberId, String regIp) {
         try {
+            log.info("집 계약 알림 초기화 시작: memberId={}", memberId);
             alarmMapper.deleteAllType1AlarmsByMember(memberId);
+            log.info("기존 Type 1 알림 삭제 완료: memberId={}", memberId);
             createInitialHouseContractAlarm(memberId, regIp);
+            log.info("집 계약 알림 초기화 완료: memberId={}", memberId);
         } catch (Exception e) {
             log.error("집 계약 알림 초기화 중 오류 발생: memberId={}", memberId, e);
         }

@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,15 +41,21 @@ public class AlarmController {
            @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
            HttpServletResponse response){
-       // 특정 타입의 알림 설정 변경 (get_alarm 속성 업데이트)
       try{
-         if (token == null) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+         // 사용자 ID 추출
+         Integer memberId = null;
+         if (token != null) {
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            memberId = memberDto.getId();
+         } else {
+            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            if (memberDto == null) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+            memberId = memberDto.getId();
          }
-
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         Integer memberId = memberDto.getId();
          
          alarmService.updateAlarmSetting(memberId, requestDto.getType(), requestDto.getGetAlarm());
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_UPDATE_SUCCESS));
@@ -68,13 +75,20 @@ public class AlarmController {
            HttpServletRequest request,
            HttpServletResponse response){
       try{
-         if (token == null) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+         // 사용자 ID 추출
+         Integer memberId = null;
+         if (token != null) {
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            memberId = memberDto.getId();
+         } else {
+            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            if (memberDto == null) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+            memberId = memberDto.getId();
          }
-
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         Integer memberId = memberDto.getId();
          
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList));
@@ -97,13 +111,19 @@ public class AlarmController {
         // is_checked를 읽음 처리
        Integer memberId = null;
        try{
-          if (token == null) {
-             return ResponseEntity.badRequest()
-                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+          // 사용자 ID 추출
+          if (token != null) {
+             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+             memberId = memberDto.getId();
+          } else {
+             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
+             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+             if (memberDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+             }
+             memberId = memberDto.getId();
           }
-
-          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-          memberId = memberDto.getId();
           
           alarmService.setAlarmRead(memberId, alarmId);
           return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_READ_SUCCESS));
@@ -122,13 +142,20 @@ public class AlarmController {
            HttpServletRequest request,
            HttpServletResponse response){
        try{
-         if (token == null) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+         // 사용자 ID 추출
+         Integer memberId = null;
+         if (token != null) {
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            memberId = memberDto.getId();
+         } else {
+            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+            if (memberDto == null) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            }
+            memberId = memberDto.getId();
          }
-
-          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         Integer memberId = memberDto.getId();
          
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList.size()));
