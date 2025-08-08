@@ -191,7 +191,7 @@ public class MemberController {
             // 카카오 로그인
         } else if (loginReqDto.getCreatedType() == 2) {
             try {
-                MemberResponseDTO memberDto = memberService.loginOrRegisterByKakaoCode(loginDto, req, resp);
+                MemberResponseDTO memberDto = memberService.loginOrRegisterByKakaoCode(loginReqDto, req, resp);
                 
                 // 로그인 성공 후 알림 체크 
                 try {
@@ -210,7 +210,7 @@ public class MemberController {
             // 구글 로그인
         } else if (loginReqDto.getCreatedType() == 3) {
             try {
-                MemberResponseDTO memberDto = memberService.loginOrRegisterByGoogleCode(loginDto, req, resp);
+                MemberResponseDTO memberDto = memberService.loginOrRegisterByGoogleCode(loginReqDto, req, resp);
                 
                 // 로그인 성공 후 알림 체크 
                 try {

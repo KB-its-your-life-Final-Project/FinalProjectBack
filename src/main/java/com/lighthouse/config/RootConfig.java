@@ -38,6 +38,7 @@ import java.util.Properties;
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.wishlist.mapper",
     "com.lighthouse.youthProgram.mapper",
+    "com.lighthouse.search.mapper",
 })
 @ComponentScan(
         basePackages = {"com.lighthouse"},

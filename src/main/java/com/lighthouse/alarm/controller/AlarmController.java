@@ -3,7 +3,7 @@ package com.lighthouse.alarm.controller;
 import com.lighthouse.alarm.dto.AlarmResponseDto;
 import com.lighthouse.alarm.dto.AlarmSettingRequestDto;
 import com.lighthouse.alarm.service.AlarmService;
-import com.lighthouse.member.dto.MemberDTO;
+import com.lighthouse.member.dto.MemberResponseDTO;
 import com.lighthouse.member.service.MemberService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
@@ -46,8 +46,8 @@ public class AlarmController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
          }
-         
-         MemberDTO memberDto = memberService.findMemberLoggedIn(request, response);
+
+         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
          Integer memberId = memberDto.getId();
          
          alarmService.updateAlarmSetting(memberId, requestDto.getType(), requestDto.getGetAlarm());
@@ -72,8 +72,8 @@ public class AlarmController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
          }
-         
-         MemberDTO memberDto = memberService.findMemberLoggedIn(request, response);
+
+         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
          Integer memberId = memberDto.getId();
          
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
@@ -101,8 +101,8 @@ public class AlarmController {
              return ResponseEntity.badRequest()
                      .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
           }
-          
-          MemberDTO memberDto = memberService.findMemberLoggedIn(request, response);
+
+          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
           memberId = memberDto.getId();
           
           alarmService.setAlarmRead(memberId, alarmId);
@@ -126,8 +126,8 @@ public class AlarmController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
          }
-         
-         MemberDTO memberDto = memberService.findMemberLoggedIn(request, response);
+
+          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
          Integer memberId = memberDto.getId();
          
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
