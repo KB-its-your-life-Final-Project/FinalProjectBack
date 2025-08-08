@@ -233,10 +233,15 @@ public class MemberService {
             String kakaoNickname = kakaoUserClient.getKakaoNickname(kakaoAccessToken);
             member = dto.toMember();
             member.setName(kakaoNickname);
+            member.setEmail("");
             member.setKakaoId(kakaoUserId);
             member.setRegIp(clientIp);
             member.setRecentIp(clientIp);
+            member.setPwd("");
+            member.setGoogleId("");
+            member.setPhone("");
             memberMapper.insertMember(member);
+            member = memberMapper.findMemberByKakaoId(kakaoUserId);
         }
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
@@ -270,7 +275,11 @@ public class MemberService {
             member.setGoogleId(googleId);
             member.setRegIp(clientIp);
             member.setRecentIp(clientIp);
+            member.setPwd("");
+            member.setKakaoId("");
+            member.setPhone("");
             memberMapper.insertMember(member);
+            member = memberMapper.findMemberByGoogleId(googleId);
         }
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
