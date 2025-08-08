@@ -365,6 +365,7 @@ public class MemberService {
                 fileUploadService.deleteFile(member.getProfileImg());
             }
             member.setProfileImg("");
+            memberMapper.updateMember(member);
             Member updatedMember = memberMapper.findMemberById(member.getId());
             return MemberResponseDTO.toUser(updatedMember);
         } catch (Exception e) {

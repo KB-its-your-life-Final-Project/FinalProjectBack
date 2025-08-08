@@ -9,6 +9,7 @@ import lombok.Data;
 @Builder
 public class TransactionResponseDTO {
     private String date;
+    private String buildingName;
     private Long estateId;
     private int price;
     private String type;

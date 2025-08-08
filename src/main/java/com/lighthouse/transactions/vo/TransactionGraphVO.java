@@ -11,4 +11,5 @@ public class TransactionGraphVO {
     private Integer deposit;
     private int tradeType;
     private String buildingName;
+    private Long estateId;
 }

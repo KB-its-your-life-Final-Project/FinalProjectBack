@@ -89,6 +89,8 @@ private List<TransactionResponseDTO> convertToResponseDTO(List<TransactionGraphV
                             .date(date)
                             .type(type)
                             .price(price)
+                            .estateId(vo.getEstateId())
+                            .buildingName(vo.getBuildingName())
                             .build();
                 })
                 .collect(Collectors.toList());
