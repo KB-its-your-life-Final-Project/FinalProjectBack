@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.alarm.mapper.AlarmMapper">
+
+    <!-- 알림 저장 -->
+    <insert id="insertAlarm" parameterType="com.lighthouse.alarm.entity.Alarms">
+        INSERT INTO alarm_tbl(member_id,type,text,reg_ip,reg_date,is_checked,get_alarm)
+        VALUES(#{alarm.memberId},#{alarm.type},#{alarm.text},#{alarm.regIp},#{alarm.regDate},#{alarm.isChecked},#{alarm.getAlarm})
+    </insert>
+
+    <!-- 알림 설정 변경 (get_alarm 업데이트) -->
+    <update id="updateAlarmSetting" parameterType="map">
+        UPDATE alarm_tbl
+        SET get_alarm = #{getAlarm}
+        WHERE member_id = #{memberId}
+        AND type = #{alarmType}
+    </update>
+
+    <!-- 제공 받을 알림 리스트 조회 (get_alarm=1이고 is_checked=0인 것들) -->
+    <select id="getAlarmList" resultType="com.lighthouse.alarm.dto.AlarmResponseDto">
+        SELECT 
+            id,
+            member_id as memberId,
+            type,
+            text,
+            DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as regDate,
+            is_checked as isChecked,
+            get_alarm as getAlarm
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND get_alarm = 1
+        AND is_checked = 0
+        ORDER BY reg_date DESC
+    </select>
+
+    <!-- 알림 읽음 처리 (is_checked를 1로 변경) -->
+    <update id="setAlarmRead" parameterType="map">
+        UPDATE alarm_tbl
+        SET is_checked = 1
+        WHERE member_id = #{memberId}
+        AND id = #{alarmId}
+    </update>
+    
+    <!-- 특정 사용자의 만료 예정 계약 조회 -->
+    <select id="getExpiringContractsByUser" resultType="map">
+        SELECT 
+            user_id as member_id,
+            building_name as property_address
+        FROM myhome_tbl
+        WHERE user_id = #{memberId}
+        AND contract_end = DATE_ADD(CURDATE(), INTERVAL #{daysLeft} DAY)
+        AND is_delete = 1
+    </select>
+    
+    <!-- 특정 사용자의 관심 지역 시세 변화 조회 -->
+    <select id="getInterestAreaPriceChangesByUser" resultType="map">
+        SELECT 
+            w.member_id,
+            w.area_name,
+            CONCAT('변화율: ', ROUND((t.current_price - t.previous_price) / t.previous_price * 100, 2), '%') as change_info
+        FROM wishlist_tbl w
+        JOIN transactions_tbl t ON w.area_code = t.area_code
+        WHERE w.member_id = #{memberId}
+        AND t.update_date = CURDATE()
+        AND ABS((t.current_price - t.previous_price) / t.previous_price) > 0.05
+        AND w.is_active = 1
+    </select>
+    
+    <!-- 디버깅용: 사용자의 모든 집 정보 조회 -->
+    <select id="getAllUserHomes" resultType="map">
+        SELECT 
+            user_id,
+            building_name,
+            contract_end,
+            is_delete,
+            CURDATE() as today,
+            DATEDIFF(contract_end, CURDATE()) as days_until_expiry
+        FROM myhome_tbl
+        WHERE user_id = #{memberId}
+        AND is_delete = 1
+    </select>
+    
+    <!-- 동일한 사용자의 동일한 유형 알림 업데이트 -->
+    <update id="updateAlarmText" parameterType="map">
+        UPDATE alarm_tbl
+        SET text = #{text},
+            reg_date = NOW()
+        WHERE member_id = #{memberId}
+        AND type = #{type}
+        AND is_checked = 0
+        LIMIT 1
+    </update>
+    
+    <!-- 동일한 사용자의 동일한 유형 알림 존재 여부 확인 -->
+    <select id="existsAlarmByMemberAndType" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM alarm_tbl
+        WHERE member_id = #{memberId}
+        AND type = #{type}
+        AND is_checked = 0
+    </select>
+</mapper>

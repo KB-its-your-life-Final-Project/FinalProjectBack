@@ -1,0 +1,41 @@
+package com.lighthouse.alarm.mapper;
+
+import com.lighthouse.alarm.dto.AlarmResponseDto;
+import com.lighthouse.alarm.entity.Alarms;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
+
+@Mapper
+public interface AlarmMapper {
+    // 알람 설정 변경
+    void updateAlarmSetting(@Param("memberId") Integer memberId,
+    @Param("alarmType") Integer alarmType,
+    @Param("getAlarm") Integer getAlarm                                );
+
+    // 제공 받을 알림 리스트 조회
+    List<AlarmResponseDto> getAlarmList(@Param("memberId") Integer memberId);
+
+    // 알림 읽음 처리
+    void setAlarmRead(@Param("memberId")Integer memberId, @Param("alarmId")Integer alarmId);
+    
+    // 새로운 알림 삽입
+    void insertAlarm(@Param("alarm") Alarms alarm);
+    
+    // 특정 사용자의 만료 예정 계약 조회
+    List<Map<String, Object>> getExpiringContractsByUser(@Param("memberId") Integer memberId, @Param("daysLeft") int daysLeft);
+    
+    // 특정 사용자의 관심 지역 시세 변화 조회
+    List<Map<String, Object>> getInterestAreaPriceChangesByUser(@Param("memberId") Integer memberId);
+    
+    // 디버깅용: 사용자의 모든 집 정보 조회
+    List<Map<String, Object>> getAllUserHomes(@Param("memberId") Integer memberId);
+    
+    // 동일한 사용자의 동일한 유형 알림 업데이트
+    int updateAlarmText(@Param("memberId") Integer memberId, @Param("type") Integer type, @Param("text") String text);
+    
+    // 동일한 사용자의 동일한 유형 알림 존재 여부 확인
+    boolean existsAlarmByMemberAndType(@Param("memberId") Integer memberId, @Param("type") Integer type);
+}

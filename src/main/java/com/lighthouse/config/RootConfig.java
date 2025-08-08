@@ -25,6 +25,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableScheduling // 추가
 @MapperScan(basePackages = {
+    "com.lighthouse.alarm.mapper",
     "com.lighthouse.buildingRegister.mapper",
     "com.lighthouse.estate.mapper",
     "com.lighthouse.homeregister.mapper",

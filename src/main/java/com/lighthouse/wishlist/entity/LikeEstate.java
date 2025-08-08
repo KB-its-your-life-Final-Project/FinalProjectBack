@@ -11,4 +11,7 @@ public class LikeEstate {
     private Long memberId;
     private Long estateId;
     private Integer isLike;
+    private String jibunAddr;
+    private String buildingName;
+    private Integer buildingType;
 }
