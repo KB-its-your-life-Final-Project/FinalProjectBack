@@ -100,6 +100,18 @@
             </if>
     </select>
 
+    <!-- 주변 건물 찾기 -->
+    <select id="getNearyByEstate" resultMap="EstateMap">
+        SELECT
+            *
+        FROM
+            ${ESTATE_API_INTEGRATION_TBL} 
+        WHERE
+            latitude BETWEEN #{lat} - 0.002 AND #{lat} + 0.002
+          AND longitude BETWEEN #{lng} - 0.002 AND #{lng} + 0.002
+        LIMIT 1
+    </select>
+
     <!-- estate ID로 건물 정보 조회 -->
     <select id="getEstateById" resultMap="EstateMap">
         SELECT
