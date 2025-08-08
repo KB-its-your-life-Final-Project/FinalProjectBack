@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/myhome")
@@ -112,8 +113,13 @@ public class HomeRegisterController {
             
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
             
+        } catch (NoSuchElementException e) {
+            log.warn("해당 위치의 부동산 정보를 찾을 수 없습니다: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND_BY_COORDINATES));
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("부동산 정보를 찾을 수 없습니다")) {
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("부동산 정보를 찾을 수 없습니다")) {
                 return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND_BY_COORDINATES));
             }
