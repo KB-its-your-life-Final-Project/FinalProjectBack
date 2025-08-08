@@ -5,36 +5,36 @@
 
 
 <mapper namespace="com.lighthouse.transactions.mapper.TransactionDetailMapper">
-<select id="findDate" resultType="com.lighthouse.transactions.vo.TransactionGraphVO">
-    SELECT
-    s.id,
-    s.estate_id AS estateId,
-    s.deal_year AS dealYear,
-    s.deal_month AS dealMonth,
-    s.deal_day AS dealDay,
-    s.deal_amount AS dealAmount,
-    s.deposit,
-    s.monthly_rent AS monthlyRent,
-    s.trade_type AS tradeType,
-    e.building_name AS buildingName
-    FROM estate_api_integration_sales_tbl s
-    JOIN estate_api_integration_tbl e ON s.estate_id = e.id
-    WHERE 1=1
-    <if test="tradeType != null">
-        AND s.trade_type = #{tradeType}
-    </if>
+    <select id="findDate" resultType="com.lighthouse.transactions.vo.TransactionGraphVO">
+        SELECT
+        s.id,
+        s.estate_id AS estateId,
+        s.deal_year AS dealYear,
+        s.deal_month AS dealMonth,
+        s.deal_day AS dealDay,
+        s.deal_amount AS dealAmount,
+        s.deposit,
+        s.monthly_rent AS monthlyRent,
+        s.trade_type AS tradeType,
+        e.building_name AS buildingName
+        FROM estate_api_integration_sales_tbl s
+        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        WHERE 1=1
+        <if test="tradeType != null">
+            AND s.trade_type = #{tradeType}
+        </if>
 
-    <if test="startDate != null and startDate != ''">
-        AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[>=]]> #{startDate}
-    </if>
-    <if test="endDate != null and endDate != ''">
-        AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
-    </if>
-    <if test="buildingName != null and buildingName != ''">
-        AND e.building_name = #{buildingName}
-    </if>
+        <if test="startDate != null and startDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[>=]]> #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
+        </if>
+        <if test="buildingName != null and buildingName != ''">
+            AND e.building_name = #{buildingName}
+        </if>
 
-</select>
+    </select>
 
     <!-- lat/lng 오차보정으로 buildingName 조회 (있으면 buildingName 리턴) -->
     <select id="findBuildingNameByLatLng" resultType="String">
@@ -48,20 +48,45 @@
     <!-- lat/lng 기준 거래 데이터 직접 조회 -->
     <select id="findDateByLatLng" resultType="com.lighthouse.transactions.vo.TransactionGraphVO">
         SELECT
-            s.id,
-            s.estate_id AS estateId,
-            s.deal_year AS dealYear,
-            s.deal_month AS dealMonth,
-            s.deal_day AS dealDay,
-            s.deal_amount AS dealAmount,
-            s.deposit,
-            s.monthly_rent AS monthlyRent,
-            s.trade_type AS tradeType,
-            e.building_name AS buildingName
+        s.id,
+        s.estate_id AS estateId,
+        s.deal_year AS dealYear,
+        s.deal_month AS dealMonth,
+        s.deal_day AS dealDay,
+        s.deal_amount AS dealAmount,
+        s.deposit,
+        s.monthly_rent AS monthlyRent,
+        s.trade_type AS tradeType,
+        e.building_name AS buildingName
         FROM estate_api_integration_sales_tbl s
-                 JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
         WHERE e.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
-          AND e.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+        AND e.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+        <if test="tradeType != null">
+            AND s.trade_type = #{tradeType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[>=]]> #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
+        </if>
+    </select>
+    <select id="findDateByBuildingName" resultType="com.lighthouse.transactions.vo.TransactionGraphVO">
+        SELECT
+        s.id,
+        s.estate_id AS estateId,
+        s.deal_year AS dealYear,
+        s.deal_month AS dealMonth,
+        s.deal_day AS dealDay,
+        s.deal_amount AS dealAmount,
+        s.deposit,
+        s.monthly_rent AS monthlyRent,
+        s.trade_type AS tradeType,
+        e.building_name AS buildingName
+        FROM estate_api_integration_sales_tbl s
+        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        WHERE e.building_name = #{buildingName}
         <if test="tradeType != null">
             AND s.trade_type = #{tradeType}
         </if>
@@ -73,5 +98,4 @@
         </if>
     </select>
 
-
-        </mapper>
+</mapper>
