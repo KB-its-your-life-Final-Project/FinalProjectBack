@@ -146,8 +146,8 @@
             eais.id as sales_id,
             le.update_date as liked_date
         FROM like_estate_tbl le
-        JOIN estate_api_integration_tbl eai ON le.estate_id = eai.id
-        JOIN estate_api_integration_sales_tbl eais ON eai.id = eais.estate_id
+        JOIN ${ESTATE_API_INTEGRATION_TBL} eai ON le.estate_id = eai.id
+        JOIN ${ESTATE_API_INTEGRATION_SALES_TBL} eais ON eai.id = eais.estate_id
         WHERE le.member_id = #{memberId}
         AND le.is_like = 1
         ORDER BY eais.deal_year DESC, eais.deal_month DESC, eais.deal_day DESC
@@ -162,7 +162,7 @@
             deal_year,
             deal_month,
             deal_day
-        FROM estate_api_integration_sales_tbl
+        FROM ${ESTATE_API_INTEGRATION_SALES_TBL}
         WHERE estate_id = #{estateId}
             AND (
                 deal_year &lt; #{likedYear}

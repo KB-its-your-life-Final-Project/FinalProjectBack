@@ -341,7 +341,7 @@
         SELECT id
 --        FROM estate_api_integration_tbl
 --        FROM estate_api_integration_tbl_0805
-        FROM estate_api_integration_tbl_0806
+        FROM ${ESTATE_API_INTEGRATION_TBL}
         WHERE mhouse_type = #{mhouseType}
           AND shouse_type = #{shouseType}
           AND build_year = #{buildYear}
@@ -352,7 +352,7 @@
     <insert id="insertEstateApiIntegrationBatch" parameterType="map">
 --        INSERT IGNORE INTO estate_api_integration_tbl (
 --        INSERT IGNORE INTO estate_api_integration_tbl_0805 (
-        INSERT IGNORE INTO estate_api_integration_tbl_0806 (
+        INSERT IGNORE INTO ${ESTATE_API_INTEGRATION_TBL} (
         sgg_cd, sgg_nm, umd_nm, jibun,
         building_name, mhouse_type, shouse_type,
         build_year, building_type, source_api,
@@ -371,7 +371,7 @@
     <insert id="insertEstateApiIntegrationSalesBatch" parameterType="map">
 --        INSERT INTO estate_api_integration_sales_tbl (
 --        INSERT IGNORE INTO estate_api_integration_sales_tbl_0805 (
-        INSERT IGNORE INTO estate_api_integration_sales_tbl_0806 (
+        INSERT IGNORE INTO ${ESTATE_API_INTEGRATION_SALES_TBL} (
         estate_id, deal_year, deal_month, deal_day,
         deal_amount, deposit, monthly_rent, trade_type
         ) VALUES
