@@ -186,13 +186,13 @@ class EstateApiIntegrationTest {
     @DisplayName("통합 Estate API Integration & Sales 테스트 - 전국 모든 시군구")
     @Transactional
     @Rollback(false) // 실제 데이터 삽입
-    @Timeout(value = 7200) // 2시간 타임아웃
+    @Timeout(value = 14400) // 4시간 타임아웃
     void allRegionsTest() {
         // Given
         List<Integer> allUniqueLawdCodes = lawdCodeService.getAllUniqueRegionCodesWithPagination();
         log.info("📋 불러온 시군구 리스트: {}", allUniqueLawdCodes);
-        int startYmd = 202504;
-        int endYmd = 202504; // 1개월만 (전체이므로)
+        int startYmd = 202506;
+        int endYmd = 202506; // 1개월만 (전체이므로)
         log.info("🚀 통합 테스트 시작 - 전체 시군구: {} 개", allUniqueLawdCodes.size());
 
         // When & Then

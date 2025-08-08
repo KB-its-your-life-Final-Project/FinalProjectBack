@@ -27,17 +27,17 @@ import java.util.Properties;
 @MapperScan(basePackages = {
     "com.lighthouse.alarm.mapper",
     "com.lighthouse.buildingRegister.mapper",
-    "com.lighthouse.estate.mapper", 
+    "com.lighthouse.estate.mapper",
+    "com.lighthouse.homeregister.mapper",
+    "com.lighthouse.lawdCode.mapper",
+    "com.lighthouse.localinfo.mapper",
     "com.lighthouse.member.mapper",
     "com.lighthouse.safereport.mapper",
     "com.lighthouse.security.mapper",
     "com.lighthouse.toCoord.mapper",
     "com.lighthouse.transactions.mapper",
     "com.lighthouse.wishlist.mapper",
-    "com.lighthouse.localinfo.mapper",
-    "com.lighthouse.homeregister.mapper",
-    "com.lighthouse.lawdCode.mapper",
-    "com.lighthouse.search.mapper",
+    "com.lighthouse.youthProgram.mapper",
 })
 @ComponentScan(
         basePackages = {"com.lighthouse"},

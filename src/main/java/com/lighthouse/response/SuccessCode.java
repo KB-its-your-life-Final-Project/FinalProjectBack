@@ -12,11 +12,15 @@ public enum SuccessCode implements ResponseCode{
 	MEMBER_VERIFICATION_CODE_SENT(1003, "인증번호 전송 성공"),
 	MEMBER_VERIFICATION_CODE_SUCCESS(1004, "인증번호 검증 성공"),
 	MEMBER_REGISTER_SUCCESS(1005, "회원 가입 성공"),
-	MEMBER_UPDATE_SUCCESS(1006, "회원 정보 수정 성공"),
+	MEMBER_UNREGISTER_SUCCESS(1006, "회원 탈퇴 성공"),
 	MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS(1007, "카카오 회원가입 또는 로그인 성공"),
 	MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS(1008, "구글 회원가입 또는 로그인 성공"),
 	MEMBER_LOGIN_EMAIL_SUCCESS(1009, "이메일 로그인 성공"),
 	MEMBER_LOGOUT_SUCCESS(1010, "로그아웃 성공"),
+	MEMBER_UPDATE_NAME_SUCCESS(1006, "회원 이름 변경 성공"),
+	MEMBER_UPDATE_PWD_SUCCESS(1006, "회원 비밀번호 변경 성공"),
+	MEMBER_UPDATE_PROFILEIMAGE_SUCCESS(1006, "회원 프로필 사진 변경 성공"),
+	MEMBER_PASSWORD_VERIFICATION_SUCCESS(1006, "회원 비밀번호 검증 성공" ),
 
 	// SafeReport
 	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
@@ -25,7 +29,8 @@ public enum SuccessCode implements ResponseCode{
 	RECENT_SAFEREPORT_DELETE_SUCCESS(2003, "최근 본 안심레포트 삭제 성공"),
 
 	// News
-	NEWS_YOUTH_CONTENT_FETCH_SUCCESS(3001, "온통청년 콘텐츠 조회 성공"),
+	NEWS_YOUTH_PROGRAM_FETCH_SUCCESS(3001, "온통청년 제공 청년 프로그램 조회 성공"),
+	NEWS_YOUTH_PROGRAM_GET_UNREAD_SUCCESS(3002, "회원이 안 읽은 온통청년 콘텐츠 조회 성공"),
 	
 	// WishList
 	WISHLIST_GETLIST_SUCCESS(3001,"찜 목록 조회 성공"),

@@ -416,6 +416,7 @@ public class ApiService {
         log.info("🎉 부동산 API 통합 데이터 삽입 완료");
         // 최종 요약 로그
         log.info("📊 최종 결과 요약");
+        log.info("   - 대상 시군구: {} 개, 기간: {} ~ {}", uniqueLawdCdList.size(), startYmd, endYmd);
         log.info("   - 전체 작업 건수: {}", totalTasks);
         log.info("   - 성공: {} 건", completedTasks);
         log.info("   - 실패: {} 건", failedTasks);

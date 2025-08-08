@@ -10,14 +10,14 @@ import com.lighthouse.member.entity.Member;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterEmailDTO {
+public class RegisterEmailRequestDTO {
     private String email;
 //    private String verificationCode;
     private String name;
     private String password1;
     private String password2;
 
-    public Member toVO() {
+    public Member toMember() {
         return Member.builder()
                 .name(name)
                 .email(email)
