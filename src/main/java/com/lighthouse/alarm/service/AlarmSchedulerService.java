@@ -43,7 +43,9 @@ public class AlarmSchedulerService {
      */
     public void createInitialHouseContractAlarm(Integer memberId, String regIp) {
         try {
+            log.info("첫 번째 단계별 알림 생성 시작: memberId={}, regIp={}", memberId, regIp);
             alarmService.createInitialHouseContractAlarm(memberId, regIp);
+            log.info("첫 번째 단계별 알림 생성 완료: memberId={}", memberId);
         } catch (Exception e) {
             log.error("사용자 {} 집 정보 등록 시 첫 번째 단계별 알림 생성 중 오류 발생: {}", memberId, e.getMessage(), e);
         }
@@ -54,7 +56,9 @@ public class AlarmSchedulerService {
      */
     public void resetHouseContractAlarms(Integer memberId, String regIp) {
         try {
+            log.info("집 계약 알림 초기화 시작: memberId={}, regIp={}", memberId, regIp);
             alarmService.resetHouseContractAlarms(memberId, regIp);
+            log.info("집 계약 알림 초기화 완료: memberId={}", memberId);
         } catch (Exception e) {
             log.error("사용자 {} 집 정보 수정 시 알림 초기화 중 오류 발생: {}", memberId, e.getMessage(), e);
         }
