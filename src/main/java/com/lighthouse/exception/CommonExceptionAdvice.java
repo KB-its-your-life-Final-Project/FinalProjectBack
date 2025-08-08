@@ -39,7 +39,8 @@ public class CommonExceptionAdvice {
     
     @ExceptionHandler(NoSuchElementException.class)
     protected ResponseEntity<ApiResponse<String>> handleNoSuchElementException(NoSuchElementException e) {
-        log.warn("요청한 데이터를 찾을 수 없습니다: {}", e.getMessage());
+        String message = e.getMessage() != null ? e.getMessage() : "요청한 데이터를 찾을 수 없습니다";
+        log.warn("요청한 데이터를 찾을 수 없습니다: {}", message);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND));
@@ -47,7 +48,8 @@ public class CommonExceptionAdvice {
     
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiResponse<String>> handleException(Exception e) {
-        log.error("서버 오류 발생 {}", e.getMessage());
+        String message = e.getMessage() != null ? e.getMessage() : "알 수 없는 오류가 발생했습니다";
+        log.error("서버 오류 발생: {}", message, e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
