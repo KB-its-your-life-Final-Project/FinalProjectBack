@@ -17,8 +17,8 @@
         s.monthly_rent AS monthlyRent,
         s.trade_type AS tradeType,
         e.building_name AS buildingName
-        FROM estate_api_integration_sales_tbl s
-        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+        JOIN ${ESTATE_API_INTEGRATION_TBL} e ON s.estate_id = e.id
         WHERE 1=1
         <if test="tradeType != null">
             AND s.trade_type = #{tradeType}
@@ -39,7 +39,7 @@
     <!-- lat/lng 오차보정으로 buildingName 조회 (있으면 buildingName 리턴) -->
     <select id="findBuildingNameByLatLng" resultType="String">
         SELECT building_name
-        FROM estate_api_integration_tbl
+        FROM ${ESTATE_API_INTEGRATION_TBL}
         WHERE latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
           AND longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
             LIMIT 1
@@ -58,8 +58,8 @@
         s.monthly_rent AS monthlyRent,
         s.trade_type AS tradeType,
         e.building_name AS buildingName
-        FROM estate_api_integration_sales_tbl s
-        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+        JOIN ${ESTATE_API_INTEGRATION_TBL} e ON s.estate_id = e.id
         WHERE e.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
         AND e.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
         <if test="tradeType != null">
@@ -84,8 +84,8 @@
         s.monthly_rent AS monthlyRent,
         s.trade_type AS tradeType,
         e.building_name AS buildingName
-        FROM estate_api_integration_sales_tbl s
-        JOIN estate_api_integration_tbl e ON s.estate_id = e.id
+        FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+        JOIN ${ESTATE_API_INTEGRATION_TBL} e ON s.estate_id = e.id
         WHERE e.building_name = #{buildingName}
         <if test="tradeType != null">
             AND s.trade_type = #{tradeType}

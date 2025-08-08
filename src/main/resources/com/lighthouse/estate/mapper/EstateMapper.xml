@@ -151,7 +151,7 @@
             latitude,
             longitude,
             jibun_addr as jibunAddr
-        FROM estate_api_integration_tbl
+        FROM ${ESTATE_API_INTEGRATION_TBL}
         WHERE sgg_cd = #{regionCode} AND umd_nm = #{dongName}
         ORDER BY building_name
     </select>

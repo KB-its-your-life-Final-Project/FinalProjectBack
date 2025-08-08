@@ -74,7 +74,7 @@
         END AS monthly_rent
 
         FROM like_estate_tbl le
-        LEFT JOIN estate_api_integration_tbl eai ON le.estate_id = eai.id
+        LEFT JOIN ${ESTATE_API_INTEGRATION_TBL} eai ON le.estate_id = eai.id
         WHERE le.member_id = #{memberId}
             AND le.is_like = 1
     </select>

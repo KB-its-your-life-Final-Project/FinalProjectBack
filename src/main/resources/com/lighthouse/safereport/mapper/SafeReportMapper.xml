@@ -13,7 +13,7 @@
         SELECT
             *
         FROM
-            estate_api_integration_sales_tbl 
+            ${ESTATE_API_INTEGRATION_SALES_TBL}
         WHERE
             estate_id = #{estateId}
             AND trade_type = 1
