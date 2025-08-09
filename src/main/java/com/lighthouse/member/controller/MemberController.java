@@ -117,11 +117,11 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_EMAIL_FORMAT));
         }
         // 비밀번호 형식 유효성 검사
-//        if (!memberService.isValidPassword(registerDto.getPassword1())) {
+//        if (!memberService.isValidPassword(registerDto.getPwd())) {
 //            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_FORMAT));
 //        }
         // 비밀번호1과 비밀번호2 일치 여부 검사
-        if (!Objects.equals(registerReqDto.getPassword1(), registerReqDto.getPassword2())) {
+        if (!Objects.equals(registerReqDto.getPwd(), registerReqDto.getPwdChk())) {
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD_CHECK));
         }
         try {
@@ -169,7 +169,7 @@ public class MemberController {
                 try {
                     MemberResponseDTO memberDto = memberService.loginByEmail(loginReqDto, req, resp);
                     if (memberDto == null) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
+                        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
                     }
                     
                     // 로그인 성공 후 알림 체크
