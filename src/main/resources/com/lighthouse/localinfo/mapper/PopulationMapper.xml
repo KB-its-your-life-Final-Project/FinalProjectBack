@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.localinfo.mapper.PopulationMapper">
+    <select id="findByRegionCd" resultType="com.lighthouse.localinfo.dto.PopulationDTO">
+        SELECT
+            p.region_cd AS regionCd,
+            p.pop_total AS populationTotal,
+            p.pop_youth AS populationYouth,
+            -- 전체 인구 대비 청년 인구 비율 계산
+            -- NULLIF 함수로 '0으로 나누기' 에러를 방지
+            (p.pop_youth * 1.0 / NULLIF(p.pop_total, 0)) AS youthRatio
+        FROM
+            csv_population_tbl p
+        WHERE
+            p.region_cd = #{regionCd}
+            LIMIT 1
+    </select>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.localinfo.mapper.HospitalMapper">
+
+    <select id="findHospitalDetailsByRegionCd" resultType="com.lighthouse.localinfo.dto.HospitalDTO">
+        SELECT
+            SUBSTRING(#{regionCd}, 1, 5) AS regionCd,
+            COUNT(*) AS totalCount
+        FROM
+            csv_hospital_tbl
+        WHERE
+            SUBSTRING(region_cd, 1, 5) = SUBSTRING(#{regionCd}, 1, 5)
+    </select>
+
+</mapper>

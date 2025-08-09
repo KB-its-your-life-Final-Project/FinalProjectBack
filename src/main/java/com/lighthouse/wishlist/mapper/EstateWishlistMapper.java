@@ -1,5 +1,6 @@
 package com.lighthouse.wishlist.mapper;
 
+import com.lighthouse.wishlist.dto.BuildingInfoDTO;
 import com.lighthouse.wishlist.dto.EstateWishlistResponseDTO;
 import com.lighthouse.wishlist.entity.LikeEstate;
 
@@ -12,7 +13,9 @@ import java.util.List;
 public interface EstateWishlistMapper {
     int saveLikeEstate(LikeEstate item);
     int updateLikeEstate(LikeEstate item);
-    LikeEstate findByMemberIdAndEstateId(@Param("memberId") Long memberId,
-                                         @Param("estateId") Long estateId);
-    List<EstateWishlistResponseDTO> findEstatesByMemberId(Long memberId);
+    LikeEstate findByMemberIdAndJibunAddr(@Param("memberId") Long memberId,
+                                          @Param("jibunAddr") String jibunAddr,
+                                          @Param("checkLike") Boolean checkLike);
+    List<EstateWishlistResponseDTO> findAllEstateByMemberId(Long memberId);
+    BuildingInfoDTO findByEstateId(@Param("estateId") Long estateId);
 }

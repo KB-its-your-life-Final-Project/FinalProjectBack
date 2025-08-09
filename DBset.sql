@@ -203,9 +203,17 @@ ALTER TABLE api_building_register
     ADD COLUMN longitude DOUBLE COMMENT '경도';
 
 
-DELETE FROM api_building_register WHERE id = 14;
+DELETE FROM api_building_register WHERE id = 37;
 DELETE FROM api_building_register_building_status
-WHERE register_id=14;
+WHERE register_id=37;
+DELETE FROM api_building_register_auth_status WHERE ID=37;
+DELETE FROM api_building_register_change WHERE ID=37;
+DELETE FROM api_building_register_detail WHERE ID=37;
+DELETE FROM api_building_register_license_class WHERE ID=37;
+DELETE FROM api_building_register_owner WHERE ID=37;
+DELETE FROM api_building_register_parking_lot_status WHERE ID=37;
+
+ALTER TABLE api_building_register DROP COLUMN jibun_addr;
 
 SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 
@@ -213,3 +221,45 @@ SELECT * FROM estate_api_integration_tbl WHERE latitude="자양동 127-7";
 ALTER TABLE `estate_api_integration_tbl`
 ADD CONSTRAINT unique_combination
 UNIQUE (mhouse_type, shouse_type, build_year, building_type, jibun_addr);
+
+DROP TABLE IF EXISTS safe_report_tbl;
+CREATE TABLE safe_report_tbl (
+                                    id INT PRIMARY KEY AUTO_INCREMENT COMMENT '기본 키',
+                                    user_id INT NOT NULL COMMENT '조회한 사용자',
+                                    estate_id INT NOT NULL COMMENT 'estate_api_integration_tbl의 id',
+                                    budget INT NOT NULL COMMENT '예산',
+                                    result_grade VARCHAR(50) NOT NULL COMMENT '레포트 결과 등급',
+                                    is_delete TINYINT(1) DEFAULT 0 COMMENT '삭제 여부 (0: 활성, 1: 삭제)',
+                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '조회 날짜',
+                                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 날짜',
+
+    -- 인덱스
+                                    INDEX idx_user_created (user_id, created_at DESC),
+                                    INDEX idx_user_delete (user_id, is_delete),
+                                    INDEX idx_estate (estate_id)
+);
+
+DROP TABLE IF EXISTS myhome_tbl;
+CREATE TABLE myhome_tbl (
+                                id INT NOT NULL AUTO_INCREMENT COMMENT 'PK, 고유 식별자',
+                                user_id INT NOT NULL COMMENT '사용자 id',
+                                estate_id INT NOT NULL DEFAULT 0 COMMENT 'all_real_estate 테이블의 id',
+                                umd_nm VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '법정동',
+                                sgg_cd INT NULL COMMENT '지역코드',
+                                building_name VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '건물명',
+                                building_number VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '건물동 이름',
+                                jibun VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '지번',
+                                reg_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
+                                reg_ip VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '등록아이피',
+                                is_delete INT NOT NULL DEFAULT 1 COMMENT '1:정상, 2:삭제',
+
+                                contract_start DATE NULL COMMENT '계약 시작일',
+                                contract_end DATE NULL COMMENT '계약 종료일',
+                                rent_type INT NULL COMMENT '전세/월세 여부 (1:전세, 2:월세)',
+                                jeonse_amount INT NULL COMMENT '전세 금액(만원) (전세인 경우만 입력)',
+                                monthly_deposit INT NULL COMMENT '월세 보증금(만원) (월세인 경우만 입력)',
+                                monthly_rent INT NULL COMMENT '월세 금액(만원) (월세인 경우만 입력)',
+
+                                PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='아파트 정보 및 계약 정보';
+

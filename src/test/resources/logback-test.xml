@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 공통 로그 패턴 -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- 콘솔 출력용 Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 테스트 로그 파일 저장용 Appender -->
+    <appender name="TEST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/test/test-log.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/test/test-log.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 7일 갱신 -->
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 애플리케이션 로그 -->
+    <logger name="com.lighthouse" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="TEST_FILE"/>
+    </logger>
+    <logger name="com.lighthouse.transactions.mapper" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="TEST_FILE"/>
+    </logger>
+    <logger name="com.lighthouse.lawdCode.mapper" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="TEST_FILE"/>
+    </logger>
+
+    <!-- MyBatis 쿼리 로그 (INFO 이상만) -->
+    <logger name="org.mybatis" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="TEST_FILE"/>
+    </logger>
+
+    <!-- Spring 로그 (INFO 이상만) -->
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="TEST_FILE"/>
+    </logger>
+
+    <!-- 데이터베이스 로그 -->
+<!--    <logger name="jdbc.sqlonly" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="TEST_FILE"/>-->
+<!--    </logger>-->
+<!--    <logger name="jdbc.resultset" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="TEST_FILE"/>-->
+<!--    </logger>-->
+<!--    <logger name="jdbc.audit" level="WARN" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="TEST_FILE"/>-->
+<!--    </logger>-->
+<!--    <logger name="jdbc.connection" level="WARN" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="TEST_FILE"/>-->
+<!--    </logger>-->
+
+    <!-- 루트 로거 (INFO 이상 기록) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

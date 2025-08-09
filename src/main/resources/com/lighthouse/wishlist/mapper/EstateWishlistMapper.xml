@@ -6,9 +6,9 @@
 
     <insert id="saveLikeEstate" parameterType="LikeEstate">
         INSERT INTO ${LIKE_ESTATE_TBL} (
-            member_id, estate_id, is_like
+            member_id, estate_id, is_like, jibun_addr, building_name, building_type
         ) VALUES (
-            #{memberId}, #{estateId}, #{isLike}
+            #{memberId}, #{estateId}, #{isLike}, #{jibunAddr}, #{buildingName}, #{buildingType}
         )
     </insert>
     <update id="updateLikeEstate" parameterType="LikeEstate">
@@ -18,19 +18,70 @@
             update_date = NOW()
         WHERE
             member_id = #{memberId}
-            AND estate_id = #{estateId}
+            AND jibun_addr = #{jibunAddr}
     </update>
-    <select id="findByMemberIdAndEstateId" resultType="LikeEstate">
-        SELECT member_id, estate_id, is_like
+    <select id="findByMemberIdAndJibunAddr" resultType="LikeEstate">
+        SELECT member_id, estate_id, is_like, jibun_addr, building_name, building_type
         FROM ${LIKE_ESTATE_TBL}
         WHERE member_id = #{memberId}
-          AND estate_id = #{estateId}
+          AND jibun_addr = #{jibunAddr}
+        <if test="checkLike != null and checkLike == true">
+            AND is_like = 1
+        </if>
     </select>
-    <select id="findEstatesByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.EstateWishlistResponseDTO">
-        SELECT le.estate_id, ea.building_name
-        FROM ${LIKE_ESTATE_TBL} le
-                 JOIN ${ESTATE_API_INTEGRATION_TBL} ea ON le.estate_id = ea.id
+    <select id="findAllEstateByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.EstateWishlistResponseDTO">
+        SELECT
+            le.estate_id,
+            le.jibun_addr,                     -- backup (있을 수도 있으니)
+            COALESCE(eai.jibun_addr, le.jibun_addr) AS jibun_addr,
+            le.building_name,
+            le.building_type,
+
+            -- 매매금액
+            CASE
+                WHEN le.estate_id IS NOT NULL THEN (
+                    SELECT s.deal_amount
+                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+                    WHERE s.estate_id = le.estate_id AND s.trade_type = 1
+                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
+                    LIMIT 1
+            )
+            ELSE NULL
+        END AS amount,
+
+            -- 보증금
+            CASE
+                WHEN le.estate_id IS NOT NULL THEN (
+                    SELECT s.deposit
+                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+                    WHERE s.estate_id = le.estate_id AND s.trade_type = 2
+                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
+                    LIMIT 1
+                )
+            ELSE NULL
+        END AS deposit,
+
+            -- 월세
+            CASE
+                WHEN le.estate_id IS NOT NULL THEN (
+                    SELECT s.monthly_rent
+                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+                    WHERE s.estate_id = le.estate_id AND s.trade_type = 2
+                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
+                    LIMIT 1
+                )
+            ELSE NULL
+        END AS monthly_rent
+
+        FROM like_estate_tbl le
+        LEFT JOIN ${ESTATE_API_INTEGRATION_TBL} eai ON le.estate_id = eai.id
         WHERE le.member_id = #{memberId}
-          AND le.is_like = 1
+            AND le.is_like = 1
+    </select>
+
+    <select id="findByEstateId" resultType="com.lighthouse.wishlist.dto.BuildingInfoDTO">
+        SELECT building_name, building_type
+        FROM ${ESTATE_API_INTEGRATION_TBL}
+        WHERE id = #{estateId}
     </select>
 </mapper>

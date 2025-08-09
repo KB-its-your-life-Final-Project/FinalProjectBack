@@ -1,7 +1,9 @@
 package com.lighthouse.config;
 
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -25,6 +27,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         }
 )
 public class ServletConfig implements WebMvcConfigurer {
+    @Value("${FILE_UPLOAD_DIR}")
+    private String relativeUploadDir;
+
     @Bean
     public MultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
@@ -56,5 +61,10 @@ public class ServletConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/v2/api-docs")
                 .addResourceLocations("classpath:/META-INF/resources/");
+
+        String absolutePath = Paths.get(System.getProperty("user.home"), relativeUploadDir).toUri().toString();
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations(absolutePath);
+
     }
 }

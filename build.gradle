@@ -83,6 +83,7 @@ dependencies {
 
     // Jackson - Json 처리
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
     // Xml 응답 처리
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}"
 
@@ -98,6 +99,10 @@ dependencies {
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-engine:1.9.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
+
+    // Google AI Studio (Gemini) - REST API 직접 사용
 
     //데이터베이스
     implementation "com.mysql:mysql-connector-j:${mysqlJDBCVersion}"
@@ -138,8 +143,8 @@ dependencies {
     implementation 'io.codef.api:easycodef-java:1.0.6'
 
     // Mockito
-    testImplementation 'org.mockito:mockito-core:5.5.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
 
 
     // 테스트용 assertThat

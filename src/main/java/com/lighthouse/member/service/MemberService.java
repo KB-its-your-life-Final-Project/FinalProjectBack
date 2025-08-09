@@ -3,11 +3,10 @@ package com.lighthouse.member.service;
 import com.lighthouse.member.dto.*;
 import com.lighthouse.member.service.external.*;
 import com.lighthouse.member.util.ClientIpUtil;
-import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.util.ValidateUtil;
+import com.lighthouse.member.mapper.MemberMapper;
 import com.lighthouse.member.entity.Member;
 import com.lighthouse.security.dto.TokenDTO;
-import com.lighthouse.security.mapper.MemberTokenMapper;
 import com.lighthouse.security.util.JwtCookieUtil;
 import com.lighthouse.security.service.TokenService;
 import com.lighthouse.security.util.JwtUtil;
@@ -15,17 +14,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 //import org.springframework.mail.javamail.MimeMessageHelper;
 //import javax.mail.internet.MimeMessage;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,8 +30,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberMapper memberMapper;
-    private final MemberTokenMapper memberTokenMapper;
-    //    private final JavaMailSender mailSender;
+//    private final JavaMailSender mailSender;
 //    private final ConcurrentHashMap<String, String> verificationCodeStore = new ConcurrentHashMap<>();
 //    private final ConcurrentHashMap<String, LocalDateTime> codeTimestamps = new ConcurrentHashMap<>();
     private final PasswordEncoder passwordEncoder;
@@ -46,75 +42,62 @@ public class MemberService {
     private final JwtCookieUtil jwtCookieUtil;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
+    private final FileUploadService fileUploadService;
 
-    // 모든 사용자 조회
-    public List<MemberDTO> findAllMembers() {
+    // 모든 회원 조회
+    public List<MemberResponseDTO> findAllMembers() {
         return memberMapper.findAllMembers().stream()
-                .map(MemberDTO::toUser)
+                .map(MemberResponseDTO::toUser)
                 .toList();
     }
 
-    // 아이디로 사용자 조회
-    public MemberDTO findMemberById(int id) {
+    // 아이디로 회원 조회
+    public MemberResponseDTO findMemberById(int id) {
         Member member = Optional.ofNullable(memberMapper.findMemberById(id))
                 .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(member);
+        return MemberResponseDTO.toUser(member);
     }
 
-    // 이메일로 사용자 조회
-    public MemberDTO findMemberByEmail(String email) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByEmail(email))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(member);
-    }
-
-    // 카카오 회원ID로 사용자 조회
-    public MemberDTO findMemberByKakaoId(String kakaoUserId) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByKakaoId(kakaoUserId))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(member);
-    }
-
-    // 구글 ID로 사용자 조회
-    public MemberDTO findMemberByGoogleId(String googleId) {
-        Member member = Optional.ofNullable(memberMapper.findMemberByGoogleId(googleId))
-                .orElseThrow(NoSuchElementException::new);
-        return MemberDTO.toUser(member);
-    }
-
-    // 로그인된 사용자 조회
-    public MemberDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
+    // 로그인된 회원 조회
+    public MemberResponseDTO findMemberLoggedIn(HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.findMemberLoggedIn() 실행 ======");
         // accessToken 검증
         String accessToken = jwtCookieUtil.getAccessTokenFromRequest(req);
         if (accessToken != null) {
-            String subject = jwtUtil.getSubjectFromToken(accessToken);
-            log.info("request에서 추출된 accessToken: {}", accessToken);
-            log.info("accessToken에서 추출된 subject(memberId): {}", subject);
-            int memberIdFromToken = Integer.parseInt(subject);
-            Member member = memberMapper.findMemberById(memberIdFromToken);
-            log.info("subject로 찾은 member: {}", member);
-            return MemberDTO.toUser(member);
+            boolean isAccessTokenValid = tokenService.isAccessTokenValid(accessToken);
+            if (isAccessTokenValid) {
+                String subject = jwtUtil.getSubjectFromToken(accessToken);
+                log.info("request에서 추출된 accessToken: {}", accessToken);
+                log.info("accessToken에서 추출된 subject(memberId): {}", subject);
+                int memberIdFromToken = Integer.parseInt(subject);
+                Member member = memberMapper.findMemberById(memberIdFromToken);
+                log.info("subject로 찾은 member: {}", member);
+                return MemberResponseDTO.toUser(member);
+            } else {
+                log.info("accessToken 만료");
+            }
         }
-        // accessToken 만료 -> refreshToken 검증
-        log.info("accessToken 없음 {}", accessToken);
+        // accessToken 만료 또는 없음 -> refreshToken 검증
+        log.info("accessToken 없음");
         String refreshToken = jwtCookieUtil.getRefreshTokenFromRequest(req);
         if (refreshToken != null) {
             // refreshToken 유효성 검사
             String subject = jwtUtil.getSubjectFromToken(refreshToken);
             int memberIdFromToken = Integer.parseInt(subject);
+            log.info("request에서 추출된 refreshToken: {}", refreshToken);
+            log.info("refreshToken에서 추출된 subject(memberId): {}", subject);
             boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
             if (!isRefreshTokenValid) {
-                log.info("refreshToken값이 일치하지 않습니다");
+                log.info("refreshToken값이 만료되었거나 DB에 저장된 값과 일치하지 않습니다");
                 return null;
             }
-            // refreshToken 검증 성공 -> accessToken, refreshToken 발급 및 저장 (HttpOnly 쿠키, DB)
+            // refreshToken 검증 성공 -> accessToken, refreshToken 재발급 및 저장 (HttpOnly 쿠키, DB)
             TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
             tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
             Member member = memberMapper.findMemberById(memberIdFromToken);
-            return MemberDTO.toUser(member);
+            return MemberResponseDTO.toUser(member);
         }
-        // refreshToken 만료
+        // refreshToken 만료 또는 없음
         log.info("refreshToken 없음");
         return null;
     }
@@ -135,7 +118,13 @@ public class MemberService {
         return !ValidateUtil.isEmpty(password) && ValidateUtil.isValidPasswordFormat(password);
     }
 
-    // 인증 번호 전송
+    // 비밀번호 검증
+    public boolean isVerifiedPwd(VerifyPwdRequestDTO verifyPwdReqDto) {
+        Member member = memberMapper.findMemberByEmail(verifyPwdReqDto.getEmail());
+        return passwordEncoder.matches(verifyPwdReqDto.getPwd(), member.getPwd());
+    }
+
+    // 이메일 인증 번호 전송
 //    public void sendVerificationCode(String email) throws Exception {
 //        String code = generateCode();
 //        verificationCodeStore.put(email, code);
@@ -148,7 +137,7 @@ public class MemberService {
 //        mailSender.send(message);
 //    }
 
-    // 인증 번호 검사
+    // 이메일 인증 번호 검사
 //    public boolean verifyCode(String email, String code) {
 //        String stored = verificationCodeStore.get(email);
 //        LocalDateTime sentAt = codeTimestamps.get(email);
@@ -157,40 +146,58 @@ public class MemberService {
 //        return stored.equals(code);
 //    }
 
-    // 인증 번호 생성
+    // 이메일 인증 번호 생성
 //    private String generateCode() {
 //        return String.valueOf((int) ((Math.random() * 900000) + 100000)); // 6자리 숫자
 //    }
 
     // 이메일 회원가입
     @Transactional
-    public MemberDTO registerByEmail(RegisterEmailDTO dto, HttpServletRequest req) {
+    public MemberResponseDTO registerByEmail(RegisterEmailRequestDTO dto, HttpServletRequest req) {
         log.info("MemberService.registerByEmail() 실행 ======");
         log.info("email: {}", dto.getEmail());
         log.info("name: {}", dto.getName());
         log.info("password: {}", dto.getPassword1());
         String clientIp = ClientIpUtil.getClientIp(req);
-        Member member = dto.toVO();
+        Member member = dto.toMember();
         member.setPwd(passwordEncoder.encode(member.getPwd())); // 암호화
         member.setRegIp(clientIp);
         member.setRecentIp(clientIp);
         memberMapper.insertMember(member);
-        return findMemberByEmail(member.getEmail());
+        Member newMember = memberMapper.findMemberByEmail(member.getEmail());
+        return MemberResponseDTO.toUser(newMember);
+    }
+
+    // 회원 탈퇴
+    @Transactional
+    public MemberResponseDTO unregister(MemberResponseDTO memberDto) {
+        log.info("MemberService.unregister() 실행 ======");
+        try {
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            member.setIsDelete(2);
+            memberMapper.updateMember(member);
+            Member deletedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(deletedMember);
+        } catch (Exception e) {
+            log.error("회원 탈퇴 중 오류 발생: ", e);
+            return null;
+        }
     }
 
     // 이메일 로그인
     @Transactional
-    public MemberDTO loginByEmail(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO loginByEmail(LoginRequestDTO loginReqDto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginByEmail() 실행 ======");
         // 비밀번호 검증
-        String email = dto.getEmail();
+        String email = loginReqDto.getEmail();
+        String pwd = loginReqDto.getPwd();
         Member member = memberMapper.findMemberByEmail(email);
-        log.info("MemberService: email로 사용자 조회, memberVo: {}", member);
-        boolean isValidPassword = passwordEncoder.matches(dto.getPassword(), member.getPwd());
-        log.info("비밀번호 검사: {}, {}", dto.getPassword(), member.getPwd());
-        log.info("비밀번호 일치 여부: {}", isValidPassword);
-        if (!isValidPassword) {
-            log.info("비밀번호 일치하지 않음");
+        log.info("MemberService: email로 회원 조회, member: {}", member);
+        VerifyPwdRequestDTO verifyPwdReqDto = new VerifyPwdRequestDTO(email, pwd);
+        boolean isVerifiedPassword = isVerifiedPwd(verifyPwdReqDto);
+        log.info("비밀번호 일치 여부: {}", isVerifiedPassword);
+        if (!isVerifiedPassword) {
+            log.info("비밀번호 불일치");
             return null;
         } else {
             log.info("비밀번호 일치");
@@ -203,75 +210,83 @@ public class MemberService {
             log.info("Token sub로 사용할 memberId: {}", memberId);
             TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
             tokenService.saveRefreshToken(memberId, tokenDto);
-            return findMemberByEmail(member.getEmail());
+            Member newMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(newMember);
         }
     }
 
     // 카카오 로그인 또는 회원가입
     @Transactional
-    public MemberDTO loginOrRegisterByKakaoCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO loginOrRegisterByKakaoCode(LoginRequestDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByKakaoCode() 실행 ======");
         String clientIp = ClientIpUtil.getClientIp(req);
         String kakaoAccessToken = kakaoTokenClient.getKakaoAccessToken(dto.getCode());
         String kakaoUserId = kakaoOidcClient.getKakaoUserId(kakaoAccessToken);
 
-        // 등록된 사용자 -> IP주소 업데이트 / 미등록 사용자 -> 회원가입
+        // 등록된 회원 -> IP주소 업데이트 / 미등록 회원 -> 회원가입
         Member member = memberMapper.findMemberByKakaoId(kakaoUserId);
-        log.info("MemberService: kakaoUserId로 사용자 조회, memberVo: {}", member);
+        log.info("MemberService: kakaoUserId로 회원 조회, memberVo: {}", member);
         if (member != null) {
             member.setRecentIp(clientIp);
             memberMapper.updateMember(member);
         } else {
             String kakaoNickname = kakaoUserClient.getKakaoNickname(kakaoAccessToken);
-            member = dto.toVO();
+            member = dto.toMember();
             member.setName(kakaoNickname);
+            member.setEmail("");
             member.setKakaoId(kakaoUserId);
             member.setRegIp(clientIp);
             member.setRecentIp(clientIp);
+            member.setPwd("");
+            member.setGoogleId("");
+            member.setPhone("");
             memberMapper.insertMember(member);
+            member = memberMapper.findMemberByKakaoId(kakaoUserId);
         }
-
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-
-        return findMemberByKakaoId(member.getKakaoId());
+        Member loggedInMember = memberMapper.findMemberById(member.getId());
+        return MemberResponseDTO.toUser(loggedInMember);
     }
 
     // 구글 로그인 또는 회원가입
     @Transactional
-    public MemberDTO loginOrRegisterByGoogleCode(LoginDTO dto, HttpServletRequest req, HttpServletResponse resp) {
+    public MemberResponseDTO loginOrRegisterByGoogleCode(LoginRequestDTO dto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("MemberService.loginOrRegisterByGoogleCode() 실행 ======");
         String clientIp = ClientIpUtil.getClientIp(req);
         String googleAccessToken = googleTokenClient.getGoogleAccessToken(dto.getCode());
         Map googleUserInfoMap = googleUserClient.getGoogleUserInfo(googleAccessToken);
         String googleId = googleUserInfoMap.get("id").toString();
 
-        // 등록된 사용자 -> IP주소 업데이트 / 미등록 사용자 -> 회원가입
+        // 등록된 회원 -> IP주소 업데이트 / 미등록 회원 -> 회원가입
         Member member = memberMapper.findMemberByGoogleId(googleId);
-        log.info("MemberService: googleId로 사용자 조회, memberVo: {}", member);
+        log.info("MemberService: googleId로 회원 조회, memberVo: {}", member);
         if (member != null) {
             member.setRecentIp(clientIp);
             memberMapper.updateMember(member);
         } else {
             String email = googleUserInfoMap.get("email").toString();
             String name = googleUserInfoMap.get("name").toString();
-            member = dto.toVO();
+            member = dto.toMember();
             member.setName(name);
             member.setEmail(email);
             member.setGoogleId(googleId);
             member.setRegIp(clientIp);
             member.setRecentIp(clientIp);
+            member.setPwd("");
+            member.setKakaoId("");
+            member.setPhone("");
             memberMapper.insertMember(member);
+            member = memberMapper.findMemberByGoogleId(googleId);
         }
-
         // 토큰 발급 및 저장 (HttpOnly 쿠키, DB)
         int memberId = member.getId();
         TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberId);
         tokenService.saveRefreshToken(memberId, tokenDto);
-
-        return findMemberByGoogleId(member.getGoogleId());
+        Member loggedInMember = memberMapper.findMemberById(member.getId());
+        return MemberResponseDTO.toUser(loggedInMember);
     }
 
     // 로그아웃
@@ -283,6 +298,79 @@ public class MemberService {
         } catch (Exception e) {
             log.error("accessToken, refreshToken 제거 실패", e);
             return false;
+        }
+    }
+
+    // 회원 정보 (이름, 비밀번호) 변경
+    public MemberResponseDTO changeMemberInfo(int changeType, String changeInfo, MemberResponseDTO memberDto) {
+        try {
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            if (changeType == 1) {
+                String newName = changeInfo;
+                if (Objects.equals(newName, member.getName())) {
+                    log.info("기존 이름과 동일한 이름을 입력했습니다");
+                    return null;
+                }
+                if (!ValidateUtil.isValidNameFormat(newName)) {
+                    log.info("올바르지 않은 형식의 이름을 입력했습니다");
+                    return null;
+                }
+                member.setName(newName);
+            } else if (changeType == 2) {
+                String newPwd = changeInfo;
+                if (passwordEncoder.matches(newPwd, member.getPwd())) {
+                    log.info("기존 비밀번호와 동일한 비밀번호를 입력했습니다");
+                    return null;
+                }
+                if (!ValidateUtil.isValidPasswordFormat(newPwd)) {
+                    log.info("올바르지 않은 형식의 비밀번호를 입력했습니다");
+                    return null;
+                }
+                member.setPwd(passwordEncoder.encode(newPwd));
+            }
+            log.info("정보 변경 후 member: {}", member);
+            memberMapper.updateMember(member);
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            log.info("DB updatedMember: {}", updatedMember);
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("회원 정보 (이름, 비밀번호) 변경 중 오류 발생: ", e);
+            return null;
+        }
+    }
+
+    // 회원 프로필사진 업로드
+    public MemberResponseDTO uploadProfileImg(MemberResponseDTO memberDto, MultipartFile file) {
+        try {
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            fileUploadService.deleteFile(member.getProfileImg());  // 기존 파일 삭제
+            String uploadedImgUrl = fileUploadService.uploadProfileImg(file, memberDto.getId());
+            log.info("member: {}", member);
+            log.info("uploadedImgUrl: {}", uploadedImgUrl);
+            member.setProfileImg(uploadedImgUrl);
+            memberMapper.updateMember(member);
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("프로필사진 업로드 중 오류 발생: ", e);
+            return null;
+        }
+    }
+
+    // 회원 프로필사진 삭제 (기본 이미지로 변경)
+    public MemberResponseDTO deleteProfileImg(MemberResponseDTO memberDto) {
+        try {
+            Member member = memberMapper.findMemberById(memberDto.getId());
+            if (!ValidateUtil.isEmpty(member.getProfileImg())) {
+                fileUploadService.deleteFile(member.getProfileImg());
+            }
+            member.setProfileImg("");
+            memberMapper.updateMember(member);
+            Member updatedMember = memberMapper.findMemberById(member.getId());
+            return MemberResponseDTO.toUser(updatedMember);
+        } catch (Exception e) {
+            log.error("프로필사진 삭제 중 오류 발생: ", e);
+            return null;
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.lighthouse.wishlist.service;
 
+import com.lighthouse.lawdCode.service.LawdCodeService;
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.wishlist.dto.SeparatedRegionDTO;
 import com.lighthouse.wishlist.entity.LikeRegion;
-import com.lighthouse.wishlist.mapper.LawdCdMapper;
 import com.lighthouse.wishlist.mapper.RegionWishlistMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,22 +17,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegionWishlistService {
     private final RegionWishlistMapper mapper;
-    private final LawdCdMapper cdMapper;
-    private String getUmdNm(String regionCd) {
-        String result = cdMapper.findUmdNmByRegionCd(regionCd);
-        if(result == null) {
-            throw new CustomException(ErrorCode.WISHLIST_BAD_REQUEST);
-        }
-        return result;
-    }
+    private final LawdCodeService regionCdService;
+
     public void saveOrUpdateWishlist(Long memberId, String regionCd) {
         String sidoCd = regionCd.substring(0, 2);
         String ssgCd = regionCd.substring(2, 5);
         String umdCd = regionCd.substring(5, 8);
         String umdRegionCd = sidoCd + ssgCd + umdCd + "00";
-        String umdNm = getUmdNm(umdRegionCd);
+        String umdNm = regionCdService.findRegionByRegionCd(umdRegionCd).getLocallowNm();
 
-        LikeRegion existing = mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd);
+        LikeRegion existing = mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd, false);
         if (existing != null) {
             existing.setIsLike(1);
             int updated = mapper.updateLikeRegion(existing);
@@ -61,7 +55,7 @@ public class RegionWishlistService {
         String ssgCd = regionCd.substring(2, 5);
         String umdCd = regionCd.substring(5, 8);
 
-        LikeRegion existing = mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd);
+        LikeRegion existing = mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd, false);
         if (existing != null) {
             existing.setIsLike(2);
             int updated = mapper.updateLikeRegion(existing);
@@ -76,5 +70,11 @@ public class RegionWishlistService {
 
     public List<SeparatedRegionDTO> getEstateIdsByMemberId(Long memberId) {
         return mapper.findRegionsByMemberId(memberId);
+    }
+    public boolean existByMemberIdAndRegionCd(Long memberId, String regionCd) {
+        String sidoCd = regionCd.substring(0, 2);
+        String ssgCd = regionCd.substring(2, 5);
+        String umdCd = regionCd.substring(5, 8);
+        return mapper.findByMemberIdAndRegionCd(memberId, sidoCd, ssgCd, umdCd, true) != null;
     }
 }

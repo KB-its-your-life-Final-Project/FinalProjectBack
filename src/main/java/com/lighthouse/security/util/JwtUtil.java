@@ -51,15 +51,6 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    public int getCreatedTypeFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("createdType", Integer.class);
-    }
-
     public Date getIssuedAt(String token) {
         return Jwts.parser()
                 .setSigningKey(key)

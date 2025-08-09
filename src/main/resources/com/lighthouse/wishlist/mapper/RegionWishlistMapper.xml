@@ -29,6 +29,9 @@
           AND sido_cd = #{sidoCd}
           AND ssg_cd = #{ssgCd}
           AND umd_cd = #{umdCd}
+          <if test="checkLike != null and checkLike == true">
+              AND is_like = 1
+          </if>
     </select>
     <select id="findRegionsByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.SeparatedRegionDTO">
         SELECT sido_cd, ssg_cd, umd_cd, umd_nm

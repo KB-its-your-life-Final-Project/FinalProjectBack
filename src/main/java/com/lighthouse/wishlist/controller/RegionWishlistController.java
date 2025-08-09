@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -24,22 +25,19 @@ public class RegionWishlistController {
     private final RegionWishlistService service;
     private final JwtUtil jwtUtil;
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody RegionWishlistRequestDTO estateId, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<Void>> addWishlist (@RequestBody RegionWishlistRequestDTO estateId, @ApiIgnore @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         service.saveOrUpdateWishlist(memberId,estateId.getRegionCd());
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_SAVE_SUCCESS));
     }
     @DeleteMapping("/{regionCd}")
-    public ResponseEntity<ApiResponse<Void>> removeWishlist (@PathVariable String regionCd, @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<Void>> removeWishlist (@PathVariable String regionCd, @ApiIgnore @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         service.deleteWishlist(memberId,regionCd);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_DELETE_SUCCESS));
     }
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<RegionWishlistResponseDTO>>> getRegionsByMemberId(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<ApiResponse<List<RegionWishlistResponseDTO>>> getRegionsByMemberId( @ApiIgnore @CookieValue("accessToken") String token) {
         Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
         List<SeparatedRegionDTO> result = service.getEstateIdsByMemberId(memberId);
         List<RegionWishlistResponseDTO> response = result.stream()
@@ -49,5 +47,11 @@ public class RegionWishlistController {
                 })
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_GETLIST_SUCCESS,response));
+    }
+    @GetMapping("/check/{regionCd}")
+    public ResponseEntity<ApiResponse<Boolean>> existWishlistByRegionCd (@PathVariable String regionCd, @ApiIgnore @CookieValue("accessToken") String token) {
+        Long memberId = Long.valueOf(jwtUtil.getSubjectFromToken(token));
+        boolean exist = service.existByMemberIdAndRegionCd(memberId, regionCd);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.WISHLIST_FIND_SUCCESS,exist));
     }
 }

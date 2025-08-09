@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lighthouse.homeregister.mapper.HomeRegisterMapper">
+
+    <resultMap id="HomeRegisterMap" type="com.lighthouse.homeregister.entity.HomeRegister" autoMapping="true">
+        <id property="id" column="id" />
+    </resultMap>
+
+    <!-- 사용자별 집 정보 조회 -->
+    <select id="selectHomeByUserId" resultMap="HomeRegisterMap">
+        SELECT *
+        FROM myhome_tbl
+        WHERE user_id = #{userId}
+        AND is_delete = 1
+        LIMIT 1
+    </select>
+
+    <!-- 집 정보 등록 -->
+    <insert id="insertHome" parameterType="com.lighthouse.homeregister.entity.HomeRegister">
+        INSERT INTO myhome_tbl (
+            user_id,
+            estate_id,
+            building_name,
+            building_number,
+            sgg_cd,
+            umd_nm,
+            jibun,
+            reg_ip,
+            is_delete,
+            contract_start,
+            contract_end,
+            rent_type,
+            jeonse_amount,
+            monthly_deposit,
+            monthly_rent
+        ) VALUES (
+            #{userId},
+            #{estateId},
+            #{buildingName},
+            #{buildingNumber},
+            #{sggCd},
+            #{umdNm},
+            #{jibun},
+            #{regIp},
+            #{isDelete},
+            #{contractStart},
+            #{contractEnd},
+            #{rentType},
+            #{jeonseAmount},
+            #{monthlyDeposit},
+            #{monthlyRent}
+        )
+    </insert>
+
+    <!-- 집 정보 수정 -->
+    <update id="updateHome" parameterType="com.lighthouse.homeregister.entity.HomeRegister">
+        UPDATE myhome_tbl
+        SET estate_id = #{estateId},
+            umd_nm = #{umdNm},
+            sgg_cd = #{sggCd},
+            building_name = #{buildingName},
+                         building_number = #{buildingNumber},
+            jibun = #{jibun},
+            reg_ip = #{regIp},
+            contract_start = #{contractStart},
+            contract_end = #{contractEnd},
+            rent_type = #{rentType},
+            jeonse_amount = #{jeonseAmount},
+            monthly_deposit = #{monthlyDeposit},
+            monthly_rent = #{monthlyRent}
+        WHERE user_id = #{userId}
+        AND is_delete = 1
+    </update>
+
+</mapper> 
