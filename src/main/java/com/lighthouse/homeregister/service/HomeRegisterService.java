@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lighthouse.estate.dto.EstateDTO;
 import com.lighthouse.estate.service.EstateService;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -25,6 +25,7 @@ public class HomeRegisterService {
     
     private final HomeRegisterMapper homeRegisterMapper;
     private final EstateService estateService;
+    private final GeoCodingService geoCodingService;
 
     // 집 정보 등록
     @Transactional
@@ -60,6 +61,10 @@ public class HomeRegisterService {
                 .monthlyDeposit(requestDTO.getMonthlyDeposit())
                 .monthlyRent(requestDTO.getMonthlyRent())
                 .regDate(homeEntity.getRegDate() != null ? homeEntity.getRegDate().toString() : null)
+                .umdNm(estateInfo.getUmdNm())
+                .jibunAddr(estateInfo.getJibunAddr())
+                .latitude(estateInfo.getLatitude())
+                .longitude(estateInfo.getLongitude())
                 .build();
         } else {
             // 기존 집 정보가 없으면 새로 등록
@@ -78,6 +83,10 @@ public class HomeRegisterService {
                 .monthlyDeposit(requestDTO.getMonthlyDeposit())
                 .monthlyRent(requestDTO.getMonthlyRent())
                 .regDate(homeEntity.getRegDate() != null ? homeEntity.getRegDate().toString() : null)
+                .umdNm(estateInfo.getUmdNm())
+                .jibunAddr(estateInfo.getJibunAddr())
+                .latitude(estateInfo.getLatitude())
+                .longitude(estateInfo.getLongitude())
                 .build();
         }
     }
@@ -175,8 +184,49 @@ public class HomeRegisterService {
     }
     
     // 집 정보 조회
-    public HomeRegister getHomeInfo(Integer userId) {
+    public HomeRegisterResponseDTO getHomeInfo(Integer userId) {
         log.info("집 정보 조회 - userId: {}", userId);
-        return homeRegisterMapper.selectHomeByUserId(userId);
+        HomeRegister homeInfo = homeRegisterMapper.selectHomeByUserId(userId);
+        
+        if (homeInfo == null) {
+            return null;
+        }
+        
+        // 부동산 정보에서 위도, 경도 가져오기
+        EstateDTO estateInfo = estateService.getEstateById(homeInfo.getEstateId());
+        
+        // 위도/경도가 있으면 네이버 API로 도로명 주소 조회
+        String roadAddress = null;
+        if (estateInfo != null && estateInfo.getLatitude() != null && estateInfo.getLongitude() != null) {
+            try {
+                roadAddress = geoCodingService.getRoadAddressFromCoordinates(
+                    estateInfo.getLatitude(), 
+                    estateInfo.getLongitude()
+                );
+                log.info("도로명 주소 조회 완료: {}", roadAddress);
+            } catch (Exception e) {
+                log.warn("도로명 주소 조회 실패: {}", e.getMessage());
+                // 도로명 주소 조회 실패는 전체 응답에 영향을 주지 않음
+            }
+        }
+        
+        return HomeRegisterResponseDTO.builder()
+            .estateId(homeInfo.getEstateId())
+            .buildingName(homeInfo.getBuildingName())
+            .buildingNumber(homeInfo.getBuildingNumber())
+            .actionType("EXIST")
+            .contractStart(homeInfo.getContractStart() != null ? homeInfo.getContractStart().toString() : null)
+            .contractEnd(homeInfo.getContractEnd() != null ? homeInfo.getContractEnd().toString() : null)
+            .rentType(homeInfo.getRentType())
+            .jeonseAmount(homeInfo.getJeonseAmount())
+            .monthlyDeposit(homeInfo.getMonthlyDeposit())
+            .monthlyRent(homeInfo.getMonthlyRent())
+            .regDate(homeInfo.getRegDate() != null ? homeInfo.getRegDate().toString() : null)
+            .umdNm(homeInfo.getUmdNm())
+            .jibunAddr(homeInfo.getJibun())
+            .latitude(estateInfo != null ? estateInfo.getLatitude() : null)
+            .longitude(estateInfo != null ? estateInfo.getLongitude() : null)
+            .roadAddress(roadAddress)
+            .build();
     }
 }

@@ -41,4 +41,19 @@ public class HomeRegisterResponseDTO {
     
     @ApiModelProperty(value = "등록일", example = "2023-04-23T10:30:00")
     private String regDate;
+    
+    @ApiModelProperty(value = "법정동명", example = "역삼동")
+    private String umdNm;
+    
+    @ApiModelProperty(value = "지번주소", example = "서울특별시 강남구 역삼동 123-45")
+    private String jibunAddr;
+    
+    @ApiModelProperty(value = "위도", example = "37.5665")
+    private Double latitude;
+    
+    @ApiModelProperty(value = "경도", example = "126.9780")
+    private Double longitude;
+    
+    @ApiModelProperty(value = "도로명주소", example = "서울특별시 강남구 테헤란로 123")
+    private String roadAddress;
 }

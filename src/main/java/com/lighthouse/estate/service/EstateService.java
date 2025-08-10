@@ -51,6 +51,20 @@ public class EstateService {
         }
     }
 
+    //ID로 건물 정보 가져오기
+    public EstateDTO getEstateById(Integer estateId) {
+        try {
+            Estate estate = Optional.ofNullable(estateMapper.getEstateById(estateId))
+                .orElseThrow(NoSuchElementException::new);
+            return estateDTOConverter.toDTO(estate);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+    }
+
+
+
     //위경도로 건물 정보 가져오기 (리스트)
     public List<EstateDTO> getAllEstateByLatLng(double lat, double lng) {
         try {

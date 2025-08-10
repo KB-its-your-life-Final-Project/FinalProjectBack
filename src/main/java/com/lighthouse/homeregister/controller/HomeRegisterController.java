@@ -44,7 +44,6 @@ public class HomeRegisterController {
             if (token != null) {
                 userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
             } else {
-                // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
                 MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, null);
                 if (memberDto == null) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -53,26 +52,12 @@ public class HomeRegisterController {
                 userId = memberDto.getId();
             }
             
-            HomeRegister homeInfo = homeRegisterService.getHomeInfo(userId);
+            HomeRegisterResponseDTO response = homeRegisterService.getHomeInfo(userId);
             
-            if (homeInfo == null) {
+            if (response == null) {
                 return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, null));
             }
             
-            HomeRegisterResponseDTO response = HomeRegisterResponseDTO.builder()
-                .estateId(homeInfo.getEstateId())
-                .buildingName(homeInfo.getBuildingName())
-                    .buildingNumber(homeInfo.getBuildingNumber())
-                .actionType("EXIST")
-                .contractStart(homeInfo.getContractStart() != null ? homeInfo.getContractStart().toString() : null)
-                .contractEnd(homeInfo.getContractEnd() != null ? homeInfo.getContractEnd().toString() : null)
-                .rentType(homeInfo.getRentType())
-                .jeonseAmount(homeInfo.getJeonseAmount())
-                .monthlyDeposit(homeInfo.getMonthlyDeposit())
-                .monthlyRent(homeInfo.getMonthlyRent())
-                .regDate(homeInfo.getRegDate() != null ? homeInfo.getRegDate().toString() : null)
-                .build();
-                
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
             
         } catch (Exception e) {
@@ -143,21 +128,8 @@ public class HomeRegisterController {
             
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.HOME_REGISTER_SUCCESS, response));
             
-        } catch (NoSuchElementException e) {
-            log.warn("해당 위치의 부동산 정보를 찾을 수 없습니다: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                .body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND_BY_COORDINATES));
-        } catch (RuntimeException e) {
-            String errorMessage = e.getMessage();
-            if (errorMessage != null && errorMessage.contains("부동산 정보를 찾을 수 없습니다")) {
-                return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(ErrorCode.ESTATE_NOT_FOUND_BY_COORDINATES));
-            }
-            log.error("집 정보 등록 중 오류 발생", e);
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error(ErrorCode.HOME_REGISTER_FAIL));
         } catch (Exception e) {
-            log.error("집 정보 등록 중 예상치 못한 오류 발생", e);
+            log.error("집 정보 등록/수정 중 오류 발생", e);
             return ResponseEntity.internalServerError()
                 .body(ApiResponse.error(ErrorCode.HOME_REGISTER_FAIL));
         }

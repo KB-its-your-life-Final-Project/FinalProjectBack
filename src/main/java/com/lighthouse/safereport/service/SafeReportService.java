@@ -22,6 +22,7 @@ import java.util.Map;
 import com.lighthouse.buildingRegister.dto.BuildingResponseDTO;
 import com.lighthouse.common.geocoding.service.GeoCodingService;
 import com.lighthouse.safereport.dto.SafeReportResponseDto;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -47,11 +48,24 @@ public class SafeReportService {
     // 건물의 깡통 전세 점수 계산
     public RentalRatioAndBuildyear generateSafeReport(SafeReportRequestDto dto) {
         // 1단계: 위도/경도로 건물 정보 조회
-        EstateDTO realEstate = estateService.getEstateByLatLng(dto.getLat(), dto.getLng());
-        log.info("realEstate: {}", realEstate);
+        EstateDTO realEstate = null;
+        try {
+            realEstate = estateService.getEstateByLatLng(dto.getLat(), dto.getLng());
+            log.info("realEstate: {}", realEstate);
+        } catch (NoSuchElementException e) {
+            log.info("위경도로 건물 정보를 찾을 수 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
+            realEstate = null;
+        }
         
         if(realEstate == null) {
-            return null;
+            // 건물 정보가 없어도 기본값으로 dealAmount=0인 객체 반환
+            log.info("건물 정보 없음, dealAmount=0으로 기본값 설정");
+            RentalRatioAndBuildyear defaultResult = new RentalRatioAndBuildyear();
+            defaultResult.setDealAmount(0);
+            defaultResult.setBuildYear(0);
+            defaultResult.setReverseRentalRatio(0.0);
+            defaultResult.setScore(0);
+            return defaultResult;
         }
         
         // 2단계: 매매 정보 조회
@@ -304,11 +318,8 @@ public class SafeReportService {
         // 안심레포트 데이터 생성
         SafeReportResponseDto responseDto = generateSafeReportData(dto);
         
-        // 데이터 유효성 검증
-        if (!hasValidData(responseDto)) {
-            log.warn("모든 정보 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
-            return null;
-        }
+        // 데이터가 없어도 기본값으로 응답 반환 (프론트에서 dealAmount=0으로 처리 가능)
+        log.info("안심레포트 생성 완료: lat={}, lng={}", dto.getLat(), dto.getLng());
         
         return responseDto;
     }
@@ -369,6 +380,9 @@ public class SafeReportService {
     
     // 최근 본 안심레포트 저장 여부 판단(전세가율이 100% 미만인 경우)
     public boolean shouldSaveToRecentReports(SafeReportResponseDto responseDto) {
+        if (responseDto == null || responseDto.getRentalRatioAndBuildyear() == null) {
+            return false;
+        }
         return responseDto.getRentalRatioAndBuildyear().getReverseRentalRatio() < 100;
     }
 }

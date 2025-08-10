@@ -51,12 +51,6 @@ public class SafeReportController {
         // 안심레포트 데이터 생성
         SafeReportResponseDto responseDto = safeReportService.generateCompleteSafeReport(dto);
         
-        // 데이터가 없으면 404 에러 반환
-        if (responseDto == null) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(ErrorCode.BUILDINGINFO_NOT_FOUND));
-        }
-        
         // 최근 본 안심레포트에 저장
         try {
             // 사용자 ID 추출
