@@ -13,9 +13,10 @@ import java.util.List;
 public interface EstateWishlistMapper {
     int saveLikeEstate(LikeEstate item);
     int updateLikeEstate(LikeEstate item);
-    LikeEstate findByMemberIdAndJibunAddr(@Param("memberId") Long memberId,
-                                          @Param("jibunAddr") String jibunAddr,
+    LikeEstate findByMemberIdAndCoord(@Param("memberId") Long memberId,
+                                          @Param("latitude") Double latitude,
+                                          @Param("longitude") Double longitude,
                                           @Param("checkLike") Boolean checkLike);
     List<EstateWishlistResponseDTO> findAllEstateByMemberId(Long memberId);
-    BuildingInfoDTO findByEstateId(@Param("estateId") Long estateId);
+    BuildingInfoDTO findByEstateId(@Param("estateId") Integer estateId);
 }

@@ -6,9 +6,9 @@
 
     <insert id="saveLikeEstate" parameterType="LikeEstate">
         INSERT INTO ${LIKE_ESTATE_TBL} (
-            member_id, estate_id, is_like, jibun_addr, building_name, building_type
+            member_id, estate_id, is_like, jibun_addr, building_name, building_type, latitude, longitude
         ) VALUES (
-            #{memberId}, #{estateId}, #{isLike}, #{jibunAddr}, #{buildingName}, #{buildingType}
+            #{memberId}, #{estateId}, #{isLike}, #{jibunAddr}, #{buildingName}, #{buildingType}, #{latitude}, #{longitude}
         )
     </insert>
     <update id="updateLikeEstate" parameterType="LikeEstate">
@@ -20,11 +20,12 @@
             member_id = #{memberId}
             AND jibun_addr = #{jibunAddr}
     </update>
-    <select id="findByMemberIdAndJibunAddr" resultType="LikeEstate">
-        SELECT member_id, estate_id, is_like, jibun_addr, building_name, building_type
+    <select id="findByMemberIdAndCoord" resultType="LikeEstate">
+        SELECT member_id, estate_id, is_like, jibun_addr, building_name, building_type, latitude, longitude
         FROM ${LIKE_ESTATE_TBL}
         WHERE member_id = #{memberId}
-          AND jibun_addr = #{jibunAddr}
+          AND latitude = #{latitude}
+          AND longitude = #{longitude}
         <if test="checkLike != null and checkLike == true">
             AND is_like = 1
         </if>
