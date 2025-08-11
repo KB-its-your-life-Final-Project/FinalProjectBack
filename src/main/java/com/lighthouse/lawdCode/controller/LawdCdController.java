@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/lawdCd")
-@Api(tags="lawdCd 정보 조회")
+@Api(tags="lawdCd 정보")
 public class LawdCdController {
     private final LawdCodeService lawdCodeService;
     private final SelectAddressService selectAddressService;

@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("/api/report")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = "SafeReport", description = "안심 레포트 관련 API")
+@Api(tags = "SafeReport", description = "안심 레포트 API")
 public class SafeReportController {
     private final SafeReportService safeReportService;
     private final RecentSafeReportService recentSafeReportService;

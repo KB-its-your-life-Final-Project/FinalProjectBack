@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/wishlist/estate")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags="건물 관심 리스트")
+@Api(tags="건물 관심 리스트", description = "로그인 회원의 관심 매물을 등록·삭제하고, 목록 조회 및 존재 여부 확인")
 public class EstateWishlistController {
     private final EstateWishlistService service;
     private final JwtUtil jwtUtil;

@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/estate")
-@Api(tags="Estate 정보 조회")
+@Api(tags="Estate 정보", description= "부동산 기본 정보와 매물 정보를 조건, 위경도, 주소, 범위로 조회")
 public class EstateController {
   private final EstateService estateService;
 

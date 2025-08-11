@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/alarm")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags="알림 관리")
+@Api(tags="알림 관리", description = "알림 설정 변경,알림 목록 읽음 처리,미확인 개수")
 public class AlarmController {
    private final JwtUtil jwtUtil;
    private final AlarmService alarmService;
@@ -69,7 +69,7 @@ public class AlarmController {
    // 알림 목록 조회
    // 알림 나타나는 페이지에서 사용
    @GetMapping("/list")
-   @ApiOperation(value = "알림 목록 조회", notes = "사용자의 미확인 알림 목록을 조회합니다.")
+   @ApiOperation(value = "알림 목록", notes = "사용자의 미확인 알림 목록을 조회합니다.")
    public ResponseEntity<ApiResponse<List<AlarmResponseDto>>> getAlarmList(
            @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
@@ -136,7 +136,7 @@ public class AlarmController {
    
    // 미확인인 알림 개수 조회 (프론트에서 주기적으로 호출-알림 아이콘에 표시하려고)
    @GetMapping("/count")
-   @ApiOperation(value = "미확인 알림 개수 조회", notes = "사용자의 미확인 알림 개수를 조회합니다.")
+   @ApiOperation(value = "미확인 알림 개수", notes = "사용자의 미확인 알림 개수를 조회합니다.")
    public ResponseEntity<ApiResponse<Integer>> getUnreadAlarmCount(
            @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
