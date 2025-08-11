@@ -1,17 +1,15 @@
 package com.lighthouse.transactions.dto;
 
-
 import lombok.Builder;
 import lombok.Data;
-//백엔드에서 프론트로의 응답
 
 @Data
 @Builder
 public class TransactionResponseDTO {
     private String date;
     private String buildingName;
-    private Long estateId;
-    private int price;
+    private Integer dealAmount;
+    private Integer deposit;
+    private Integer monthlyRent;
     private String type;
-
 }

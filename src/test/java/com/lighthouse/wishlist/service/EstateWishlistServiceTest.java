@@ -3,8 +3,10 @@ package com.lighthouse.wishlist.service;
 
 import com.lighthouse.common.external.naver.NaverMapClient;
 import com.lighthouse.common.external.naver.NaverSearchClient;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
 import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
+import com.lighthouse.estate.service.EstateService;
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.security.config.SecurityConfig;
@@ -36,15 +38,18 @@ class EstateWishlistServiceTest {
     private EstateWishlistMapper mapper;
     private EstateWishlistService service;
     private NaverMapClient naverMapClient;
-    @Autowired
     private NaverSearchClient naverSearchClient;
+    private EstateService estateService;
+    private GeoCodingService geoCodingService;
 
     @BeforeEach
     void setup() {
         mapper = Mockito.mock(EstateWishlistMapper.class);
         naverMapClient = Mockito.mock(NaverMapClient.class);
         naverSearchClient = Mockito.mock(NaverSearchClient.class);
-        service = new EstateWishlistService(mapper, naverMapClient, naverSearchClient);
+        estateService = Mockito.mock(EstateService.class);
+        geoCodingService =  Mockito.mock(GeoCodingService.class);
+        service = new EstateWishlistService(mapper, naverMapClient, naverSearchClient, estateService, geoCodingService);
     }
 
     @Test
@@ -53,7 +58,7 @@ class EstateWishlistServiceTest {
         existing.setMemberId(1L);
         existing.setEstateId(null);
 
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(1);
 
         assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
@@ -64,9 +69,8 @@ class EstateWishlistServiceTest {
     void saveOrUpdateWishlist_existingUpdateFail() {
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
-        existing.setEstateId(2L);
 
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
@@ -75,16 +79,16 @@ class EstateWishlistServiceTest {
 
     @Test
     void saveOrUpdateWishlist_newInsertSuccess() {
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "도마교동 458", false)).thenReturn(null);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(null);
         Mockito.when(mapper.saveLikeEstate(any())).thenReturn(1);
 
-        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, new  EstateWishlistRequestDTO(null,"도마교동 458" )));
+        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, new  EstateWishlistRequestDTO("도마교동 458" )));
         Mockito.verify(mapper).saveLikeEstate(any());
     }
 
     @Test
     void saveOrUpdateWishlist_newInsertFail() {
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(null);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(null);
         Mockito.when(mapper.saveLikeEstate(any())).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
@@ -95,9 +99,8 @@ class EstateWishlistServiceTest {
     void deleteWishlist_existingDeleteSuccess() {
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
-        existing.setEstateId(2L);
 
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(1);
 
         assertDoesNotThrow(() -> service.deleteWishlist(1L, "아주동 1575"));
@@ -108,9 +111,8 @@ class EstateWishlistServiceTest {
     void deleteWishlist_existingDeleteFail() {
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
-        existing.setEstateId(2L);
 
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0,0.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(0);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "아주동 1575"));
@@ -119,7 +121,7 @@ class EstateWishlistServiceTest {
 
     @Test
     void deleteWishlist_notFound() {
-        Mockito.when(mapper.findByMemberIdAndJibunAddr(1L, "아주동 1575", false)).thenReturn(null);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0,0.0, false)).thenReturn(null);
 
         CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "아주동 1575"));
         assertEquals(ErrorCode.WISHLIST_NOT_FOUND, ex.getErrorCode());
