@@ -1,18 +1,22 @@
 package com.lighthouse.transactions.service;
 
+import com.lighthouse.transactions.converter.TransactionDetailConverter;
 import com.lighthouse.transactions.dto.TransactionRequestDTO;
 import com.lighthouse.transactions.dto.TransactionResponseDTO;
 import com.lighthouse.transactions.mapper.TransactionDetailMapper;
 import com.lighthouse.transactions.vo.TransactionGraphVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import com.lighthouse.estate.service.EstateService;
 import com.lighthouse.estate.dto.EstateDTO;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @Service
@@ -20,7 +24,7 @@ import java.time.LocalDate;
 public class TransactionDetailService {
     private final TransactionDetailMapper transactionDetailMapper;
     private final EstateService estateService;
-
+    private final TransactionDetailConverter transactionDetailConverter;
     public String findBuildingNameByLatLng(double lat, double lng) {
         try {
             return transactionDetailMapper.findBuildingNameByLatLng(lat, lng);
@@ -31,7 +35,6 @@ public class TransactionDetailService {
 
     // buildingName 기준 조회
     public List<TransactionResponseDTO> getFilteredTransactionsByBuildingName(TransactionRequestDTO request, String buildingName) {
-        setDefaultDatesIfNull(request);
         List<TransactionGraphVO> rawList = transactionDetailMapper.findDateByBuildingName(
                 buildingName,
                 request.getTradeType(),
@@ -39,12 +42,14 @@ public class TransactionDetailService {
                 request.getEndDate()
         );
 
-        return convertToResponseDTO(rawList);
+        return transactionDetailConverter.toDTOList(rawList);
     }
 
     // lat/lng 기준 조회
     public List<TransactionResponseDTO> getFilteredTransactionsByLatLng(TransactionRequestDTO request, double lat, double lng) {
-        setDefaultDatesIfNull(request);
+        if(request.getStartDate() == null && request.getEndDate() == null) {
+            fillDateRangeIfMissing(request, lat, lng);
+        }
 
         try {
             EstateDTO estateDTO = estateService.getEstateByLatLng(lat, lng);
@@ -63,39 +68,24 @@ public class TransactionDetailService {
                 request.getEndDate()
         );
 
-        return convertToResponseDTO(rawList);
+        return transactionDetailConverter.toDTOList(rawList);
     }
 
+    /**
+     * startDate, endDate가 없으면 최신 거래일 기준으로 endDate 설정 후 1년 전 startDate 세팅
+     */
+    public void fillDateRangeIfMissing(TransactionRequestDTO request, double lat, double lng) {
+        Date latestDate = transactionDetailMapper.findLatestTransactionDateByLatLng(lat, lng);
+        if (latestDate != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private void setDefaultDatesIfNull(TransactionRequestDTO request) {
-        if (request.getStartDate() == null || request.getEndDate() == null) {
-            LocalDate now = LocalDate.now();
-            request.setEndDate(now.toString());
-            request.setStartDate(now.minusYears(1).toString());
+            // endDate는 최신 거래일, String 변환
+            LocalDate endLocalDate = latestDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            request.setEndDate(endLocalDate.format(formatter));
+
+            // startDate는 최신 거래일로부터 1년 전, String 변환
+            LocalDate startLocalDate = endLocalDate.minusYears(1);
+            request.setStartDate(startLocalDate.format(formatter));
         }
     }
-
-//DTO 로 변환
-private List<TransactionResponseDTO> convertToResponseDTO(List<TransactionGraphVO> rawList) {
-        return rawList.stream()
-                .map(vo -> {
-                    String date = String.format("%04d-%02d-%02d", vo.getDealYear(), vo.getDealMonth(), vo.getDealDay());
-                    String type = vo.getTradeType() == 1 ? "매매" : "전월세";
-                    int price = (vo.getTradeType() == 1)
-                            ? vo.getDealAmount()
-                            : (vo.getDeposit() != null ? vo.getDeposit() : 0);
-
-                    return TransactionResponseDTO.builder()
-                            .date(date)
-                            .type(type)
-                            .price(price)
-                            .estateId(vo.getEstateId())
-                            .buildingName(vo.getBuildingName())
-                            .build();
-                })
-                .collect(Collectors.toList());
-
-    }
-
-
 }

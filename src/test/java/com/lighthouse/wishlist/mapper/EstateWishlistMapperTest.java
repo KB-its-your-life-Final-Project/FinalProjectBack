@@ -41,7 +41,7 @@ class EstateWishlistMapperTest {
 
         mapper.saveLikeEstate(likeEstate);
 
-        LikeEstate result = mapper.findByMemberIdAndJibunAddr(34L, "아주동 1575", false);
+        LikeEstate result = mapper.findByMemberIdAndCoord(34L, 0.0, 0.0, false);
         assertNotNull(result);
         assertEquals(1, result.getIsLike());
 
@@ -61,7 +61,7 @@ class EstateWishlistMapperTest {
         likeEstate.setIsLike(2);
         mapper.updateLikeEstate(likeEstate);
 
-        LikeEstate updated = mapper.findByMemberIdAndJibunAddr(34L, "아주동 1575",false);
+        LikeEstate updated = mapper.findByMemberIdAndCoord(34L, 0.0, 0.0,false);
         assertNotNull(updated);
         assertEquals(2, updated.getIsLike());
 
@@ -76,7 +76,7 @@ class EstateWishlistMapperTest {
         likeEstate.setIsLike(1);
         mapper.saveLikeEstate(likeEstate);
 
-        LikeEstate result = mapper.findByMemberIdAndJibunAddr(34L, "아주동 1575",false);
+        LikeEstate result = mapper.findByMemberIdAndCoord(34L, 0.0, 0.0,false);
         assertNotNull(result);
         assertEquals(1, result.getIsLike());
         log.info("Select test (exists) passed: {}", result);
@@ -84,7 +84,7 @@ class EstateWishlistMapperTest {
 
     @Test
     void findByMemberId_AndJibunAddr_whenNotExists_thenReturnNull() {
-        LikeEstate result = mapper.findByMemberIdAndJibunAddr(999L, "아주동 1575", false);
+        LikeEstate result = mapper.findByMemberIdAndCoord(999L, 0.0, 0.0, false);
         assertNull(result);
         log.info("Select test (not exists) passed: result is null as expected");
     }
@@ -93,7 +93,6 @@ class EstateWishlistMapperTest {
     void findEstateIdsByMemberId_returnsIds() {
         // Givenc
         LikeEstate likeEstate = new LikeEstate();
-        likeEstate.setEstateId(698L);
         likeEstate.setMemberId(34L);
         likeEstate.setIsLike(1);
         likeEstate.setJibunAddr("일운면 소동리 687");

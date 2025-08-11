@@ -36,7 +36,6 @@ public class EstateWishlistControllerTest {
     @DisplayName("찜 추가 - 성공")
     void addWishlist() {
         EstateWishlistRequestDTO dto = new EstateWishlistRequestDTO();
-        dto.setEstateId(100L);
         Long memberId = 1L;
         String rawToken = "mock.jwt.token";
 

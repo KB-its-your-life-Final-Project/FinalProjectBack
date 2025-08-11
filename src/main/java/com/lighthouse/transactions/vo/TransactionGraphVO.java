@@ -8,8 +8,8 @@ public class TransactionGraphVO {
     private int dealMonth;
     private int dealDay;
     private int dealAmount;
-    private Integer deposit;
+    private int deposit;
+    private int monthlyRent;
     private int tradeType;
     private String buildingName;
-    private Long estateId;
 }

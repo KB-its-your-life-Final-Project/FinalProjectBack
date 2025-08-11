@@ -2,6 +2,9 @@ package com.lighthouse.wishlist.service;
 
 import com.lighthouse.common.external.naver.NaverMapClient;
 import com.lighthouse.common.external.naver.NaverSearchClient;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
+import com.lighthouse.estate.dto.EstateDTO;
+import com.lighthouse.estate.service.EstateService;
 import com.lighthouse.response.CustomException;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.wishlist.dto.BuildingInfoDTO;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -26,8 +30,13 @@ public class EstateWishlistService {
     private final EstateWishlistMapper mapper;
     private final NaverMapClient naverMapClient;
     private final NaverSearchClient naverSearchClient;
+    private final EstateService estateService;
+    private final GeoCodingService geoCodingService;
     public void saveOrUpdateWishlist(Long memberId, EstateWishlistRequestDTO dto) {
-        LikeEstate existing = mapper.findByMemberIdAndJibunAddr(memberId, dto.getJibunAddr(), false);
+        Map<String, Double> geoCode = geoCodingService.getCoordinateFromAddress(dto.getJibunAddr());
+        double latitude = geoCode.get("lat");
+        double longitude = geoCode.get("lng");
+        LikeEstate existing = mapper.findByMemberIdAndCoord(memberId, latitude, longitude, false);
 
         if (existing != null) {
             existing.setIsLike(1);
@@ -39,10 +48,13 @@ public class EstateWishlistService {
         } else {
             LikeEstate newItem = new LikeEstate();
             newItem.setMemberId(memberId);
-            if(dto.getEstateId() != null) {
-                newItem.setEstateId(dto.getEstateId());
+            newItem.setLatitude(latitude);
+            newItem.setLongitude(longitude);
+            EstateDTO estateDTO = estateService.getEstateByLatLngWithNull(newItem.getLatitude(), newItem.getLongitude());
+            if(estateDTO != null) {
                 //건물명 + 건물 타입 가져오기
-                BuildingInfoDTO buildingInfo = mapper.findByEstateId(dto.getEstateId());
+                newItem.setEstateId(estateDTO.getId());
+                BuildingInfoDTO buildingInfo = mapper.findByEstateId(estateDTO.getId());
                 newItem.setBuildingName(buildingInfo.getBuildingName());
                 newItem.setBuildingType(buildingInfo.getBuildingType());
             }
@@ -63,7 +75,7 @@ public class EstateWishlistService {
                     }
                     log.info("건물명 = {}", buildingName);
                     newItem.setBuildingName(buildingName);
-                    if(buildingName != null){
+                    if(!Objects.requireNonNull(buildingName).isEmpty()){
                         //네이버 검색 API로 건물 타입 가져오기
                         String[] tokens = dto.getJibunAddr().split(" ");
                         // 시도 + 시군구 + 빌딩명이 가장 정확한 검색결과로 나타남
@@ -84,7 +96,10 @@ public class EstateWishlistService {
         }
     }
     public void deleteWishlist(Long memberId, String jibunAddr) {
-        LikeEstate existing = mapper.findByMemberIdAndJibunAddr(memberId, jibunAddr, false);
+        Map<String, Double> geoCode = geoCodingService.getCoordinateFromAddress(jibunAddr);
+        double latitude = geoCode.get("lat");
+        double longitude = geoCode.get("lng");
+        LikeEstate existing = mapper.findByMemberIdAndCoord(memberId, latitude, longitude, false);
         if (existing != null) {
             existing.setIsLike(2);
             int updated = mapper.updateLikeEstate(existing);
@@ -98,7 +113,10 @@ public class EstateWishlistService {
     }
 
     public boolean existByMemberIdAndJibunAddr(Long memberId, String jibunAddr) {
-        return mapper.findByMemberIdAndJibunAddr(memberId, jibunAddr, true) != null;
+        Map<String, Double> geoCode = geoCodingService.getCoordinateFromAddress(jibunAddr);
+        double latitude = geoCode.get("lat");
+        double longitude = geoCode.get("lng");
+        return mapper.findByMemberIdAndCoord(memberId, latitude, longitude, true) != null;
     }
 
     public List<EstateWishlistResponseDTO> getAllEstateByMemberId(Long memberId) {
