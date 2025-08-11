@@ -21,21 +21,23 @@
             region_cd    AS regionCd,
             grid_x       AS gridX,
             grid_y       AS gridY,
-            sido_cd     AS sidoCd,
-            sgg_cd      AS sggCd,
-            locatadd_nm  AS locataddNm,  locatadd_nm  AS region
+            sido_cd      AS sidoCd,
+            sgg_cd       AS sggCd,
+            locatadd_nm  AS locataddNm,
+            locatadd_nm  AS region
         FROM
             api_lawd_cd
         WHERE
             locatadd_nm LIKE CONCAT('%', #{keyword}, '%')
+          AND RIGHT(region_cd, 2) = '00'
         ORDER BY
             CASE
-                WHEN locatadd_nm LIKE CONCAT(#{keyword}, '%') THEN 1
-                WHEN locatadd_nm LIKE CONCAT('%', #{keyword}) THEN 2
-                ELSE 3
-                END,
-            LENGTH(locatadd_nm)
-            LIMIT 10
+            WHEN locatadd_nm LIKE CONCAT(#{keyword}, '%') THEN 1
+            WHEN locatadd_nm LIKE CONCAT('%', #{keyword}) THEN 2
+            ELSE 3
+        END,
+        LENGTH(locatadd_nm)
+    LIMIT 10
     </select>
 
     <select id="findByRegionCd" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
