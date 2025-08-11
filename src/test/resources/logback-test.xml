@@ -30,6 +30,8 @@
         <appender-ref ref="TEST_FILE"/>
     </logger>
     <logger name="com.lighthouse.transactions.mapper" level="INFO" additivity="false">
+<!--  SQL 문 보고 싶은 경우  -->
+<!--    <logger name="com.lighthouse.transactions.mapper" level="DEBUG" additivity="false">-->
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="TEST_FILE"/>
     </logger>

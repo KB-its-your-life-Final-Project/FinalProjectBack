@@ -172,7 +172,16 @@ public class ApiService {
             Function<T, EstateApiIntegrationSales> salesMapperFunc,
             String logPrefix) throws Exception {
         final String url = BASE_URL + endpoint;
+
+        // API 호출 시간 측정
+        long apiStart = System.currentTimeMillis();
         TransactionApiDTO<T> response = apiRequest(url, lawdCd, dealYmd, clazz);
+        long apiEnd = System.currentTimeMillis();
+        long apiElapsedMs = apiStart - apiEnd;
+        long apiMinutes = apiElapsedMs / 60000; // 1분 = 60000ms
+        long apiSeconds = (apiElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("⏱ {} API 호출 소요 시간: {}분 {}초 ({}ms)", logPrefix, apiMinutes, apiSeconds, apiElapsedMs);
+
         if (!"000".equals(response.getHeader().getResultCode())) {
             log.warn("❌ {} API 실패 - 코드: {}, 메시지: {}", logPrefix, response.getHeader().getResultCode(), response.getHeader().getResultMsg());
             throw new Exception("API 응답 오류: " + response.getHeader().getResultMsg());
@@ -184,6 +193,8 @@ public class ApiService {
         }
 
         // estate_api_integration_tbl 삽입
+        // 시간 측정
+        long insertIntegrationStart = System.currentTimeMillis();
         Set<EstateApiIntegration> integrationSet = new HashSet<>();
         for (T vo : voList) {
             EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
@@ -193,14 +204,28 @@ public class ApiService {
             int insertedRowNm = mapper.insertEstateApiIntegrationBatch(new ArrayList<>(integrationSet));
             log.debug("✅ {} integration_tbl 데이터 저장: {} 건", logPrefix, insertedRowNm);
         }
+        long insertIntegrationEnd = System.currentTimeMillis();
+        long insertIntegrationElapsedMs = insertIntegrationEnd - insertIntegrationStart;
+        long insertIntegrationMinutes = insertIntegrationElapsedMs / 60000; // 1분 = 60000ms
+        long insertIntegrationSeconds = (insertIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("⏱ {} integration_tbl Insert 소요 시간: {}분 {}초 ({}ms)", logPrefix,
+                insertIntegrationMinutes, insertIntegrationSeconds, insertIntegrationElapsedMs);
 
         // estate_api_integration_sales_tbl 삽입
+        // 시간 측정
+        long insertSalesStart = System.currentTimeMillis();
         Set<EstateApiIntegrationSales> salesSet = new HashSet<>();
+        long findIdTotalTime = 0; // findIdByUniqueCombination 전체 소요시간 누적 변수
+
         for (T vo : voList) {
             EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
             EstateApiIntegrationSales salesEstate = salesMapperFunc.apply(vo);
             // estateId 추출
+            long findIdStart = System.currentTimeMillis();
             int estateId = mapper.findIdByUniqueCombination(getEstateParams(estate));
+            long findIdEnd = System.currentTimeMillis();
+            findIdTotalTime += (findIdEnd - findIdStart);
+
             if (estateId <= 0) {
                 log.warn("⚠️ {} estateId를 찾을 수 없음: {}", logPrefix, estate);
                 continue;
@@ -213,6 +238,16 @@ public class ApiService {
             int insertedRowNm = mapper.insertEstateApiIntegrationSalesBatch(new ArrayList<>(salesSet));
             log.debug("✅ {} integration_sales_tbl 데이터 저장: {} 건", logPrefix, insertedRowNm);
         }
+
+        long findIdMinutes = findIdTotalTime / 60000; // 1분 = 60000ms
+        long findIdSeconds = (findIdTotalTime % 60000) / 1000; // 남은 ms를 초로 변환
+        long insertSalesEnd = System.currentTimeMillis();
+        long insertSalesElapsedMs = insertSalesEnd - insertSalesStart;
+        long insertSalesMinutes = insertSalesElapsedMs / 60000; // 1분 = 60000ms
+        long insertSalesSeconds = (insertIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("⏱ {} findIdByUniqueCombination 총 소요 시간: {}분 {}초 ({}ms)", logPrefix, findIdMinutes, findIdSeconds, findIdTotalTime);
+        log.info("⏱ {} integration_sales_tbl Insert 소요 시간: {}분 {}초 ({}ms)", logPrefix,
+                insertSalesMinutes, insertSalesSeconds, insertSalesElapsedMs);
     }
 
     /**
