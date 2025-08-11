@@ -27,7 +27,7 @@ import org.springframework.http.HttpStatus;
 @RequestMapping("/api/myhome")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = "MyHomeRegister", description = "나의 집 등록 관련 API")
+@Api(tags = "MyHomeRegister", description = "나의 집 등록 API")
 public class HomeRegisterController {
 
     private final HomeRegisterService homeRegisterService;
@@ -36,7 +36,7 @@ public class HomeRegisterController {
     private final MemberService memberService;
 
     @GetMapping("/info")
-    @ApiOperation(value = "나의 집 정보 조회", notes = "사용자의 집 정보를 조회합니다.")
+    @ApiOperation(value = "나의 집 정보", notes = "사용자의 집 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> getHomeInfo(@CookieValue(value = "accessToken", required = false) String token, HttpServletRequest req) {
         try {
             // 사용자 ID 추출

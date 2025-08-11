@@ -1,5 +1,7 @@
 package com.lighthouse.aiRecommend.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,11 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/ai-recommend")
 @RequiredArgsConstructor
 @Slf4j
+@Api(tags = "AI Recommend", description = "회원별 맞춤 추천 데이터를 생성 및 조회")
 public class AiRecommendController {
 
     private final AiRecommendService aiRecommendService;
 
     @GetMapping("/{memberId}")
+    @ApiOperation(
+            value = "회원 맞춤 AI 추천 조회",
+            notes = "회원 ID를 기반으로 AI가 분석한 맞춤 추천 결과를 알려줍니다.")
     public ResponseEntity<String> getAiRecommend(@PathVariable Long memberId) {
         try {
             log.info("AI 추천 요청 - memberId: {}", memberId);
