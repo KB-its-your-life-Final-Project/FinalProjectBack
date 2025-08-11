@@ -2,12 +2,11 @@ package com.lighthouse.localinfo.controller;
 
 import com.lighthouse.localinfo.dto.*;
 import com.lighthouse.localinfo.entity.Weather;
-import com.lighthouse.localinfo.mapper.WeatherMapper;
 import com.lighthouse.localinfo.service.*;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,35 +16,25 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/localinfo")
 @CrossOrigin(origins = "${FRONT_ORIGIN}")
+@RequiredArgsConstructor
 public class LocalInfoController {
 
-    @Autowired
-    private LocalInfoService localInfoService;
-
-    @Autowired
-    private ReverseGeocodeService reverseGeocodeService;
-
-    @Autowired
-    private PopulationService populationService;
-
-    @Autowired
-    private FacilityService facilityService;
-
-    @Autowired
-    private HospitalService hospitalService;
-
-    @Autowired
-    private SafetyService safetyService;
+    private final LocalInfoService localInfoService;
+    private final ReverseGeocodeService reverseGeocodeService;
+    private final PopulationService populationService;
+    private final FacilityService facilityService;
+    private final HospitalService hospitalService;
+    private final SafetyService safetyService;
 
     /**
-     * 키워드로 지역 목록을 검색하는 API
+     * 모든 검색 가능 지역 목록을 반환하는 API
      */
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> searchRegions(
-            @RequestParam String keyword) {
-        List<LocalInfoResponseDTO> regions = localInfoService.searchRegions(keyword);
+    public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> getAllRegions() {
+        List<LocalInfoResponseDTO> regions = localInfoService.findAllRegions();
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, regions));
     }
+
 
     /**
      * 위도/경도를 이용하여 법정동 주소 정보를 조회하는 API (네이버 역지오코딩 API 사용)
