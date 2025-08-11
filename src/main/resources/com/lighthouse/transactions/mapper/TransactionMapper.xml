@@ -348,7 +348,7 @@
     </select>
 
     <insert id="insertEstateApiIntegrationBatch" parameterType="map">
-        INSERT INTO ${ESTATE_API_INTEGRATION_TBL} (
+        INSERT IGNORE INTO ${ESTATE_API_INTEGRATION_TBL} (
         sgg_cd, sgg_nm, umd_nm, jibun,
         building_name, mhouse_type, shouse_type,
         build_year, building_type, source_api,
