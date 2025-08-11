@@ -30,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.lighthouse.transactions.util.ParseUtil.getEstateParams;
 import static com.lighthouse.transactions.util.ParseUtil.parseRowFromJson;
@@ -63,7 +64,7 @@ public class ApiService {
                 .toUriString();
         urlStr += "&serviceKey=" + apiKey;
         urlStr += "&pageNo=" + "1";
-        urlStr += "&numOfRows=" + "1000"; // 데이터가 1000개 넘어가는 것을 못 봄 (최대 600~700까지 확인: 하남시 41450 202407)
+        urlStr += "&numOfRows=" + "1000"; // 데이터가 1000개 넘어가는 것을 못 봄 (최대 974까지 확인: 광진구 11215 202306)
         log.debug("API 요청 URL: {}", urlStr);
         XmlMapper xmlMapper = new XmlMapper();
         JavaType type = xmlMapper.getTypeFactory().constructParametricType(TransactionApiDTO.class, itemType);
@@ -191,36 +192,76 @@ public class ApiService {
             log.info("📋 {} 데이터 없음", logPrefix);
             return;
         }
+        log.info("📊 {} API 응답 데이터: {} 건", logPrefix, voList.size());
 
-        // estate_api_integration_tbl 삽입
-        // 시간 측정
-        long insertIntegrationStart = System.currentTimeMillis();
-        Set<EstateApiIntegration> integrationSet = new HashSet<>();
+        // API 데이터를 EstateApiIntegration 객체로 변환
+        long conversionStart = System.currentTimeMillis();
+        List<EstateApiIntegration> apiIntegrationList = new ArrayList<>();
         for (T vo : voList) {
             EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
-            integrationSet.add(estate);
+            apiIntegrationList.add(estate);
         }
-        if (!integrationSet.isEmpty()) {
-            int insertedRowNm = mapper.insertEstateApiIntegrationBatch(new ArrayList<>(integrationSet));
-            log.debug("✅ {} integration_tbl 데이터 저장: {} 건", logPrefix, insertedRowNm);
+        long conversionEnd = System.currentTimeMillis();
+        long conversionElapsedMs = conversionEnd - conversionStart;
+        long conversionMinutes = conversionElapsedMs / 60000; // 1분 = 60000ms
+        long conversionSeconds = (conversionElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("🔄 {} 데이터 변환 완료: {}분 {}초 ({}ms) ({} 건)", logPrefix, conversionMinutes, conversionSeconds, conversionElapsedMs, apiIntegrationList.size());
+
+        // DB에서 기존 estate_api_integration_tbl 모든 데이터 조회
+        long findAllStart = System.currentTimeMillis();
+        List<EstateApiIntegration> existingIntegrationList = mapper.findAllEstateApiIntegration();
+        long findAllEnd = System.currentTimeMillis();
+        long findAllIntegrationElapsedMs = findAllEnd - findAllStart;
+        long findAllIntegrationMinutes = findAllIntegrationElapsedMs / 60000; // 1분 = 60000ms
+        long findAllIntegrationSeconds = (findAllIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("🔍 {} 기존 integration_tbl 데이터 조회: {}분 {}초 ({}ms) ({} 건)",
+                logPrefix, findAllIntegrationMinutes, findAllIntegrationSeconds, findAllIntegrationElapsedMs, existingIntegrationList.size());
+
+        // 기존 데이터를 Set으로 변환하여 중복 검사 최적화
+        long filterStart = System.currentTimeMillis();
+        Set<String> existingKeys = existingIntegrationList.stream()
+                .map(this::generateEstateIntegrationKey)
+                .collect(Collectors.toSet());
+        // 중복되지 않은 데이터만 필터링
+        List<EstateApiIntegration> newIntegrationList = apiIntegrationList.stream()
+                .filter(estate -> !existingKeys.contains(generateEstateIntegrationKey(estate)))
+                .collect(Collectors.toList());
+        long filterEnd = System.currentTimeMillis();
+        long filterElapseMs = filterEnd - filterStart;
+        long filterMinutes = filterElapseMs / 60000; // 1분 = 60000ms;
+        long filterSeconds = (filterElapseMs % 60000) / 1000; // 남은 ms를 초로 변환
+        log.info("🔍 {} 중복 제거 완료: {}분 {}초 ({}ms) (전체: {} 건, 기존: {} 건, 신규: {} 건)",
+                logPrefix,
+                filterMinutes,
+                filterSeconds,
+                filterElapseMs,
+                apiIntegrationList.size(),
+                existingIntegrationList.size(),
+                newIntegrationList.size());
+
+        // estate_api_integration_tbl 삽입 (신규 데이터만)
+        long insertIntegrationStart = System.currentTimeMillis();
+        if (!newIntegrationList.isEmpty()) {
+            int insertedRowNm = mapper.insertEstateApiIntegrationBatch(newIntegrationList);
+            log.info("✅ {} integration_tbl 신규 데이터 저장: {} 건", logPrefix, insertedRowNm);
+        } else {
+            log.info("📋 {} integration_tbl 신규 데이터 없음 (모두 중복)", logPrefix);
         }
         long insertIntegrationEnd = System.currentTimeMillis();
         long insertIntegrationElapsedMs = insertIntegrationEnd - insertIntegrationStart;
-        long insertIntegrationMinutes = insertIntegrationElapsedMs / 60000; // 1분 = 60000ms
-        long insertIntegrationSeconds = (insertIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        long insertIntegrationMinutes = insertIntegrationElapsedMs / 60000;
+        long insertIntegrationSeconds = (insertIntegrationElapsedMs % 60000) / 1000;
         log.info("⏱ {} integration_tbl Insert 소요 시간: {}분 {}초 ({}ms)", logPrefix,
                 insertIntegrationMinutes, insertIntegrationSeconds, insertIntegrationElapsedMs);
 
         // estate_api_integration_sales_tbl 삽입
-        // 시간 측정
-        long insertSalesStart = System.currentTimeMillis();
         Set<EstateApiIntegrationSales> salesSet = new HashSet<>();
         long findIdTotalTime = 0; // findIdByUniqueCombination 전체 소요시간 누적 변수
 
+        // estateId 추출
         for (T vo : voList) {
             EstateApiIntegration estate = mapperFunc.apply(vo, addrUtils);
             EstateApiIntegrationSales salesEstate = salesMapperFunc.apply(vo);
-            // estateId 추출
             long findIdStart = System.currentTimeMillis();
             int estateId = mapper.findIdByUniqueCombination(getEstateParams(estate));
             long findIdEnd = System.currentTimeMillis();
@@ -234,20 +275,32 @@ public class ApiService {
             salesSet.add(salesEstate);
         }
 
+        long insertSalesStart = System.currentTimeMillis();
         if (!salesSet.isEmpty()) {
             int insertedRowNm = mapper.insertEstateApiIntegrationSalesBatch(new ArrayList<>(salesSet));
             log.debug("✅ {} integration_sales_tbl 데이터 저장: {} 건", logPrefix, insertedRowNm);
         }
-
-        long findIdMinutes = findIdTotalTime / 60000; // 1분 = 60000ms
-        long findIdSeconds = (findIdTotalTime % 60000) / 1000; // 남은 ms를 초로 변환
         long insertSalesEnd = System.currentTimeMillis();
         long insertSalesElapsedMs = insertSalesEnd - insertSalesStart;
         long insertSalesMinutes = insertSalesElapsedMs / 60000; // 1분 = 60000ms
-        long insertSalesSeconds = (insertIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        long insertSalesSeconds = (insertSalesElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        long findIdMinutes = findIdTotalTime / 60000; // 1분 = 60000ms
+        long findIdSeconds = (findIdTotalTime % 60000) / 1000; // 남은 ms를 초로 변환
         log.info("⏱ {} findIdByUniqueCombination 총 소요 시간: {}분 {}초 ({}ms)", logPrefix, findIdMinutes, findIdSeconds, findIdTotalTime);
         log.info("⏱ {} integration_sales_tbl Insert 소요 시간: {}분 {}초 ({}ms)", logPrefix,
                 insertSalesMinutes, insertSalesSeconds, insertSalesElapsedMs);
+    }
+
+    /**
+     * EstateApiIntegration의 고유 키 생성 (중복 검사용)
+     */
+    private String generateEstateIntegrationKey(EstateApiIntegration estate) {
+        return String.format("%s_%s_%s_%s_%s",
+                estate.getMhouseType(),
+                estate.getShouseType(),
+                estate.getBuildYear(),
+                estate.getBuildingType(),
+                estate.getJibunAddr());
     }
 
     /**

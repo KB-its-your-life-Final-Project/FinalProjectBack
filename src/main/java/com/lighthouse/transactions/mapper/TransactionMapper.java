@@ -48,6 +48,9 @@ public interface TransactionMapper {
 
     void insertLawdCdBatch(@Param("list") List<LawdCdVO> lawdCdList);
 
+    // estate_api_integration_tbl 및 estate_api_integration_sales_tbl
+    List<EstateApiIntegration> findAllEstateApiIntegration();
+
     Integer findIdByUniqueCombination(Map<String, Object> params);
 
     Integer insertEstateApiIntegrationBatch(@Param("list") List<EstateApiIntegration> integrationList);
