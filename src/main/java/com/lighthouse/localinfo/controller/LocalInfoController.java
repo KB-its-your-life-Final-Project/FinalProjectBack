@@ -7,6 +7,8 @@ import com.lighthouse.localinfo.service.*;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/localinfo")
 @CrossOrigin(origins = "${FRONT_ORIGIN}")
+@Api(tags = "Local Info", description = "지역 정보, 인구, 편의시설, 병원, 안전도, 날씨 조회 API")
+
 public class LocalInfoController {
 
     @Autowired
@@ -41,6 +45,10 @@ public class LocalInfoController {
      * 키워드로 지역 목록을 검색하는 API
      */
     @GetMapping("/search")
+    @ApiOperation(
+            value = "지역 목록 검색"
+    )
+
     public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> searchRegions(
             @RequestParam String keyword) {
         List<LocalInfoResponseDTO> regions = localInfoService.searchRegions(keyword);
@@ -51,6 +59,9 @@ public class LocalInfoController {
      * 위도/경도를 이용하여 법정동 주소 정보를 조회하는 API (네이버 역지오코딩 API 사용)
      */
     @GetMapping("/reverse-geocode")
+    @ApiOperation(
+            value = "위경도 기반 주소 조회"
+    )
     public ResponseEntity<ApiResponse<ReverseGeocodeResponseDTO>> reverseGeocode(
             @RequestParam double latitude,
             @RequestParam double longitude) {
@@ -68,6 +79,9 @@ public class LocalInfoController {
     }
 
     @GetMapping("/population")
+    @ApiOperation(
+            value = "인구 정보 조회"
+    )
     public ResponseEntity<ApiResponse<PopulationDTO>> getPopulationByRegionCd(
             @RequestParam("regionCd") String regionCd) {
 
@@ -87,6 +101,9 @@ public class LocalInfoController {
      * 법정동코드로 편의시설 (예: 자전거 대수) 정보를 조회하는 API
      */
     @GetMapping("/facilities-count")
+    @ApiOperation(
+            value = "편의시설 개수 조회"
+    )
     public ResponseEntity<ApiResponse<FacilityDTO>> getFacilityCountsByRegionCd(
             @RequestParam("regionCd") String regionCd) {
 
@@ -103,6 +120,9 @@ public class LocalInfoController {
     }
 
     @GetMapping("/hospitals-count")
+    @ApiOperation(
+            value = "병원 개수 조회"
+    )
     public ResponseEntity<ApiResponse<HospitalDTO>> getHospitalCountsByRegionCd(
             @RequestParam("regionCd") String regionCd) {
 
@@ -119,6 +139,9 @@ public class LocalInfoController {
     }
 
     @GetMapping("/safety-count")
+    @ApiOperation(
+            value = "안전도 조회"
+    )
     public ResponseEntity<ApiResponse<SafetyDTO>> getSafetyCountsByRegionCd(
             @RequestParam("regionCd") String regionCd) {
 
@@ -134,6 +157,9 @@ public class LocalInfoController {
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, safetyInfoOptional.get()));
     }
     @GetMapping("/weather")
+    @ApiOperation(
+            value = "날씨 정보 조회"
+    )
     public ResponseEntity<ApiResponse<Weather>> getWeatherByRegionCd(
             @RequestParam("regionCd") String regionCd) {
 

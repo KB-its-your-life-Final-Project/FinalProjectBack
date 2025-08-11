@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/lawdCd")
-@Api(tags="lawdCd",description="행정구역 코드 기반 주소 선택(시/도·시/군/구·읍/면/동)과 지역·동명을 이용한 건물명 목록 조회")
+@Api(tags="lawdCd",description="행정구역 코드 기반 주소 선택과 지역·동명을 이용한 건물명 목록 조회")
 public class LawdCdController {
     private final LawdCodeService lawdCodeService;
     private final SelectAddressService selectAddressService;
@@ -50,8 +50,7 @@ public class LawdCdController {
     @GetMapping("/sido")
     @ApiOperation(
         value = "시/도 목록 조회",
-        notes = "전국의 시/도 목록을 조회합니다. " +
-                "서울, 부산, 대구, 인천, 광주, 대전, 울산, 세종, 경기, 강원, 충북, 충남, 전북, 전남, 경북, 경남, 제주를 포함합니다."
+        notes = "전국의 시/도 목록을 조회합니다."
     )
     public ResponseEntity<ApiResponse<List<SidoDto>>> getSidoList() {
         try {

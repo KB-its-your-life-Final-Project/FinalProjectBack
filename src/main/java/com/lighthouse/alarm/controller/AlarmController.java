@@ -35,7 +35,7 @@ public class AlarmController {
    // 특정 알림 설정 업데이트
    // 알림 설정 페이지에서 사용
    @PostMapping("/settings")
-   @ApiOperation(value = "알림 설정 변경", notes = "사용자가 특정 알림 타입의 수신 여부를 설정합니다.")
+   @ApiOperation(value = "알림 설정 변경")
    public ResponseEntity<ApiResponse<Void>> updateAlarmSetting(
            @RequestBody AlarmSettingRequestDto requestDto, 
            @CookieValue(value = "accessToken", required = false) String token,
@@ -69,7 +69,7 @@ public class AlarmController {
    // 알림 목록 조회
    // 알림 나타나는 페이지에서 사용
    @GetMapping("/list")
-   @ApiOperation(value = "알림 목록", notes = "사용자의 미확인 알림 목록을 조회합니다.")
+   @ApiOperation(value = "알림 목록")
    public ResponseEntity<ApiResponse<List<AlarmResponseDto>>> getAlarmList(
            @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,

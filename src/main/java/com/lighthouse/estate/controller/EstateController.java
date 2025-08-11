@@ -35,7 +35,7 @@ public class EstateController {
   @GetMapping("")
   @ApiOperation(
           value = "조건별 부동산 정보 조회",
-          notes = "부동산 조건(지역, 유형, 가격 등)을 입력하여 해당 조건에 맞는 부동산 기본 정보를 조회합니다."
+          notes = "부동산 조건을 입력하여 해당 조건에 맞는 부동산 기본 정보를 조회합니다."
   )
     public ResponseEntity<ApiResponse<List<EstateDTO>>> getEstateByElement(@ModelAttribute EstateDTO dto) {
     try {
@@ -68,7 +68,7 @@ public class EstateController {
   @GetMapping("/address/{address}")
   @ApiOperation(
           value = "주소로 부동산 정보 조회",
-          notes = "주소 문자열(도로명/지번)을 입력하여 해당 위치의 부동산 기본 정보를 조회합니다."
+          notes = "주소를 입력하여 해당 위치의 부동산 기본 정보를 조회합니다."
 
   )
   public ResponseEntity<ApiResponse<EstateDTO>> getEstateByAddress(@PathVariable String address) {
@@ -87,7 +87,7 @@ public class EstateController {
   //최소최대 위경도로 범위내의 estate 정보 찾기
   @GetMapping("/sqaure")
   @ApiOperation(
-          value = "사각형 범위 내 부동산 정보 조회",
+          value = "범위 내 부동산 정보 조회",
           notes = "최소/최대 위도(lat)와 경도(lng)를 지정하여 해당 범위 안의 모든 부동산 정보를 조회합니다."
   )
   public ResponseEntity<ApiResponse<List<EstateDTO>>> getEstateBySquare(@ModelAttribute EstateSquareDTO dto) {
@@ -102,8 +102,8 @@ public class EstateController {
   //Estate Sales 정보 가져오기
   @GetMapping("/sales")
   @ApiOperation(
-          value = "매물 정보 조회",
-          notes = "부동산 매물 조건(매물유형, 가격, 면적 등)을 입력하여 해당 매물 정보를 조회합니다."
+          value = "실거래가 정보 조회",
+          notes = "부동산 실거래가 조건을 입력하여 해당 정보를 조회합니다."
   )
   public ResponseEntity<ApiResponse<List<EstateSalesDTO>>> getEstateSalesByElement(@ModelAttribute EstateSalesDTO dto) {
     try {

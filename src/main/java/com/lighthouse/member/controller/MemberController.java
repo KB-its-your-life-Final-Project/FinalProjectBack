@@ -6,6 +6,8 @@ import com.lighthouse.member.service.MemberService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,11 +28,14 @@ import static com.lighthouse.member.util.ValidateUtil.isValidImgType;
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
+@Api(tags = "회원 API", description = "회원 가입, 로그인, 조회, 변경, 삭제 등 회원 관련 기능")
+
 public class MemberController {
     final MemberService memberService;
     final AlarmSchedulerService alarmSchedulerService;
 
     // 모든 회원 정보 조회
+    @ApiOperation(value = "모든 회원 조회", notes = "등록된 모든 회원의 정보를 조회합니다.")
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<MemberResponseDTO>>> findAllMembers() {
         List<MemberResponseDTO> dtos = memberService.findAllMembers();
@@ -38,6 +43,7 @@ public class MemberController {
     }
 
     // 아이디로 회원 정보 조회
+    @ApiOperation(value = "회원 ID로 조회", notes = "회원 ID로 특정 회원 정보를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> findMemberById(@PathVariable int id) {
         try {
@@ -49,6 +55,7 @@ public class MemberController {
     }
 
     // 로그인된 회원 정보 조회
+    @ApiOperation(value = "로그인된 회원 조회", notes = "현재 로그인된 회원의 정보를 조회합니다.")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> checkLoginStatus(HttpServletRequest req, HttpServletResponse resp) {
         try {
@@ -65,6 +72,7 @@ public class MemberController {
     }
 
     // 이메일 중복 확인
+    @ApiOperation(value = "이메일 중복 확인", notes = "회원 가입 시 입력한 이메일이 이미 사용 중인지 확인합니다.")
     @GetMapping("/checkemail/{email}")
     public ResponseEntity<ApiResponse<Boolean>> checkDuplicateEmail(@PathVariable String email) {
         boolean isDuplicate = memberService.checkDuplicateEmail(email);
@@ -76,6 +84,8 @@ public class MemberController {
     }
 
     // 비밀번호 검증
+    @ApiOperation(value = "비밀번호 검증", notes = "입력한 비밀번호가 현재 계정의 비밀번호와 일치하는지 검증합니다.")
+
     @PostMapping("/verify/pwd") // Get은 @RequestBody 사용 불가
     public ResponseEntity<ApiResponse<Boolean>> verifyPwd(@RequestBody VerifyPwdRequestDTO verifyPwdReqDto) {
         boolean isVerified = memberService.isVerifiedPwd(verifyPwdReqDto);
@@ -110,6 +120,8 @@ public class MemberController {
 //    }
 
     // 이메일 회원가입
+    @ApiOperation(value = "이메일 회원가입", notes = "새로운 계정을 생성합니다.")
+
     @PostMapping("/register/email")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> registerByEmail(@ModelAttribute RegisterEmailRequestDTO registerReqDto, HttpServletRequest req) {
         // 이메일 형식 유효성 검사
@@ -134,6 +146,8 @@ public class MemberController {
     }
 
     // 회원 탈퇴
+    @ApiOperation(value = "회원 탈퇴", notes = "현재 로그인된 계정을 탈퇴합니다.")
+
     @PostMapping("/unregister")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> unregister(HttpServletRequest req, HttpServletResponse resp) {
         try {
@@ -151,6 +165,8 @@ public class MemberController {
     }
 
     // 로그인
+    @ApiOperation(value = "로그인", notes = "이메일, 카카오, 구글 로그인 기능을 제공합니다.")
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> login(@RequestBody LoginRequestDTO loginReqDto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("로그인 POST 요청==========");
@@ -233,6 +249,8 @@ public class MemberController {
     }
 
     // 로그아웃
+    @ApiOperation(value = "로그아웃")
+
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Boolean>> logout(HttpServletResponse resp) {
         try {
@@ -246,6 +264,8 @@ public class MemberController {
     }
 
     // 회원 정보 (이름, 비밀번호) 변경
+    @ApiOperation(value = "회원 정보 변경", notes = "회원 이름 또는 비밀번호를 변경합니다.")
+
     @PutMapping("/change")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> changeMemberInfo(@RequestBody ChangeRequestDTO changeReqDto, HttpServletRequest req, HttpServletResponse resp) {
         log.info("회원 정보 변경 PUT 요청==========");
@@ -296,6 +316,8 @@ public class MemberController {
     }
 
     // 회원 프로필사진 변경
+    @ApiOperation(value = "회원 프로필 이미지 업로드", notes = "회원 프로필 이미지를 변경합니다.")
+
     @PostMapping("/profileimg")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest req, HttpServletResponse resp) {
         log.info("회원 프로필사진 변경 POST 요청==========");
@@ -339,6 +361,7 @@ public class MemberController {
     }
 
     // 회원 프로필사진 삭제 (기본 이미지로 변경)
+    @ApiOperation(value = "회원 프로필 이미지 삭제", notes = "회원 프로필 이미지를 삭제합니다.")
     @DeleteMapping("/profileimg")
     public ResponseEntity<ApiResponse<MemberResponseDTO>> deleteProfileImage(HttpServletRequest req, HttpServletResponse resp) {
         log.info("회원 프로필사진 삭제 DELETE 요청==========");

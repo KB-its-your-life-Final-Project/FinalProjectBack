@@ -26,7 +26,7 @@ public class AiRecommendController {
     @GetMapping("/{memberId}")
     @ApiOperation(
             value = "회원 맞춤 AI 추천 조회",
-            notes = "회원 ID를 기반으로 AI가 분석한 맞춤 추천 결과를 반환합니다.")
+            notes = "회원 ID를 기반으로 AI가 분석한 맞춤 추천 결과를 알려줍니다.")
     public ResponseEntity<String> getAiRecommend(@PathVariable Long memberId) {
         try {
             log.info("AI 추천 요청 - memberId: {}", memberId);
