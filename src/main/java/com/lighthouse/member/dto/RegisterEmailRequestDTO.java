@@ -14,14 +14,14 @@ public class RegisterEmailRequestDTO {
     private String email;
 //    private String verificationCode;
     private String name;
-    private String password1;
-    private String password2;
+    private String pwd;
+    private String pwdChk;
 
     public Member toMember() {
         return Member.builder()
                 .name(name)
                 .email(email)
-                .pwd(password1)
+                .pwd(pwd)
                 .kakaoId("")
                 .googleId("")
                 .phone("")
