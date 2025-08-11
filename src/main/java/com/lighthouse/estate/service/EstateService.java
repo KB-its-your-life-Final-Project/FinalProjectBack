@@ -42,7 +42,29 @@ public class EstateService {
     //위경도로 건물 정보 가져오기 (단일)
     public EstateDTO getEstateByLatLng(double lat, double lng) {
         try {
-            Estate estate = Optional.ofNullable(estateMapper.getEstateByLatLng(lat, lng))
+            // 위도/경도가 0.0인 경우는 유효하지 않은 값으로 처리
+            if (lat == 0.0 && lng == 0.0) {
+                log.warn("유효하지 않은 위도/경도 값: lat={}, lng={}", lat, lng);
+                return null;
+            }
+            
+            Estate estate = estateMapper.getEstateByLatLng(lat, lng);
+            if (estate == null) {
+                log.warn("해당 위도/경도에 대한 부동산 정보를 찾을 수 없습니다: lat={}, lng={}", lat, lng);
+                return null;
+            }
+            return estateDTOConverter.toDTO(estate);
+        }
+        catch(Exception e) {
+            log.error("위도/경도로 부동산 정보 조회 중 오류 발생: lat={}, lng={}, error={}", lat, lng, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    //ID로 건물 정보 가져오기
+    public EstateDTO getEstateById(Integer estateId) {
+        try {
+            Estate estate = Optional.ofNullable(estateMapper.getEstateById(estateId))
                 .orElseThrow(NoSuchElementException::new);
             return estateDTOConverter.toDTO(estate);
         }
@@ -56,6 +78,8 @@ public class EstateService {
                 .map(estateDTOConverter::toDTO)
                 .orElse(null);
     }
+
+
 
     //위경도로 건물 정보 가져오기 (리스트)
     public List<EstateDTO> getAllEstateByLatLng(double lat, double lng) {

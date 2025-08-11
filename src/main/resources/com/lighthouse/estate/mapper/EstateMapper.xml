@@ -152,7 +152,8 @@
             longitude,
             jibun_addr as jibunAddr
         FROM ${ESTATE_API_INTEGRATION_TBL}
-        WHERE sgg_cd = #{regionCode} AND umd_nm = #{dongName}
+        WHERE sgg_cd = #{regionCode}
+          AND umd_nm = #{dongName}
         ORDER BY building_name
     </select>
 

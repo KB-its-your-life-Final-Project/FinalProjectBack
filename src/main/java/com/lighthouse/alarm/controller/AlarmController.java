@@ -45,8 +45,7 @@ public class AlarmController {
          // 사용자 ID 추출
          Integer memberId = null;
          if (token != null) {
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            memberId = memberDto.getId();
+            memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
          } else {
             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
@@ -78,8 +77,7 @@ public class AlarmController {
          // 사용자 ID 추출
          Integer memberId = null;
          if (token != null) {
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            memberId = memberDto.getId();
+            memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
          } else {
             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
@@ -113,8 +111,7 @@ public class AlarmController {
        try{
           // 사용자 ID 추출
           if (token != null) {
-             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-             memberId = memberDto.getId();
+             memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
           } else {
              // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
              MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
@@ -144,18 +141,17 @@ public class AlarmController {
        try{
          // 사용자 ID 추출
          Integer memberId = null;
-         if (token != null) {
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            memberId = memberDto.getId();
-         } else {
-            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            if (memberDto == null) {
-               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-            }
-            memberId = memberDto.getId();
-         }
+                   if (token != null) {
+             memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
+          } else {
+             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
+             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+             if (memberDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+             }
+             memberId = memberDto.getId();
+          }
          
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList.size()));
