@@ -45,8 +45,8 @@ class EstateApiIntegrationTest {
     void singleRegionSingleMonthTest() {
         // Given
         List<Integer> singleLawdCd = Arrays.asList(11215); // 거제시:48310, 광진구:11215
-        int startYmd = 202403;
-        int endYmd = 202403; // 같은 달로 설정
+        int startYmd = 202312;
+        int endYmd = 202312; // 같은 달로 설정
 
         // When & Then
         assertDoesNotThrow(() -> {

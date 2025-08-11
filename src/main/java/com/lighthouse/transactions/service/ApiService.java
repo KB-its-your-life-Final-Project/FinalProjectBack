@@ -177,7 +177,7 @@ public class ApiService {
         long apiStart = System.currentTimeMillis();
         TransactionApiDTO<T> response = apiRequest(url, lawdCd, dealYmd, clazz);
         long apiEnd = System.currentTimeMillis();
-        long apiElapsedMs = apiStart - apiEnd;
+        long apiElapsedMs = apiEnd - apiStart;
         long apiMinutes = apiElapsedMs / 60000; // 1분 = 60000ms
         long apiSeconds = (apiElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
         log.info("⏱ {} API 호출 소요 시간: {}분 {}초 ({}ms)", logPrefix, apiMinutes, apiSeconds, apiElapsedMs);
