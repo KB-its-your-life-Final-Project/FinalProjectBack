@@ -83,7 +83,6 @@ public class NaverMapClient {
         return clientSecret;
     }
 
-    // 위도/경도를 주소로 변환 (역지오코딩)
     public Map<String, Object> getAddressFromCoordinates(double lat, double lng, String orders) {
         try {
             // 네이버 지도 API의 좌표->주소 변환 API 호출

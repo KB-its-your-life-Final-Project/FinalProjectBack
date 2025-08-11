@@ -18,10 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.NoSuchElementException;
 import com.lighthouse.member.dto.MemberResponseDTO;
 import com.lighthouse.member.service.MemberService;
 import org.springframework.http.HttpStatus;
+import com.lighthouse.member.entity.Member;
 
 @RestController
 @RequestMapping("/api/myhome")
@@ -37,21 +39,16 @@ public class HomeRegisterController {
 
     @GetMapping("/info")
     @ApiOperation(value = "나의 집 정보 조회", notes = "사용자의 집 정보를 조회합니다.")
-    public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> getHomeInfo(@CookieValue(value = "accessToken", required = false) String token, HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> getHomeInfo(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            // 사용자 ID 추출
-            Integer userId = null;
-            if (token != null) {
-                userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-            } else {
-                MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, null);
-                if (memberDto == null) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-                }
-                userId = memberDto.getId();
+            // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
+            int userId = memberDto.getId();
             HomeRegisterResponseDTO response = homeRegisterService.getHomeInfo(userId);
             
             if (response == null) {
@@ -71,24 +68,18 @@ public class HomeRegisterController {
     @ApiOperation(value = "나의 집 정보 등록", notes = "사용자의 집 정보를 등록합니다.")
     public ResponseEntity<ApiResponse<HomeRegisterResponseDTO>> registerHome(
             @RequestBody HomeRegisterRequestDTO requestDTO,
-            @CookieValue(value = "accessToken", required = false) String token,
-            HttpServletRequest req) {
+            HttpServletRequest req,
+            HttpServletResponse resp) {
         
         try {
-            // 사용자 ID 추출
-            Integer userId = null;
-            if (token != null) {
-                userId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-            } else {
-                // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-                MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, null);
-                if (memberDto == null) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-                }
-                userId = memberDto.getId();
+            // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
+            if (memberDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
+            int userId = memberDto.getId();
             HomeRegisterResponseDTO response = homeRegisterService.registerHome(requestDTO, userId, req);
             
             log.info("집 정보 등록/수정 완료: userId={}, actionType={}", userId, response.getActionType());

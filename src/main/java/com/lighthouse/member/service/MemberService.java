@@ -86,15 +86,22 @@ public class MemberService {
             int memberIdFromToken = Integer.parseInt(subject);
             log.info("request에서 추출된 refreshToken: {}", refreshToken);
             log.info("refreshToken에서 추출된 subject(memberId): {}", subject);
+            
             boolean isRefreshTokenValid = tokenService.isRefreshTokenValid(memberIdFromToken, refreshToken);
             if (!isRefreshTokenValid) {
                 log.info("refreshToken값이 만료되었거나 DB에 저장된 값과 일치하지 않습니다");
                 return null;
             }
+            
             // refreshToken 검증 성공 -> accessToken, refreshToken 재발급 및 저장 (HttpOnly 쿠키, DB)
+            // 이전 refreshToken은 이미 TokenService에서 무효화됨
+            log.info("refreshToken 검증 성공, 새로운 토큰 발급 시작. memberId: {}", memberIdFromToken);
+            
             TokenDTO tokenDto = jwtCookieUtil.setTokensToCookies(resp, memberIdFromToken);
             tokenService.saveRefreshToken(memberIdFromToken, tokenDto);
+            
             Member member = memberMapper.findMemberById(memberIdFromToken);
+            log.info("새로운 토큰 발급 및 저장 완료. memberId: {}", memberIdFromToken);
             return MemberResponseDTO.toUser(member);
         }
         // refreshToken 만료 또는 없음
