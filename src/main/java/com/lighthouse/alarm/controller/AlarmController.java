@@ -8,7 +8,6 @@ import com.lighthouse.member.service.MemberService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
-import com.lighthouse.security.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,7 +27,6 @@ import java.util.List;
 @Slf4j
 @Api(tags="Alarm", description = "알림 설정 변경,알림 목록 읽음 처리,미확인 개수")
 public class AlarmController {
-   private final JwtUtil jwtUtil;
    private final AlarmService alarmService;
    private final MemberService memberService;
    
@@ -38,24 +36,17 @@ public class AlarmController {
    @ApiOperation(value = "알림 설정 변경")
    public ResponseEntity<ApiResponse<Void>> updateAlarmSetting(
            @RequestBody AlarmSettingRequestDto requestDto, 
-           @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
            HttpServletResponse response){
       try{
-         // 사용자 ID 추출
-         Integer memberId = null;
-         if (token != null) {
-            memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-         } else {
-            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            if (memberDto == null) {
-               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-            }
-            memberId = memberDto.getId();
+         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+         if (memberDto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
          }
          
+         int memberId = memberDto.getId();
          alarmService.updateAlarmSetting(memberId, requestDto.getType(), requestDto.getGetAlarm());
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_UPDATE_SUCCESS));
       }catch(Exception e){
@@ -70,24 +61,17 @@ public class AlarmController {
    @GetMapping("/list")
    @ApiOperation(value = "알림 목록")
    public ResponseEntity<ApiResponse<List<AlarmResponseDto>>> getAlarmList(
-           @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
            HttpServletResponse response){
       try{
-         // 사용자 ID 추출
-         Integer memberId = null;
-         if (token != null) {
-            memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-         } else {
-            // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-            MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-            if (memberDto == null) {
-               return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                       .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-            }
-            memberId = memberDto.getId();
+         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+         if (memberDto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
          }
          
+         int memberId = memberDto.getId();
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList));
       }catch(Exception e){
@@ -103,30 +87,22 @@ public class AlarmController {
     public ResponseEntity<ApiResponse<Void>> markAlarmRead(
             @ApiParam(value = "알림 ID", required = true, example = "1") 
             @PathVariable int alarmId, 
-            @CookieValue(value = "accessToken", required = false) String token,
             HttpServletRequest request,
             HttpServletResponse response){
-        // is_checked를 읽음 처리
-       Integer memberId = null;
-       try{
-          // 사용자 ID 추출
-          if (token != null) {
-             memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-          } else {
-             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-             }
-             memberId = memberDto.getId();
+        try{
+          // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+          if (memberDto == null) {
+             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
           }
           
+          int memberId = memberDto.getId();
           alarmService.setAlarmRead(memberId, alarmId);
           return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_READ_SUCCESS));
        }catch(Exception e){
-          log.error("알림 읽음 처리 실패: memberId={}, alarmId={}, error={}", memberId, alarmId, e.getMessage(), e);
-          return ResponseEntity.internalServerError()
+          log.error("알림 읽음 처리 실패: alarmId={}, error={}", alarmId, e.getMessage(), e);
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                   .body(ApiResponse.error(ErrorCode.ALARM_READ_FAIL));
        }
     }
@@ -135,29 +111,22 @@ public class AlarmController {
    @GetMapping("/count")
    @ApiOperation(value = "미확인 알림 개수", notes = "사용자의 미확인 알림 개수를 조회합니다.")
    public ResponseEntity<ApiResponse<Integer>> getUnreadAlarmCount(
-           @CookieValue(value = "accessToken", required = false) String token,
            HttpServletRequest request,
            HttpServletResponse response){
        try{
-         // 사용자 ID 추출
-         Integer memberId = null;
-                   if (token != null) {
-             memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
-          } else {
-             // 쿠키가 없으면 MemberService를 통해 토큰 갱신 시도
-             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-             }
-             memberId = memberDto.getId();
-          }
+         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
+         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
+         if (memberDto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+         }
          
+         int memberId = memberDto.getId();
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList.size()));
       }catch(Exception e){
          log.error("알림 개수 조회 실패",e);
-         return ResponseEntity.internalServerError()
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                  .body(ApiResponse.error(ErrorCode.ALARM_FETCH_FAIL));
       }
     }

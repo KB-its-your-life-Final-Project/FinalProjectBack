@@ -61,10 +61,10 @@
     <!-- 특정 사용자의 만료 예정 계약 조회 -->
     <select id="getExpiringContractsByUser" resultType="map">
         SELECT 
-            user_id as member_id,
+            member_id,
             building_name as property_address
         FROM myhome_tbl
-        WHERE user_id = #{memberId}
+        WHERE member_id = #{memberId}
         AND contract_end = DATE_ADD(CURDATE(), INTERVAL #{daysLeft} DAY)
         AND is_delete = 1
     </select>
@@ -72,14 +72,14 @@
     <!-- 디버깅용: 사용자의 모든 집 정보 조회 -->
     <select id="getAllUserHomes" resultType="map">
         SELECT 
-            user_id,
+            member_id,
             building_name,
             contract_end,
             is_delete,
             CURDATE() as today,
             DATEDIFF(contract_end, CURDATE()) as days_until_expiry
         FROM myhome_tbl
-        WHERE user_id = #{memberId}
+        WHERE member_id = #{memberId}
         AND is_delete = 1
     </select>
     

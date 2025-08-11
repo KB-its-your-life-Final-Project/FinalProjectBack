@@ -40,6 +40,8 @@ public enum ErrorCode implements ResponseCode{
     RECENT_SAFEREPORT_SAVE_FAIL(2004, "최근 본 안심레포트 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     RECENT_SAFEREPORT_DELETE_FAIL(2005, "최근 본 안심레포트 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     RECENT_SAFEREPORT_ACCESS_DENIED(2006, "해당 최근 본 안심레포트에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    RECENT_SAFEREPORT_LIST_FAIL(2007, "최근 본 안심레포트 목록 조회에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    RECENT_SAFEREPORT_DETAIL_FAIL(2008, "최근 본 안심레포트 상세 조회에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     
     // wishlist

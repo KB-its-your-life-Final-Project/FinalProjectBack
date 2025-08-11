@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class HomeRegister {
     private Integer id;
-    private Integer userId;
+    private Integer memberId;
     private Integer estateId;
     private String umdNm;
     private Integer sggCd;
