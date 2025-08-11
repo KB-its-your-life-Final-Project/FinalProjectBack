@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/search/history")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags="검색 기록",description="로그인 회원의 검색 기록을 저장")
+@Api(tags="Search History",description="로그인 회원의 검색 기록을 저장")
 public class SearchHistoryController {
     private final JwtUtil jwtUtil;
     private final SearchHistoryService service;

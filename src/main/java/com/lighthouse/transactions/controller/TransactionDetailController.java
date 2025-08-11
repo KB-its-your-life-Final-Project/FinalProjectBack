@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/transactions")
 @Slf4j
 @RequiredArgsConstructor
-@Api(tags = "실거래가 상세 조회", description = "아파트/건물 실거래가 상세 데이터를 조건별로 조회하는 API")
+@Api(tags = "Transaction Detail", description = "아파트/건물 실거래가 상세 데이터를 조건별로 조회하는 API")
 
 public class TransactionDetailController {
     private final TransactionDetailService transactionDetailService;

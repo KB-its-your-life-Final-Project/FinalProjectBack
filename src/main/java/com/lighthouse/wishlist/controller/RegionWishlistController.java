@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/wishlist/region")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags="지역 관심 리스트", description= "관심 지역 추가,삭제,목록 조회 및 존재 여부 확인")
+@Api(tags="Region WishList", description= "관심 지역 추가,삭제,목록 조회 및 존재 여부 확인")
 public class RegionWishlistController {
     private final RegionWishlistService service;
     private final JwtUtil jwtUtil;

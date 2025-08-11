@@ -28,7 +28,7 @@ import static com.lighthouse.member.util.ValidateUtil.isValidImgType;
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
-@Api(tags = "회원 API", description = "회원 가입, 로그인, 조회, 변경, 삭제 등 회원 관련 기능")
+@Api(tags = "Member", description = "회원 가입, 로그인, 조회, 변경, 삭제 등 회원 관련 기능")
 
 public class MemberController {
     final MemberService memberService;

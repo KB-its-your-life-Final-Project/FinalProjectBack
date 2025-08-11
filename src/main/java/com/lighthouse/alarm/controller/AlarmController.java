@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/alarm")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags="알림 관리", description = "알림 설정 변경,알림 목록 읽음 처리,미확인 개수")
+@Api(tags="Alarm", description = "알림 설정 변경,알림 목록 읽음 처리,미확인 개수")
 public class AlarmController {
    private final JwtUtil jwtUtil;
    private final AlarmService alarmService;

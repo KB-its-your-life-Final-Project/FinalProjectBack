@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/youthprogram")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "${FRONT_ORIGIN}", allowCredentials = "true")
-@Api(tags = "청년 프로그램", description = "데이터 조회 및 상태 변경 API")
+@Api(tags = "Youth Program", description = "데이터 조회 및 상태 변경 API")
 
 public class YouthProgramController {
     private final YouthProgramService youthProgramService;
