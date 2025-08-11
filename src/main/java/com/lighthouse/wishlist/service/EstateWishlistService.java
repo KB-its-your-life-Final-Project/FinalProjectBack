@@ -36,7 +36,7 @@ public class EstateWishlistService {
         Map<String, Double> geoCode = geoCodingService.getCoordinateFromAddress(dto.getJibunAddr());
         double latitude = geoCode.get("lat");
         double longitude = geoCode.get("lng");
-        LikeEstate existing = mapper.findByMemberIdAndJibunAddr(memberId, latitude, longitude, false);
+        LikeEstate existing = mapper.findByMemberIdAndCoord(memberId, latitude, longitude, false);
 
         if (existing != null) {
             existing.setIsLike(1);
@@ -99,7 +99,7 @@ public class EstateWishlistService {
         Map<String, Double> geoCode = geoCodingService.getCoordinateFromAddress(jibunAddr);
         double latitude = geoCode.get("lat");
         double longitude = geoCode.get("lng");
-        LikeEstate existing = mapper.findByMemberIdAndJibunAddr(memberId, latitude, longitude, false);
+        LikeEstate existing = mapper.findByMemberIdAndCoord(memberId, latitude, longitude, false);
         if (existing != null) {
             existing.setIsLike(2);
             int updated = mapper.updateLikeEstate(existing);

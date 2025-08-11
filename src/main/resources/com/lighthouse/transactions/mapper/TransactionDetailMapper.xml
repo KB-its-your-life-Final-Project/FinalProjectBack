@@ -97,5 +97,13 @@
             AND CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0')) <![CDATA[<=]]> #{endDate}
         </if>
     </select>
+    <select id="findLatestTransactionDateByLatLng" resultType="java.util.Date">
+        SELECT
+            MAX(CONCAT(s.deal_year, '-', LPAD(s.deal_month, 2, '0'), '-', LPAD(s.deal_day, 2, '0'))) AS latestDate
+        FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+                 JOIN ${ESTATE_API_INTEGRATION_TBL} e ON s.estate_id = e.id
+        WHERE e.latitude BETWEEN #{lat} - 0.0001 AND #{lat} + 0.0001
+          AND e.longitude BETWEEN #{lng} - 0.0001 AND #{lng} + 0.0001
+    </select>
 
 </mapper>

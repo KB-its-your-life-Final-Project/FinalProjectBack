@@ -6,10 +6,15 @@ import com.lighthouse.transactions.dto.TransactionResponseDTO;
 import com.lighthouse.transactions.mapper.TransactionDetailMapper;
 import com.lighthouse.transactions.vo.TransactionGraphVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import com.lighthouse.estate.service.EstateService;
 import com.lighthouse.estate.dto.EstateDTO;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -42,6 +47,10 @@ public class TransactionDetailService {
 
     // lat/lng 기준 조회
     public List<TransactionResponseDTO> getFilteredTransactionsByLatLng(TransactionRequestDTO request, double lat, double lng) {
+        if(request.getStartDate() == null && request.getEndDate() == null) {
+            fillDateRangeIfMissing(request, lat, lng);
+        }
+
         try {
             EstateDTO estateDTO = estateService.getEstateByLatLng(lat, lng);
             String buildingName = estateDTO.getBuildingName();
@@ -60,5 +69,23 @@ public class TransactionDetailService {
         );
 
         return transactionDetailConverter.toDTOList(rawList);
+    }
+
+    /**
+     * startDate, endDate가 없으면 최신 거래일 기준으로 endDate 설정 후 1년 전 startDate 세팅
+     */
+    public void fillDateRangeIfMissing(TransactionRequestDTO request, double lat, double lng) {
+        Date latestDate = transactionDetailMapper.findLatestTransactionDateByLatLng(lat, lng);
+        if (latestDate != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            // endDate는 최신 거래일, String 변환
+            LocalDate endLocalDate = latestDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            request.setEndDate(endLocalDate.format(formatter));
+
+            // startDate는 최신 거래일로부터 1년 전, String 변환
+            LocalDate startLocalDate = endLocalDate.minusYears(1);
+            request.setStartDate(startLocalDate.format(formatter));
+        }
     }
 }
