@@ -40,19 +40,24 @@ class EstateApiIntegrationTest {
     @Order(1)
     @DisplayName("단일 시군구코드 단일 연월 Estate API Integration 테스트")
     @Transactional
-    @Rollback // 테스트 완료 후 데이터 삭제
+    // @Rollback // 테스트 완료 후 데이터 삭제
+    @Rollback(false) // 실제 데이터 삽입
     void singleRegionSingleMonthTest() {
         // Given
-        List<Integer> singleLawdCd = Arrays.asList(48310); // 거제시
-        int startYmd = 202412;
-        int endYmd = 202412; // 같은 달로 설정
+        List<Integer> singleLawdCd = Arrays.asList(11215); // 거제시:48310, 광진구:11215
+        int startYmd = 202504;
+        int endYmd = 202504; // 같은 달로 설정
 
         // When & Then
         assertDoesNotThrow(() -> {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(singleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
-            log.info("✅ 단일 시군구코드 단일 연월 테스트 완료 - 소요시간: {}ms", (endTime - startTime));
+
+            long elapsedMs = endTime - startTime;
+            long minutes = elapsedMs / (1000 * 60);
+            long seconds = (elapsedMs / 1000) % 60;
+            log.info("✅ 단일 시군구코드 단일 연월 테스트 완료 - 소요시간: {}분 {}초", minutes, seconds);
         });
     }
 
@@ -67,14 +72,15 @@ class EstateApiIntegrationTest {
     void singleRegionMultipleMonthsTest() {
         // Given
         List<Integer> singleLawdCd = Arrays.asList(11215); // 41210:광명시, 11215:광진구
-        int startYmd = 201508;
-        int endYmd = 202507; // 10년
+        int startYmd = 202506;
+        int endYmd = 202506; //
 
         // When & Then
         assertDoesNotThrow(() -> {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(singleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
+
             long elapsedMs = endTime - startTime;
             long minutes = elapsedMs / (1000 * 60);
             long seconds = (elapsedMs / 1000) % 60;
@@ -105,6 +111,7 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(multipleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
+
             long elapsedMs = endTime - startTime;
             long minutes = elapsedMs / (1000 * 60);
             long seconds = (elapsedMs / 1000) % 60;
@@ -134,6 +141,7 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(smallScaleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
+
             long elapsedMs = endTime - startTime;
             long minutes = elapsedMs / (1000 * 60);
             long seconds = (elapsedMs / 1000) % 60;
@@ -171,6 +179,7 @@ class EstateApiIntegrationTest {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(mediumScaleLawdCd, startYmd, endYmd);
             long endTime = System.currentTimeMillis();
+
             long elapsedMs = endTime - startTime;
             long minutes = elapsedMs / (1000 * 60);
             long seconds = (elapsedMs / 1000) % 60;

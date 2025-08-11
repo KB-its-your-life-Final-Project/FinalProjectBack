@@ -72,7 +72,7 @@
     </select>
 
     <insert id="insertMember">
-        INSERT INTO member_tbl
+        INSERT INTO ${MEMBER_TBL}
         (name, email, pwd, kakao_id, google_id, phone, age, role, profile_img, created_type, reg_date, reg_ip, recent_ip, is_disable, is_delete)
         VALUES (#{name}, #{email}, #{pwd}, #{kakaoId}, #{googleId}, #{phone}, #{age}, #{role}, "", #{createdType}, now(), #{regIp}, #{recentIp}, 1, 1)
     </insert>
