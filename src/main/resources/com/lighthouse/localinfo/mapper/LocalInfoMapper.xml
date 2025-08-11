@@ -10,36 +10,11 @@
             grid_y       AS gridY,
             locatadd_nm  AS locataddNm,  locatadd_nm  AS region
         FROM
-            api_lawd_cd
+            ${API_LAWD_CD}
         WHERE
             locatadd_nm = #{locataddnm}
             LIMIT 1
     </select>
-
-    <select id="searchByKeyword" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
-        SELECT
-            region_cd    AS regionCd,
-            grid_x       AS gridX,
-            grid_y       AS gridY,
-            sido_cd      AS sidoCd,
-            sgg_cd       AS sggCd,
-            locatadd_nm  AS locataddNm,
-            locatadd_nm  AS region
-        FROM api_lawd_cd
-        WHERE locatadd_nm LIKE CONCAT('%', #{keyword}, '%')
-          AND region_cd NOT LIKE '__000%'    /* 두 번째 블록 제외 */
-          AND region_cd NOT LIKE '_____000%' /* 세 번째 블록 제외 */
-          AND RIGHT(region_cd, 2) = '00'     /* 마지막 블록 */
-        ORDER BY
-            CASE
-            WHEN locatadd_nm LIKE CONCAT(#{keyword}, '%') THEN 1
-            WHEN locatadd_nm LIKE CONCAT('%', #{keyword}) THEN 2
-            ELSE 3
-        END,
-        LENGTH(locatadd_nm)
-    LIMIT 10
-    </select>
-
 
     <select id="findByRegionCd" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
     SELECT
@@ -51,9 +26,17 @@
     sgg_cd      AS sggCd
 
     FROM
-        api_lawd_cd
+        ${API_LAWD_CD}
     WHERE
     region_cd = #{regionCd}
     LIMIT 1
+    </select>
+
+    <select id="findAllRegions" resultType="com.lighthouse.localinfo.dto.LocalInfoResponseDTO">
+        SELECT region_cd, locatadd_nm, grid_x, grid_y, sido_cd, sgg_cd
+        FROM ${API_LAWD_CD}
+        WHERE region_cd NOT LIKE '__000%'    /* 두 번째 블록 제외 */
+          AND region_cd NOT LIKE '_____000%' /* 세 번째 블록 제외 */
+          AND RIGHT(region_cd, 2) = '00'     /* 마지막 블록 */
     </select>
 </mapper>

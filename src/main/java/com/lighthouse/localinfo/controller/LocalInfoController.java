@@ -27,14 +27,14 @@ public class LocalInfoController {
     private final SafetyService safetyService;
 
     /**
-     * 키워드로 지역 목록을 검색하는 API
+     * 모든 검색 가능 지역 목록을 반환하는 API
      */
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> searchRegions(
-            @RequestParam String keyword) {
-        List<LocalInfoResponseDTO> regions = localInfoService.searchRegions(keyword);
+    public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> getAllRegions() {
+        List<LocalInfoResponseDTO> regions = localInfoService.findAllRegions();
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.LOCALINFO_FETCH_SUCCESS, regions));
     }
+
 
     /**
      * 위도/경도를 이용하여 법정동 주소 정보를 조회하는 API (네이버 역지오코딩 API 사용)
