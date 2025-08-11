@@ -75,4 +75,66 @@ public class NaverMapClient {
         }
 
     }
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    // 위도/경도를 주소로 변환 (역지오코딩)
+    public Map<String, Object> getAddressFromCoordinates(double lat, double lng, String orders) {
+        try {
+            // 네이버 지도 API의 좌표->주소 변환 API 호출
+            String url = String.format("https://maps.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=%f,%f&orders=%s&output=json", lng, lat, orders);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+            headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+            headers.set("Content-Type", "application/json");
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            // HTTP GET 요청 실행
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, Map.class
+            );
+
+            Map<String, Object> body = response.getBody();
+
+            if (body == null) {
+                log.warn("역지오코딩 응답이 비어있음");
+                return null;
+            }
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.warn("역지오코딩 API 호출 실패: {}", response.getStatusCode());
+                return null;
+            }
+
+            if (!body.containsKey("results")) {
+                log.warn("역지오코딩 결과가 없음");
+                return null;
+            }
+
+            List<Map<String, Object>> results = (List<Map<String, Object>>) body.get("results");
+            if (results.isEmpty()) {
+                log.warn("역지오코딩 결과가 비어있음");
+                return null;
+            }
+
+            Map<String, Object> result = results.get(0);
+            if (!result.containsKey("region")) {
+                log.warn("역지오코딩 지역 정보가 없음");
+                return null;
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            log.warn("역지오코딩 실패 - lat: {}, lng: {}: {}", lat, lng, e.getMessage());
+            return null;
+        }
+    }
 }
