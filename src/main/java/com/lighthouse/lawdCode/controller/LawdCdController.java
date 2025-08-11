@@ -32,12 +32,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/lawdCd")
-@Api(tags="lawdCd 정보")
+@Api(tags="lawdCd",description="행정구역 코드 기반 주소 선택(시/도·시/군/구·읍/면/동)과 지역·동명을 이용한 건물명 목록 조회")
 public class LawdCdController {
     private final LawdCodeService lawdCodeService;
     private final SelectAddressService selectAddressService;
     
     @GetMapping("")
+    @ApiOperation(
+            value = "행정구역 코드 기반 주소 조회",
+            notes = "행정구역 코드를 조건으로 하여 전체 주소 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<LawdCdResponseDTO>>> getAllLawdCd(@ModelAttribute LawdCdRequestDTO dto) {
         List<LawdCdResponseDTO> result = lawdCodeService.findAll(dto);
         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.LAWDCD_FETCH_SUCCESS, result));
@@ -64,8 +67,7 @@ public class LawdCdController {
     @GetMapping("/sigugun/{sidoCd}")
     @ApiOperation(
         value = "시/군/구 목록 조회",
-        notes = "선택된 시/도의 시/군/구 목록을 조회합니다. " +
-                "예: 서울(11) 선택 시 종로구, 중구, 용산구 등의 구 목록을 반환합니다."
+        notes = "선택된 시/도의 시/군/구 목록을 조회합니다."
     )
     public ResponseEntity<ApiResponse<List<SigugunDto>>> getSigugunList(
         @ApiParam(value = "시/도 코드 (예: 서울=11, 부산=26, 대구=27)", required = true, example = "11") 
@@ -84,9 +86,7 @@ public class LawdCdController {
     @GetMapping("/dong/{sidoCd}/{sggCd}")
     @ApiOperation(
         value = "읍/면/동 목록 조회",
-        notes = "선택된 시/군/구의 읍/면/동 목록을 조회합니다. " +
-                "예: 종로구(110) 선택 시 원서동, 훈정동, 묘동 등의 동 목록을 반환합니다."
-    )
+        notes = "선택된 시/군/구의 읍/면/동 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<DongDto>>> getDongList(
         @ApiParam(value = "시/도 코드 (예: 서울=11, 부산=26)", required = true, example = "11")
         @PathVariable String sidoCd,
@@ -106,8 +106,7 @@ public class LawdCdController {
     @GetMapping("/buildings")
     @ApiOperation(
         value = "건물명 목록 조회",
-        notes = "지역코드와 읍면동명을 이용하여 해당 지역의 건물명 목록을 조회합니다. " +
-                "예: 지역코드 11110, 읍면동명 '목동'으로 검색 시 해당 지역의 모든 건물명을 반환합니다."
+        notes = "지역코드와 읍면동명을 이용하여 해당 지역의 건물명 목록을 조회합니다."
     )
     public ResponseEntity<ApiResponse<BuildingResponseDto>> getBuildingList(
         @ApiParam(value = "5자리 지역코드 (sido_cd + sgg_cd)", required = true, example = "11110") 
