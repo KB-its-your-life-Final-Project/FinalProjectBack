@@ -2,7 +2,6 @@ package com.lighthouse.transactions.dto;
 
 import lombok.Data;
 
-//프론트 → 백엔드 요청 DTO
 @Data
 public class TransactionRequestDTO {
 

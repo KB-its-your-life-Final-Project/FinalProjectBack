@@ -62,6 +62,8 @@ public class ApiService {
                 .queryParam("DEAL_YMD", dealYmd)
                 .toUriString();
         urlStr += "&serviceKey=" + apiKey;
+        urlStr += "&pageNo=" + "1";
+        urlStr += "&numOfRows=" + "1000"; // 데이터가 1000개 넘어가는 것을 못 봄 (최대 600~700까지 확인: 하남시 41450 202407)
         log.debug("API 요청 URL: {}", urlStr);
         XmlMapper xmlMapper = new XmlMapper();
         JavaType type = xmlMapper.getTypeFactory().constructParametricType(TransactionApiDTO.class, itemType);

@@ -72,6 +72,12 @@ public class EstateService {
             throw e;
         }
     }
+    //위경도로 건물 정보 가져오기 - 예외 없는 버전.
+    public EstateDTO getEstateByLatLngWithNull(double lat, double lng) {
+        return Optional.ofNullable(estateMapper.getEstateByLatLng(lat, lng))
+                .map(estateDTOConverter::toDTO)
+                .orElse(null);
+    }
 
 
 

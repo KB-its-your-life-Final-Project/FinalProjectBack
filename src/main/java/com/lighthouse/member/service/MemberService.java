@@ -157,7 +157,7 @@ public class MemberService {
         log.info("MemberService.registerByEmail() 실행 ======");
         log.info("email: {}", dto.getEmail());
         log.info("name: {}", dto.getName());
-        log.info("password: {}", dto.getPassword1());
+        log.info("password: {}", dto.getPwd());
         String clientIp = ClientIpUtil.getClientIp(req);
         Member member = dto.toMember();
         member.setPwd(passwordEncoder.encode(member.getPwd())); // 암호화
@@ -365,6 +365,7 @@ public class MemberService {
                 fileUploadService.deleteFile(member.getProfileImg());
             }
             member.setProfileImg("");
+            memberMapper.updateMember(member);
             Member updatedMember = memberMapper.findMemberById(member.getId());
             return MemberResponseDTO.toUser(updatedMember);
         } catch (Exception e) {

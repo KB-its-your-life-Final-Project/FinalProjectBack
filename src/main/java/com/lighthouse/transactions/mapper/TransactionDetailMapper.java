@@ -1,6 +1,7 @@
 
 package com.lighthouse.transactions.mapper;
 
+import java.util.Date;
 import java.util.List;
 
 import com.lighthouse.transactions.dto.TransactionRequestDTO;
@@ -23,4 +24,5 @@ public interface TransactionDetailMapper {
                                                     @Param("tradeType") Integer tradeType,
                                                     @Param("startDate") String startDate,
                                                     @Param("endDate") String endDate);
+    Date findLatestTransactionDateByLatLng(@Param("lat") double lat, @Param("lng") double lng);
 }

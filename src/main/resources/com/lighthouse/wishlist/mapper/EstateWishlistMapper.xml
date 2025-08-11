@@ -6,9 +6,9 @@
 
     <insert id="saveLikeEstate" parameterType="LikeEstate">
         INSERT INTO ${LIKE_ESTATE_TBL} (
-            member_id, estate_id, is_like, jibun_addr, building_name, building_type
+            member_id, estate_id, is_like, jibun_addr, building_name, building_type, latitude, longitude
         ) VALUES (
-            #{memberId}, #{estateId}, #{isLike}, #{jibunAddr}, #{buildingName}, #{buildingType}
+            #{memberId}, #{estateId}, #{isLike}, #{jibunAddr}, #{buildingName}, #{buildingType}, #{latitude}, #{longitude}
         )
     </insert>
     <update id="updateLikeEstate" parameterType="LikeEstate">
@@ -20,11 +20,12 @@
             member_id = #{memberId}
             AND jibun_addr = #{jibunAddr}
     </update>
-    <select id="findByMemberIdAndJibunAddr" resultType="LikeEstate">
-        SELECT member_id, estate_id, is_like, jibun_addr, building_name, building_type
+    <select id="findByMemberIdAndCoord" resultType="LikeEstate">
+        SELECT member_id, estate_id, is_like, jibun_addr, building_name, building_type, latitude, longitude
         FROM ${LIKE_ESTATE_TBL}
         WHERE member_id = #{memberId}
-          AND jibun_addr = #{jibunAddr}
+          AND latitude = #{latitude}
+          AND longitude = #{longitude}
         <if test="checkLike != null and checkLike == true">
             AND is_like = 1
         </if>
@@ -32,52 +33,66 @@
     <select id="findAllEstateByMemberId" parameterType="Long" resultType="com.lighthouse.wishlist.dto.EstateWishlistResponseDTO">
         SELECT
             le.estate_id,
-            le.jibun_addr,                     -- backup (있을 수도 있으니)
+            le.jibun_addr AS jibun_addr_backup,
             COALESCE(eai.jibun_addr, le.jibun_addr) AS jibun_addr,
             le.building_name,
             le.building_type,
 
-            -- 매매금액
-            CASE
-                WHEN le.estate_id IS NOT NULL THEN (
-                    SELECT s.deal_amount
-                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
-                    WHERE s.estate_id = le.estate_id AND s.trade_type = 1
-                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
-                    LIMIT 1
-            )
-            ELSE NULL
-        END AS amount,
+            -- 최신 매매금액
+            s_amount.deal_amount AS amount,
+            -- 최신 보증금
+            s_deposit.deposit AS deposit,
+            -- 최신 월세
+            s_rent.monthly_rent AS monthly_rent
 
-            -- 보증금
-            CASE
-                WHEN le.estate_id IS NOT NULL THEN (
-                    SELECT s.deposit
-                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
-                    WHERE s.estate_id = le.estate_id AND s.trade_type = 2
-                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
-                    LIMIT 1
-                )
-            ELSE NULL
-        END AS deposit,
+        FROM ${LIKE_ESTATE_TBL} le
 
-            -- 월세
-            CASE
-                WHEN le.estate_id IS NOT NULL THEN (
-                    SELECT s.monthly_rent
-                    FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
-                    WHERE s.estate_id = le.estate_id AND s.trade_type = 2
-                    ORDER BY s.deal_year DESC, s.deal_month DESC, s.deal_day DESC
-                    LIMIT 1
-                )
-            ELSE NULL
-        END AS monthly_rent
+                 -- 좌표 매칭해서 eai 기본 정보 가져오기 (중복 방지: 동일 좌표의 대표 1건)
+                 LEFT JOIN (
+            SELECT
+                ANY_VALUE(jibun_addr) AS jibun_addr,
+                latitude,
+                longitude
+            FROM ${ESTATE_API_INTEGRATION_TBL}  -- sales가 아닌 기본 정보 테이블에서
+            GROUP BY latitude, longitude
+        ) eai
+                           ON le.latitude = eai.latitude AND le.longitude = eai.longitude
 
-        FROM like_estate_tbl le
-        LEFT JOIN ${ESTATE_API_INTEGRATION_TBL} eai ON le.estate_id = eai.id
+            -- 최신 매매금액 LATERAL
+                 LEFT JOIN LATERAL (
+            SELECT s.deal_amount
+            FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+                     JOIN ${ESTATE_API_INTEGRATION_TBL} e2 ON s.estate_id = e2.id
+            WHERE e2.latitude = le.latitude AND e2.longitude = le.longitude AND s.trade_type = 1
+            ORDER BY (s.deal_year * 10000 + s.deal_month * 100 + s.deal_day) DESC
+                LIMIT 1
+    ) s_amount ON TRUE
+
+            -- 최신 보증금 LATERAL
+            LEFT JOIN LATERAL (
+            SELECT s.deposit
+            FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+            JOIN ${ESTATE_API_INTEGRATION_TBL} e2 ON s.estate_id = e2.id
+            WHERE e2.latitude = le.latitude AND e2.longitude = le.longitude AND s.trade_type = 2
+            ORDER BY (s.deal_year * 10000 + s.deal_month * 100 + s.deal_day) DESC
+            LIMIT 1
+            ) s_deposit ON TRUE
+
+            -- 최신 월세 LATERAL
+            LEFT JOIN LATERAL (
+            SELECT s.monthly_rent
+            FROM ${ESTATE_API_INTEGRATION_SALES_TBL} s
+            JOIN ${ESTATE_API_INTEGRATION_TBL} e2 ON s.estate_id = e2.id
+            WHERE e2.latitude = le.latitude AND e2.longitude = le.longitude AND s.trade_type = 2
+            ORDER BY (s.deal_year * 10000 + s.deal_month * 100 + s.deal_day) DESC
+            LIMIT 1
+            ) s_rent ON TRUE
+
         WHERE le.member_id = #{memberId}
-            AND le.is_like = 1
+          AND le.is_like = 1;
     </select>
+
+
 
     <select id="findByEstateId" resultType="com.lighthouse.wishlist.dto.BuildingInfoDTO">
         SELECT building_name, building_type
