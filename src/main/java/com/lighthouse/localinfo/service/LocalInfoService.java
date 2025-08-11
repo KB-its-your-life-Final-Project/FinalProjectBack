@@ -19,8 +19,8 @@ public class LocalInfoService {
     private final WeatherMapper weatherMapper;
     private final WeatherService weatherService; // WeatherService를 주입받음
 
-    public List<LocalInfoResponseDTO> searchRegions(String keyword) {
-        return localInfoMapper.searchByKeyword(keyword);
+    public List<LocalInfoResponseDTO> findAllRegions(){
+        return localInfoMapper.findAllRegions();
     }
 
     /**
