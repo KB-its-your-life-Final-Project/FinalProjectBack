@@ -7,10 +7,10 @@
     </resultMap>
 
     <!-- 사용자별 집 정보 조회 -->
-    <select id="selectHomeByUserId" resultMap="HomeRegisterMap">
+    <select id="selectHomeByMemberId" resultMap="HomeRegisterMap">
         SELECT *
         FROM myhome_tbl
-        WHERE user_id = #{userId}
+        WHERE member_id = #{memberId}
         AND is_delete = 1
         LIMIT 1
     </select>
@@ -18,7 +18,7 @@
     <!-- 집 정보 등록 -->
     <insert id="insertHome" parameterType="com.lighthouse.homeregister.entity.HomeRegister">
         INSERT INTO myhome_tbl (
-            user_id,
+            member_id,
             estate_id,
             building_name,
             building_number,
@@ -34,7 +34,7 @@
             monthly_deposit,
             monthly_rent
         ) VALUES (
-            #{userId},
+            #{memberId},
             #{estateId},
             #{buildingName},
             #{buildingNumber},
@@ -68,7 +68,7 @@
             jeonse_amount = #{jeonseAmount},
             monthly_deposit = #{monthlyDeposit},
             monthly_rent = #{monthlyRent}
-        WHERE user_id = #{userId}
+        WHERE member_id = #{memberId}
         AND is_delete = 1
     </update>
 

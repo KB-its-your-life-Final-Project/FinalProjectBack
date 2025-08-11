@@ -262,4 +262,3 @@ CREATE TABLE myhome_tbl (
 
                                 PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='아파트 정보 및 계약 정보';
-

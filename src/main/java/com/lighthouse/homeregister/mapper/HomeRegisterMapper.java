@@ -10,7 +10,7 @@ public interface HomeRegisterMapper {
     void insertHome(HomeRegister homeEntity);
     
     // 사용자별 집 정보 조회
-    HomeRegister selectHomeByUserId(@Param("userId") Integer userId);
+    HomeRegister selectHomeByMemberId(@Param("memberId") Integer memberId);
     
     // 집 정보 수정
     void updateHome(HomeRegister homeEntity);

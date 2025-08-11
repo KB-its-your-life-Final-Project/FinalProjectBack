@@ -31,7 +31,7 @@ public class HomeRegisterService {
 
     // 집 정보 등록
     @Transactional
-    public HomeRegisterResponseDTO registerHome(HomeRegisterRequestDTO requestDTO, Integer userId, HttpServletRequest request) {
+    public HomeRegisterResponseDTO registerHome(HomeRegisterRequestDTO requestDTO, Integer memberId, HttpServletRequest request) {
         
         // 위도/경도 유효성 검사
         if (requestDTO.getLat() == 0.0 || requestDTO.getLng() == 0.0) {
@@ -63,9 +63,9 @@ public class HomeRegisterService {
         }
         
         // 기존 집 정보 조회
-        HomeRegister existingHome = homeRegisterMapper.selectHomeByUserId(userId);
+        HomeRegister existingHome = homeRegisterMapper.selectHomeByMemberId(memberId);
         
-        HomeRegister homeEntity = createHomeEntity(requestDTO, userId, estateInfo, addressInfo, request);
+        HomeRegister homeEntity = createHomeEntity(requestDTO, memberId, estateInfo, addressInfo, request);
         
         if (existingHome != null) {
             // 기존 집 정보가 있으면 수정
@@ -102,7 +102,7 @@ public class HomeRegisterService {
         } else {
             // 기존 집 정보가 없으면 새로 등록
             homeRegisterMapper.insertHome(homeEntity);
-            log.info("집 정보 등록 완료 - userId: {}, estateId: {}", userId, estateInfo != null ? estateInfo.getId() : "null");
+            log.info("집 정보 등록 완료 - memberId: {}, estateId: {}", memberId, estateInfo != null ? estateInfo.getId() : "null");
             
             // buildingName 우선순위: 1) requestDTO, 2) estateInfo, 3) addressInfo
             String finalBuildingName = "";
@@ -134,13 +134,13 @@ public class HomeRegisterService {
         }
     }
     
-        private HomeRegister createHomeEntity(HomeRegisterRequestDTO requestDTO, Integer userId, 
+        private HomeRegister createHomeEntity(HomeRegisterRequestDTO requestDTO, Integer memberId, 
                                                EstateDTO estateInfo, Map<String, String> addressInfo, HttpServletRequest request) {
         try {
             HomeRegister homeEntity = new HomeRegister();
             
             // 기본 정보 설정
-            homeEntity.setUserId(userId);
+            homeEntity.setMemberId(memberId);
             // estate_id는 estateInfo가 있으면 설정, 없으면 0 (NOT NULL 제약조건 해결)
             homeEntity.setEstateId(estateInfo != null ? estateInfo.getId() : 0);
             // 네이버 API에서 얻은 주소 정보 사용
@@ -239,8 +239,8 @@ public class HomeRegisterService {
     }
     
     // 집 정보 조회
-    public HomeRegisterResponseDTO getHomeInfo(Integer userId) {
-        HomeRegister homeInfo = homeRegisterMapper.selectHomeByUserId(userId);
+    public HomeRegisterResponseDTO getHomeInfo(Integer memberId) {
+        HomeRegister homeInfo = homeRegisterMapper.selectHomeByMemberId(memberId);
         
         if (homeInfo == null) {
             return null;
