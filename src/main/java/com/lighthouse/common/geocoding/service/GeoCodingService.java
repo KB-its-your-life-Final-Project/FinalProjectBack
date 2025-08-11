@@ -74,7 +74,6 @@ public class GeoCodingService {
             }
 
             String resultAddress = roadAddress.toString().trim();
-            log.info("역지오코딩 결과: {} -> {}", String.format("lat: %f, lng: %f", lat, lng), resultAddress);
             
             return resultAddress.isEmpty() ? null : resultAddress;
 
@@ -182,9 +181,6 @@ public class GeoCodingService {
                 addressInfo.put("sggCd", "");
             }
 
-            log.info("상세 주소 정보 조회 완료: lat={}, lng={}, buildingName={}, jibunAddress={}, umdNm={}", 
-                    lat, lng, addressInfo.get("buildingName"), addressInfo.get("jibunAddress"), addressInfo.get("umdNm"));
-            
             return addressInfo;
 
         } catch (Exception e) {

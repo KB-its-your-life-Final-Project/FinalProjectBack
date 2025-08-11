@@ -51,7 +51,6 @@ public class SafeReportService {
         EstateDTO realEstate = null;
         try {
             realEstate = estateService.getEstateByLatLng(dto.getLat(), dto.getLng());
-            log.info("realEstate: {}", realEstate);
         } catch (NoSuchElementException e) {
             log.info("위경도로 건물 정보를 찾을 수 없음: lat={}, lng={}", dto.getLat(), dto.getLng());
             realEstate = null;
@@ -79,7 +78,6 @@ public class SafeReportService {
     private Integer getDealAmount(Integer estateId) {
         log.info("매매 정보 조회 시작 - estateId: {}", estateId);
         EstateSales latestSale = safereportmapper.getSalesByEstateIdWithTradeType(estateId);
-        log.info("매매 정보 조회 결과 - latestSale: {}", latestSale);
         
         if(latestSale == null) {
             log.info("매매 정보 없음, dealAmount를 0으로 설정");
@@ -179,17 +177,21 @@ public class SafeReportService {
         
         // 2단계: DB에 데이터가 없으면 토지대장 API 호출
         if(fullAddress != null && !fullAddress.trim().isEmpty()) {
+            log.info("DB에 토지대장 데이터가 없어 API 호출을 시도합니다: {}", fullAddress);
             BuildingResponseDTO apiResult = callBuildingRegisterAPI(fullAddress);
             if(apiResult != null) {
                 // API 호출 성공 시 DB에 저장되었을 것이므로 DB에서 다시 조회
                 BuildingInfoResult dbResultAfterApi = getBuildingInfoFromDB(dto.getLat(), dto.getLng());
                 if(dbResultAfterApi != null) {
+                    log.info("API 호출 후 DB에서 건물 정보 조회 성공: {}", fullAddress);
                     return dbResultAfterApi;
                 }
+            } else {
+                log.warn("토지대장 API 호출 실패 또는 타임아웃으로 인해 건물 정보 없음: {}", fullAddress);
             }
         }
         
-        log.warn("건물 정보 조회 실패: {}", fullAddress);
+        log.warn("건물 정보 조회 실패 - 토지대장 데이터 없음: {}", fullAddress);
         return new BuildingInfoResult(null, null);
     }
     
@@ -212,10 +214,10 @@ public class SafeReportService {
         }
     }
     
-    // 토지대장 API 호출
+    // 토지대장 API 호출 (타임아웃 포함)
     private BuildingResponseDTO callBuildingRegisterAPI(String fullAddress) {
         try {
-            log.info("토지대장 API 호출 시작: {}", fullAddress);
+            log.info("토지대장 API 호출 시작: {} (타임아웃: 10초)", fullAddress);
             
             // 먼저 집합건축물 대장 조회 시도
             BuildingResponseDTO result = trySetBuildingRegisterAPI(fullAddress);
@@ -228,7 +230,7 @@ public class SafeReportService {
             if(result != null) {
                 log.info("토지대장 API 호출 성공: {}", fullAddress);
             } else {
-                log.warn("모든 토지대장 API 호출 실패: {}", fullAddress);
+                log.warn("모든 토지대장 API 호출 실패 (타임아웃, API 오류 또는 데이터 없음): {}", fullAddress);
             }
             
             return result;

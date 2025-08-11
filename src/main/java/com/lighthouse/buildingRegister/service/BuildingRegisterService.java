@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
@@ -46,18 +50,34 @@ public class BuildingRegisterService {
                     .build();
             
             /** 코드에프 정보 조회 요청 */
-            String productUrl = "/v1/kr/public/lt/eais/general-buildings";
+            final String productUrl = "/v1/kr/public/lt/eais/general-buildings";
+            
+            // 타임아웃 설정 (10초)
+            final int timeoutSeconds = 10;
+            long startTime = System.currentTimeMillis();
             
             try {
-                log.info("CODEF API 호출 시작: {}", productUrl);
+                log.info("CODEF API 호출 시작: {} (타임아웃: {}초)", productUrl, timeoutSeconds);
                 log.info("요청 파라미터: address={}, userId={}, type={}", buildingRequestDTO.getAddress(), buildingRequestDTO.getUserId(), type);
                 
-                long startTime = System.currentTimeMillis();
-                result = codef.request(productUrl, buildingRequestDTO);
+                // CompletableFuture를 사용한 비동기 호출과 타임아웃 처리
+                final BuildingRequestDTO finalBuildingRequestDTO = buildingRequestDTO;
+                CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return codef.request(productUrl, finalBuildingRequestDTO);
+                    } catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
+                });
+                
+                result = (BuildingResponseDTO) future.get(timeoutSeconds, TimeUnit.SECONDS);
                 long endTime = System.currentTimeMillis();
                 
                 log.info("CODEF API 호출 완료 (소요시간: {}ms): {}", (endTime - startTime), productUrl);
                 log.info("CODEF API 호출 성공 (type={}): {}", type, normalizedAddress);
+            } catch (TimeoutException e) {
+                log.warn("CODEF API 타임아웃 ({}초 초과): {} - {}", timeoutSeconds, normalizedAddress, e.getMessage());
+                return null; // 타임아웃 시 null 반환
             } catch (Exception e) {
                 if (e.getMessage() != null && e.getMessage().contains("타임아웃")) {
                     log.warn("CODEF API 타임아웃 (type={}): {} - {}", type, normalizedAddress, e.getMessage());
@@ -105,10 +125,12 @@ public class BuildingRegisterService {
     }
     /** address = 정확한 도로명 주소, dong = (ex. 101동...) 동 이름이 존재한다면 넣고 없다면 null */
     public BuildingResponseDTO getBuildingRegisterSet(String address, String dong) {
-        CodefUtil codef = new CodefUtil(id, password, publicKey);
+        final CodefUtil codef = new CodefUtil(id, password, publicKey);
+        final String normalizedAddress = normalizeAddress(address);
+        
         BuildingRequestDTO buildingRequestDTO = null;
         BuildingResponseDTO result = null;
-        String normalizedAddress = normalizeAddress(address);
+        
         try {
             /** 요청 파라미터 설정 - 각 상품별 파라미터를 설정(https://developer.codef.io/products) */
             buildingRequestDTO = BuildingRequestDTO.builder()
@@ -124,16 +146,34 @@ public class BuildingRegisterService {
             log.error("RSA 암호화 에러",e);
             return null; // 예외를 던지지 않고 null 반환
         }
-        String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
+        
+        final BuildingRequestDTO finalBuildingRequestDTO = buildingRequestDTO;
+        final String productUrl = "/v1/kr/public/lt/eais/building-ledger-heading";
+        
+        // 타임아웃 설정 (10초)
+        final int timeoutSeconds = 10;
+        long startTime = System.currentTimeMillis();
+        
         try {
-            log.info("CODEF API 호출 시작: {}", productUrl);
-            log.info("요청 파라미터: address={}, userId={}", buildingRequestDTO.getAddress(), buildingRequestDTO.getUserId());
+            log.info("CODEF API 호출 시작: {} (타임아웃: {}초)", productUrl, timeoutSeconds);
+            log.info("요청 파라미터: address={}, userId={}", finalBuildingRequestDTO.getAddress(), finalBuildingRequestDTO.getUserId());
             
-            long startTime = System.currentTimeMillis();
-            result = codef.request(productUrl, buildingRequestDTO);
+            // CompletableFuture를 사용한 비동기 호출과 타임아웃 처리
+            CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return codef.request(productUrl, finalBuildingRequestDTO);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            });
+            
+            result = (BuildingResponseDTO) future.get(timeoutSeconds, TimeUnit.SECONDS);
             long endTime = System.currentTimeMillis();
             
             log.info("CODEF API 호출 완료 (소요시간: {}ms): {}", (endTime - startTime), productUrl);
+        } catch (TimeoutException e) {
+            log.warn("CODEF API 타임아웃 ({}초 초과): {} - {}", timeoutSeconds, normalizedAddress, e.getMessage());
+            return null; // 타임아웃 시 null 반환
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("타임아웃")) {
                 log.warn("CODEF API 타임아웃: {} - {}", normalizedAddress, e.getMessage());

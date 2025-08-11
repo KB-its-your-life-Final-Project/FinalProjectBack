@@ -240,7 +240,6 @@ public class HomeRegisterService {
     
     // 집 정보 조회
     public HomeRegisterResponseDTO getHomeInfo(Integer userId) {
-        log.info("집 정보 조회 - userId: {}", userId);
         HomeRegister homeInfo = homeRegisterMapper.selectHomeByUserId(userId);
         
         if (homeInfo == null) {
@@ -267,8 +266,6 @@ public class HomeRegisterService {
                     if (coordinates != null) {
                         latitude = coordinates.get("lat");
                         longitude = coordinates.get("lng");
-                        log.info("jibun 주소로 위도/경도 조회 완료: {}, lat={}, lng={}", 
-                                homeInfo.getJibun(), latitude, longitude);
                     }
                 } catch (Exception e) {
                     log.warn("jibun 주소로 위도/경도 조회 실패: {}, 오류: {}", homeInfo.getJibun(), e.getMessage());
@@ -281,7 +278,6 @@ public class HomeRegisterService {
         if (latitude != null && longitude != null) {
             try {
                 roadAddress = geoCodingService.getRoadAddressFromCoordinates(latitude, longitude);
-                log.info("도로명 주소 조회 완료: {}", roadAddress);
             } catch (Exception e) {
                 log.warn("도로명 주소 조회 실패: {}", e.getMessage());
                 // 도로명 주소 조회 실패는 전체 응답에 영향을 주지 않음
