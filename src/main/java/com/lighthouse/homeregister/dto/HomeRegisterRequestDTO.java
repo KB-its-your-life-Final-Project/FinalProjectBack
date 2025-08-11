@@ -16,6 +16,9 @@ public class HomeRegisterRequestDTO {
     @ApiModelProperty(value = "건물동 이름", example = "101동")
     private String buildingNumber;
 
+    @ApiModelProperty(value = "건물명", example = "아파트명 또는 건물명")
+    private String buildingName;
+
     @ApiModelProperty(value ="계약 시작일", example="2023.04.23")
     private String contractStart;
 
