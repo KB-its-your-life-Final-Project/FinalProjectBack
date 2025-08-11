@@ -29,7 +29,7 @@ import com.lighthouse.member.entity.Member;
 @RequestMapping("/api/myhome")
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = "MyHomeRegister", description = "나의 집 등록 관련 API")
+@Api(tags = "MyHomeRegister", description = "나의 집 등록 API")
 public class HomeRegisterController {
 
     private final HomeRegisterService homeRegisterService;

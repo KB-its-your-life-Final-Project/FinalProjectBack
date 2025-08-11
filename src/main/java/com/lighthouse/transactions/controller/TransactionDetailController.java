@@ -8,6 +8,8 @@ import com.lighthouse.transactions.dto.TransactionResponseDTO;
 import com.lighthouse.transactions.service.TransactionDetailService;
 
 import com.lighthouse.transactions.vo.TransactionGraphVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,15 @@ import java.util.Map;
 @RequestMapping("/api/transactions")
 @Slf4j
 @RequiredArgsConstructor
+@Api(tags = "Transaction Detail", description = "아파트/건물 실거래가 상세 데이터를 조건별로 조회하는 API")
+
 public class TransactionDetailController {
     private final TransactionDetailService transactionDetailService;
     private final GeoCodingService geoCodingService;
 
     @PostMapping("/detail")
+    @ApiOperation(
+            value = "필터 조건에 따른 실거래가 상세 조회")
     public List<TransactionResponseDTO> getFilteredData(@RequestBody TransactionRequestDTO request) {
         log.info("요청 들어옴: {}", request);
         double lat = 0.0;

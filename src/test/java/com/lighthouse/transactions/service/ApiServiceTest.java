@@ -102,6 +102,8 @@ class ApiServiceTest {
     // estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트
     @Test
     @DisplayName("아파트 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertAptTradesToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202501;
@@ -109,6 +111,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("아파트 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertAptRentalsToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202501;
@@ -116,6 +120,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("오피스텔 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertOffTradesToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202502;
@@ -123,6 +129,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("오피스텔 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertOffRentalsToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202502;
@@ -130,6 +138,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("연립다세대 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertMHTradesToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202502;
@@ -137,6 +147,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("연립다세대 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertMHRentalsToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202502;
@@ -144,6 +156,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("단독/다가구 매매 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertSHTradesToEstApiIntgTest() {
         int lawdCd = 48310;
         int dealYmd = 202505;
@@ -151,6 +165,8 @@ class ApiServiceTest {
     }
     @Test
     @DisplayName("단독/다가구 전월세 estate_api_integration_tbl, estate_api_integration_sales_tbl 삽입 테스트")
+    @Transactional
+    @Rollback // 테스트 종료 후 데이터 미삽입
     void insertSHRentalsToEstApiIntgTest() {
         int lawdCd = 41210;
         int dealYmd = 202501;
