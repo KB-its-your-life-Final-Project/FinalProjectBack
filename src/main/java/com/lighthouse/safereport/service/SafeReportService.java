@@ -119,6 +119,11 @@ public class SafeReportService {
     
     // 역전세율 점수 계산
     private int calculateRatioScore(double ratio) {
+        // dealAmount가 0이거나 ratio가 0인 경우 0점 반환
+        if(ratio == 0) {
+            return 0;
+        }
+        
         if(ratio <= RATIO_SAFE_THRESHOLD) {
             return SCORE_SAFE;
         } else if(ratio <= RATIO_CAUTION_THRESHOLD) {
