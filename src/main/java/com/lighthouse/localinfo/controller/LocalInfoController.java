@@ -2,7 +2,6 @@ package com.lighthouse.localinfo.controller;
 
 import com.lighthouse.localinfo.dto.*;
 import com.lighthouse.localinfo.entity.Weather;
-import com.lighthouse.localinfo.mapper.WeatherMapper;
 import com.lighthouse.localinfo.service.*;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
@@ -10,6 +9,7 @@ import com.lighthouse.response.SuccessCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,27 +19,17 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/localinfo")
 @CrossOrigin(origins = "${FRONT_ORIGIN}")
+@RequiredArgsConstructor
 @Api(tags = "Local Info", description = "지역 정보, 인구, 편의시설, 병원, 안전도, 날씨 조회 API")
 
 public class LocalInfoController {
 
-    @Autowired
-    private LocalInfoService localInfoService;
-
-    @Autowired
-    private ReverseGeocodeService reverseGeocodeService;
-
-    @Autowired
-    private PopulationService populationService;
-
-    @Autowired
-    private FacilityService facilityService;
-
-    @Autowired
-    private HospitalService hospitalService;
-
-    @Autowired
-    private SafetyService safetyService;
+    private final LocalInfoService localInfoService;
+    private final ReverseGeocodeService reverseGeocodeService;
+    private final PopulationService populationService;
+    private final FacilityService facilityService;
+    private final HospitalService hospitalService;
+    private final SafetyService safetyService;
 
     /**
      * 키워드로 지역 목록을 검색하는 API
