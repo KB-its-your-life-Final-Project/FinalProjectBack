@@ -352,10 +352,17 @@ public class SafeReportService {
     
     // 최종 점수 계산 (역전세율 점수 70% + 위반 점수 30%)
     private Integer calculateTotalScore(RentalRatioAndBuildyear rentalRatioAndBuildyear, ViolationStatus violationStatus) {
-        // 특별 케이스: 역전세율 점수가 0이고 위반 점수가 10점인 경우 최종 점수를 8점으로 설정
+        // 특별 케이스 1: 역전세율 점수가 0이고 위반 점수가 10점인 경우 최종 점수를 8점으로 설정
         if (rentalRatioAndBuildyear != null && rentalRatioAndBuildyear.getScore() == 0 && 
             violationStatus != null && violationStatus.getScore() == 10) {
             return 8;
+        }
+        
+        // 특별 케이스 2: 역전세율 점수가 10점이고 위반 점수가 3점인 경우 주의 등급(5~7점)으로 설정
+        if (rentalRatioAndBuildyear != null && rentalRatioAndBuildyear.getScore() == 10 && 
+            violationStatus != null && violationStatus.getScore() == 3) {
+            // 5~7점 사이의 랜덤한 점수 반환 (주의 등급)
+            return 6; // 중간값인 6점으로 설정
         }
         
         double totalScore = 0.0;
