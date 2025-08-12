@@ -337,6 +337,25 @@
         </foreach>
     </insert>
 
+    <select id="findAllByKeys" resultType="EstateApiIntegration">
+        SELECT * FROM ${ESTATE_API_INTEGRATION_TBL}
+        WHERE CONCAT(mhouse_type, '_', shouse_type, '_', build_year, '_', building_type, '_', jibun_addr)
+        IN
+        <foreach collection="keys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+    </select>
+
+    <select id="findAllByUniqueCombination" resultType="EstateApiIntegration">
+        SELECT *
+        FROM ${ESTATE_API_INTEGRATION_TBL}
+        WHERE mhouse_type = #{mhouseType}
+          AND shouse_type = #{shouseType}
+          AND build_year = #{buildYear}
+          AND building_type = #{buildingType}
+          AND jibun_addr = #{jibunAddr}
+    </select>
+
     <select id="findIdByUniqueCombination" parameterType="map" resultType="java.lang.Integer">
         SELECT id
         FROM ${ESTATE_API_INTEGRATION_TBL}

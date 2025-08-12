@@ -3,7 +3,6 @@ package com.lighthouse.transactions.mapper;
 import com.lighthouse.transactions.entity.EstateApiIntegration;
 import com.lighthouse.transactions.entity.EstateApiIntegrationSales;
 import com.lighthouse.transactions.vo.*;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -47,6 +46,11 @@ public interface TransactionMapper {
     void insertSingleHouseRentalBatch(@Param("list") List<SingleHouseRentalVO> singleHouseRentalList);
 
     void insertLawdCdBatch(@Param("list") List<LawdCdVO> lawdCdList);
+
+    // estate_api_integration_tbl 및 estate_api_integration_sales_tbl
+    List<EstateApiIntegration> findAllByKeys(@Param("keys") List<String> keys);
+
+    List<EstateApiIntegration> findAllByUniqueCombination(Map<String, Object> params);
 
     Integer findIdByUniqueCombination(Map<String, Object> params);
 
