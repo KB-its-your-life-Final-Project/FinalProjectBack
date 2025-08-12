@@ -2,7 +2,6 @@ package com.lighthouse.homeregister.controller;
 
 import com.lighthouse.homeregister.dto.HomeRegisterRequestDTO;
 import com.lighthouse.homeregister.dto.HomeRegisterResponseDTO;
-import com.lighthouse.homeregister.entity.HomeRegister;
 import com.lighthouse.homeregister.service.HomeRegisterService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.SuccessCode;
@@ -19,11 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.NoSuchElementException;
 import com.lighthouse.member.dto.MemberResponseDTO;
 import com.lighthouse.member.service.MemberService;
-import org.springframework.http.HttpStatus;
-import com.lighthouse.member.entity.Member;
 
 @RestController
 @RequestMapping("/api/myhome")

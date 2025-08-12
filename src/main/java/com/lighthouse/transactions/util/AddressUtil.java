@@ -1,8 +1,8 @@
 package com.lighthouse.transactions.util;
 
-import com.lighthouse.toCoord.service.AddressGeocodeService;
+import com.lighthouse.common.geocoding.service.GeoCodingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -10,13 +10,9 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AddressUtil {
-    private final AddressGeocodeService geocodeService;
-
-    @Autowired
-    public AddressUtil(AddressGeocodeService geocodeService) {
-        this.geocodeService = geocodeService;
-    }
+    private final GeoCodingService geoCodingService;
 
     /**
      * 지번주소 생성 (읍면동 + 지번)
@@ -38,6 +34,6 @@ public class AddressUtil {
                 put("lng", 0.0);
             }};
         }
-        return geocodeService.getCoordinates(jibunAddr);
+        return geoCodingService.getCoordinateFromAddress(jibunAddr);
     }
 }
