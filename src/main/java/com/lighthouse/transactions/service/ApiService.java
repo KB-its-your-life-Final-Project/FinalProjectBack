@@ -52,6 +52,15 @@ public class ApiService {
     private static final String SINGLE_TRADE_ENDPOINT = "/RTMSDataSvcSHTrade/getRTMSDataSvcSHTrade";
     private static final String SINGLE_RENT_ENDPOINT = "/RTMSDataSvcSHRent/getRTMSDataSvcSHRent";
 
+    /**
+     * 지정된 부동산 API 엔드포인트를 호출하여 데이터 조회
+     * @param url API 엔드포인트 URL
+     * @param lawdCd 시군구코드
+     * @param dealYmd 거래 연월(yyyyMM)
+     * @param itemType 응답 데이터 매핑 클래스
+     * @return TransactionApiDTO<T> API 응답 DTO
+     * @throws Exception API 호출 실패 또는 XML 파싱 실패 시
+     */
     private <T> TransactionApiDTO<T> apiRequest(String url, int lawdCd, int dealYmd, Class<T> itemType) throws Exception {
         String urlStr = UriComponentsBuilder
                 .fromHttpUrl(url)
@@ -68,7 +77,14 @@ public class ApiService {
     }
 
     /**
-     * 트랜잭션 내에서 실행될 실제 데이터 처리 로직
+     * API 데이터를 조회하여 트랜잭션 내에서 DB에 저장
+     * @param endpoint API 엔드포인트
+     * @param lawdCd 시군구코드
+     * @param dealYmd 거래 연월(yyyyMM)
+     * @param clazz VO 클래스 타입
+     * @param handler 저장 로직 핸들러
+     * @param logPrefix 로그용 데이터 유형명 (예: "아파트 매매", "아파트 전월세")
+     * @throws Exception API 호출 실패 또는 DB 저장 실패 시
      */
     @Transactional
     public <T> void executeTransactionalInsert(String endpoint, int lawdCd, int dealYmd, Class<T> clazz, SaveHandler<T> handler, String logPrefix) throws Exception {
@@ -85,7 +101,13 @@ public class ApiService {
     }
 
     /**
-     * 재시도 로직이 포함된 공통 insert 메소드
+     * 재시도 로직을 포함하여 API 데이터를 공통 방식으로 DB에 삽입
+     * @param endpoint API 엔드포인트
+     * @param lawdCd 시군구코드
+     * @param dealYmd 거래 연월(yyyyMM)
+     * @param clazz VO 클래스 타입
+     * @param handler 저장 로직 핸들러
+     * @param logPrefix 로그용 데이터 유형명 (예: "아파트 매매", "아파트 전월세")
      */
     public <T> void insertCommon(String endpoint, int lawdCd, int dealYmd, Class<T> clazz, SaveHandler<T> handler, String logPrefix) {
         int maxRetries = 3;
@@ -160,7 +182,17 @@ public class ApiService {
     }
 
     /**
-     * 트랜잭션이 적용된 Estate API Integration 데이터 처리
+     * Estate API Integration 데이터 및 Sales 데이터 처리
+     * - 중복 제거 후 신규 데이터만 삽입
+     * - 매핑, 키 생성, 기존 데이터 조회, 중복 필터링, 배치 저장 수행
+     * @param endpoint API 엔드포인트
+     * @param lawdCd 시군구코드
+     * @param dealYmd 거래 연월(yyyyMM)
+     * @param clazz VO 클래스 타입
+     * @param mapperFunc VO → EstateApiIntegration 변환 함수
+     * @param salesMapperFunc VO → EstateApiIntegrationSales 변환 함수
+     * @param logPrefix 로그용 데이터 유형명 (예: "아파트 매매", "아파트 전월세")
+     * @throws Exception API 호출 실패 또는 DB 처리 실패 시
      */
     @Transactional
     public <T> void executeEstateApiIntegrationInsert(
@@ -198,64 +230,71 @@ public class ApiService {
                 .collect(Collectors.toList());
         long conversionEnd_stream = System.currentTimeMillis();
         long conversionElapsedMs_stream = conversionEnd_stream - conversionStart_stream;
-        long conversionMinutes_stream = conversionElapsedMs_stream / 60000; // 1분 = 60000ms
-        long conversionSeconds_stream = (conversionElapsedMs_stream % 60000) / 1000; // 남은 ms를 초로 변환
+        long conversionMinutes_stream = conversionElapsedMs_stream / 60000;
+        long conversionSeconds_stream = (conversionElapsedMs_stream % 60000) / 1000;
         log.info("🔄 {} 데이터 변환 (stream 처리) 완료: {}분 {}초 ({}ms) ({} 건)", logPrefix, conversionMinutes_stream, conversionSeconds_stream, conversionElapsedMs_stream, apiIntegrationList_stream.size());
 
-        // 중복 검사를 위한 기존 데이터 조회 - API 데이터의 고유 키들로만 조회
-//        long findAllStart = System.currentTimeMillis();
-//        Set<String> existingKeys = new HashSet<>();
+        // 모든 고유 키를 한 번에 수집
+        long collectKeysStart = System.currentTimeMillis();
+        Set<String> apiDataKeys = apiIntegrationList_stream.stream()
+                .map(this::generateEstateIntegrationKey)
+                .collect(Collectors.toSet());
+        log.info("📝 {} API 데이터 고유 키 수집: {} 건", logPrefix, apiDataKeys.size());
 
-        // API 데이터의 각 항목에 대해 개별적으로 존재 여부 확인
-//        for (EstateApiIntegration estate : apiIntegrationList) {
-//            Map<String, Object> params = getEstateParams(estate);
-//            List<EstateApiIntegration> existingList = mapper.findAllByUniqueCombination(params);
-//            for (EstateApiIntegration existing : existingList) {
-//                existingKeys.add(generateEstateIntegrationKey(existing));
-//            }
-//        }
-//        long findAllEnd = System.currentTimeMillis();
-//        long findAllIntegrationElapsedMs = findAllEnd - findAllStart;
-//        long findAllIntegrationMinutes = findAllIntegrationElapsedMs / 60000; // 1분 = 60000ms
-//        long findAllIntegrationSeconds = (findAllIntegrationElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
-//        log.info("🔍 {} 기존 integration_tbl 데이터 조회: {}분 {}초 ({}ms) ({} 건)",
-//                logPrefix, findAllIntegrationMinutes, findAllIntegrationSeconds, findAllIntegrationElapsedMs, existingKeys.size());
+        // IN 쿼리로 한 번에 기존 데이터 조회
+        Set<String> existingKeys = new HashSet<>();
+        if (!apiDataKeys.isEmpty()) {
+            // 한 번의 쿼리로 모든 기존 데이터 조회
+            List<EstateApiIntegration> existingList = mapper.findAllByKeys(new ArrayList<>(apiDataKeys));
+            existingKeys = existingList.stream()
+                    .map(this::generateEstateIntegrationKey)
+                    .collect(Collectors.toSet());
+        }
+        long collectKeysEnd = System.currentTimeMillis();
+        long collectKeysElapsedMs = collectKeysEnd - collectKeysStart;
+        long collectKeysMinutes = collectKeysElapsedMs / 60000;
+        long collectKeysSeconds = (collectKeysElapsedMs % 60000) / 1000;
+        log.info("🔍 {} 기존 데이터 조회 완료: {}분 {}초 ({}ms) ({} 건)",
+                logPrefix, collectKeysMinutes, collectKeysSeconds, collectKeysElapsedMs, existingKeys.size());
 
-        // 중복되지 않은 데이터만 필터링, 신규 데이터도 set으로 한 번 더 필터링
-//        long filterStart = System.currentTimeMillis();
-//        Set<EstateApiIntegration> uniqueNewEstates = apiIntegrationList.stream()
-//                .filter(estate -> !existingKeys.contains(generateEstateIntegrationKey(estate)))
-//                .collect(Collectors.toCollection(LinkedHashSet::new));
-//        List<EstateApiIntegration> newIntegrationList = new ArrayList<>(uniqueNewEstates);
-//        long filterEnd = System.currentTimeMillis();
-//        long filterElapseMs = filterEnd - filterStart;
-//        long filterMinutes = filterElapseMs / 60000; // 1분 = 60000ms;
-//        long filterSeconds = (filterElapseMs % 60000) / 1000; // 남은 ms를 초로 변환
-//        log.info("🔍 {} 중복 제거 완료: {}분 {}초 ({}ms) (전체: {} 건, 기존(이미 있는 주소): {} 건, 신규: {} 건)",
-//                logPrefix,
-//                filterMinutes,
-//                filterSeconds,
-//                filterElapseMs,
-//                apiIntegrationList.size(),
-//                existingKeys.size(),
-//                newIntegrationList.size());
+        // Stream으로 중복 제거 + 신규 데이터 내 중복도 제거
+        long filterStart = System.currentTimeMillis();
+        final Set<String> finalExistingKeys = existingKeys; // final로 만들어서 람다에서 사용
+        List<EstateApiIntegration> newIntegrationList = apiIntegrationList_stream.stream()
+                .collect(Collectors.toMap(
+                        this::generateEstateIntegrationKey,  // 키 생성
+                        Function.identity(),                 // 값은 그대로
+                        (existing, duplicate) -> existing    // 중복시 기존 값 유지 (신규 데이터 내 중복 제거)
+                ))
+                .entrySet().stream()
+                .filter(entry -> !finalExistingKeys.contains(entry.getKey())) // 기존 DB 데이터와 중복 제거
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        long filterEnd = System.currentTimeMillis();
+        long filterElapseMs = filterEnd - filterStart;
+        long filterMinutes = filterElapseMs / 60000;
+        long filterSeconds = (filterElapseMs % 60000) / 1000;
+        log.info("🔍 {} 중복 제거 완료: {}분 {}초 ({}ms) (전체: {} 건, 기존(이미 있는 주소): {} 건, 신규: {} 건)",
+                logPrefix, filterMinutes, filterSeconds, filterElapseMs, apiIntegrationList_stream.size(), existingKeys.size(), newIntegrationList.size());
 
         // estate_api_integration_tbl 삽입 (신규 데이터만)
-//        long insertIntegrationStart = System.currentTimeMillis();
-//        if (!newIntegrationList.isEmpty()) {
-//            int insertedRowNm = mapper.insertEstateApiIntegrationBatch(newIntegrationList);
-//            log.info("✅ {} integration_tbl 신규 데이터 저장: {} 건", logPrefix, insertedRowNm);
-//        } else {
-//            log.info("📋 {} integration_tbl 신규 데이터 없음 (모두 중복)", logPrefix);
-//        }
-        // estate_api_integration_tbl 삽입 (받아온 모든 데이터)
         long insertIntegrationStart = System.currentTimeMillis();
-        if (!apiIntegrationList_stream.isEmpty()) {
-            int insertedRowNm = mapper.insertEstateApiIntegrationBatch(apiIntegrationList_stream);
+        if (!newIntegrationList.isEmpty()) {
+            int insertedRowNm = mapper.insertEstateApiIntegrationBatch(newIntegrationList);
             log.info("✅ {} integration_tbl 신규 데이터 저장: {} 건", logPrefix, insertedRowNm);
         } else {
             log.info("📋 {} integration_tbl 신규 데이터 없음 (모두 중복)", logPrefix);
         }
+
+        // estate_api_integration_tbl 삽입 (받아온 모든 데이터)
+        // long insertIntegrationStart = System.currentTimeMillis();
+        // if (!apiIntegrationList_stream.isEmpty()) {
+        //     int insertedRowNm = mapper.insertEstateApiIntegrationBatch(apiIntegrationList_stream);
+        //     log.info("✅ {} integration_tbl 신규 데이터 저장: {} 건", logPrefix, insertedRowNm);
+        // } else {
+        //     log.info("📋 {} integration_tbl 신규 데이터 없음 (모두 중복)", logPrefix);
+        // }
+
         long insertIntegrationEnd = System.currentTimeMillis();
         long insertIntegrationElapsedMs = insertIntegrationEnd - insertIntegrationStart;
         long insertIntegrationMinutes = insertIntegrationElapsedMs / 60000;
@@ -301,15 +340,15 @@ public class ApiService {
         long insertSalesEnd = System.currentTimeMillis();
 
         long insertSalesElapsedMs = insertSalesEnd - insertSalesStart;
-        long insertSalesMinutes = insertSalesElapsedMs / 60000; // 1분 = 60000ms
-        long insertSalesSeconds = (insertSalesElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
-        long findIdMinutes = findIdTotalTime / 60000; // 1분 = 60000ms
-        long findIdSeconds = (findIdTotalTime % 60000) / 1000; // 남은 ms를 초로 변환
-        long setEstateIdAndAddMinutes = setEstateIdAndAddTotalTime / 60000; // 1분 = 60000ms
-        long setEstateIdAndAddSeconds = (setEstateIdAndAddTotalTime % 60000) / 1000; // 남은 ms를 초로 변환
+        long insertSalesMinutes = insertSalesElapsedMs / 60000;
+        long insertSalesSeconds = (insertSalesElapsedMs % 60000) / 1000;
+        long findIdMinutes = findIdTotalTime / 60000;
+        long findIdSeconds = (findIdTotalTime % 60000) / 1000;
+        long setEstateIdAndAddMinutes = setEstateIdAndAddTotalTime / 60000;
+        long setEstateIdAndAddSeconds = (setEstateIdAndAddTotalTime % 60000) / 1000;
         long extractAndSetEstateIdElapsedMs = extractAndSetEstateIdEnd - extractAndSetEstateIdStart;
-        long extractAndSetEstateIdMinutes = extractAndSetEstateIdElapsedMs / 60000; // 1분 = 60000ms
-        long extractAndSetEstateIdSeconds = (extractAndSetEstateIdElapsedMs % 60000) / 1000; // 남은 ms를 초로 변환
+        long extractAndSetEstateIdMinutes = extractAndSetEstateIdElapsedMs / 60000;
+        long extractAndSetEstateIdSeconds = (extractAndSetEstateIdElapsedMs % 60000) / 1000;
         log.info("⏱ {} findIdByUniqueCombination 총 소요 시간: {}분 {}초 ({}ms)", logPrefix, findIdMinutes, findIdSeconds, findIdTotalTime);
         log.info("⏱ {} setEstateIdAndAdd 총 소요 시간: {}분 {}초 ({}ms)", logPrefix, setEstateIdAndAddMinutes, setEstateIdAndAddSeconds, setEstateIdAndAddTotalTime);
         log.debug("⏱ {} estateId 추출 소요 시간: {}분 {}초 ({}ms)", logPrefix, extractAndSetEstateIdMinutes, extractAndSetEstateIdSeconds, extractAndSetEstateIdElapsedMs);
@@ -317,7 +356,9 @@ public class ApiService {
     }
 
     /**
-     * EstateApiIntegration의 고유 키 생성 (중복 검사용)
+     * EstateApiIntegration 중복 검사용 고유 키 생성
+     * @param estate EstateApiIntegration 객체
+     * @return 고유 키 문자열
      */
     private String generateEstateIntegrationKey(EstateApiIntegration estate) {
         return String.format("%s_%s_%s_%s_%s",
@@ -329,7 +370,14 @@ public class ApiService {
     }
 
     /**
-     * 재시도 로직이 포함된 Estate API Integration 메소드
+     * 재시도 로직을 포함한 Estate API Integration 처리
+     * @param endpoint API 엔드포인트
+     * @param lawdCd 시군구코드
+     * @param dealYmd 거래 연월(yyyyMM)
+     * @param clazz VO 클래스 타입
+     * @param mapperFunc VO → EstateApiIntegration 변환 함수
+     * @param salesMapperFunc VO → EstateApiIntegrationSales 변환 함수
+     * @param logPrefix 로그용 데이터 유형명 (예: "아파트 매매", "아파트 전월세")
      */
     private <T> void insertEstateApiIntegrationCommon(
             String endpoint, int lawdCd, int dealYmd, Class<T> clazz,
@@ -368,7 +416,7 @@ public class ApiService {
         }
     }
 
-    // Estate API Integration 메소드들
+    // Estate API Integration/Sales 삽입 메소드들
     public void insertAptTradesToEstApiIntg(int lawdCd, int dealYmd) {
         insertEstateApiIntegrationCommon(APT_TRADE_ENDPOINT,
                 lawdCd, dealYmd, ApartmentTradeVO.class,
@@ -433,6 +481,11 @@ public class ApiService {
                 "단독/다가구 전월세");
     }
 
+    /**
+     * 법정동코드 데이터 API 호출 및 DB 저장
+     * @param pageNo 페이지 번호
+     * @param numOfRows 페이지당 데이터 개수
+     */
     public void insertLawdCd(int pageNo, int numOfRows) {
         String url = "http://apis.data.go.kr/1741000/StanReginCd/getStanReginCdList";
         URI uri = UriComponentsBuilder
@@ -460,12 +513,13 @@ public class ApiService {
     }
 
     /**
+     * 지정된 기간 동안 모든 시군구에 대해
      * Estate API Integration 및 Sales 데이터 일괄 삽입
-     * - 각 API 호출별로 트랜잭션 적용
-     * - 개별 실패 시 해당 건만 건너뛰고 전체 작업 계속
+     * - API별, 월별, 시군구별 반복 호출
+     * - 실패 건은 기록 후 계속 진행
      * @param uniqueLawdCdList 시군구코드 List
-     * @param startYmd 시작연월 (예: 202401)
-     * @param endYmd 종료연월 (예: 202412)
+     * @param startYmd 시작 연월 (예: 202401)
+     * @param endYmd 종료 연월 (예: 202412)
      */
     public void insertEstateApiIntgAndSalesTbl(List<Integer> uniqueLawdCdList, int startYmd, int endYmd) {
         if (uniqueLawdCdList == null || uniqueLawdCdList.isEmpty()) {
