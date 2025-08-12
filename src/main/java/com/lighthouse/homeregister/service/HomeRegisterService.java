@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -253,10 +254,15 @@ public class HomeRegisterService {
         
         if (homeInfo.getEstateId() != null && homeInfo.getEstateId() != 0) {
             // estate_id가 유효한 값인 경우에만 estate 테이블에서 조회
-            estateInfo = estateService.getEstateById(homeInfo.getEstateId());
-            if (estateInfo != null) {
-                latitude = estateInfo.getLatitude();
-                longitude = estateInfo.getLongitude();
+            try {
+                estateInfo = estateService.getEstateById(homeInfo.getEstateId());
+                if (estateInfo != null) {
+                    latitude = estateInfo.getLatitude();
+                    longitude = estateInfo.getLongitude();
+                }
+            } catch (NoSuchElementException e) {
+                log.warn("estate_id {}에 해당하는 부동산 정보를 찾을 수 없습니다: {}", homeInfo.getEstateId(), e.getMessage());
+                // estate 정보가 없어도 집 정보는 반환
             }
         } else if (homeInfo.getEstateId() == 0) {
             // estate_id가 0인 경우 jibun 주소로 네이버 API 호출하여 위도/경도 얻기
