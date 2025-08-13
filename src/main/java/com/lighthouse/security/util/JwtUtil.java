@@ -11,8 +11,10 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    static private final long ACCESS_TOKEN_VALID_MILLISECOND = 1000L * 60 * 10;             // 10분
-    static private final long REFRESH_TOKEN_VALID_MILLISECOND = 1000L * 60 * 60 * 24 * 14;  // 2주
+    @Value("${JWT_EXPIRATION:1800000}")
+    private long accessTokenValidMillisecond;
+    @Value("${JWT_REFRESH_EXPIRATION:1209600000}")
+    private long refreshTokenExpiration;
 
     @Value("${JWT_SECRET}")
     private String secretKey;
@@ -33,11 +35,11 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(int subject) {
-        return generateToken(subject, ACCESS_TOKEN_VALID_MILLISECOND);
+        return generateToken(subject, accessTokenValidMillisecond);
     }
 
     public String generateRefreshToken(int subject) {
-        return generateToken(subject, REFRESH_TOKEN_VALID_MILLISECOND);
+        return generateToken(subject, refreshTokenExpiration);
     }
 
     // JWT Subject(Member) 추출- 해석 불가인 경우 예외 발생
