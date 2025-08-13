@@ -22,7 +22,8 @@ public class GeoCodingService {
             return Map.of("lat", lat, "lng", lng);
         }
         catch(Exception e) {
-            throw e;
+            log.error("주소 좌표 변환 실패: address={}, error={}", address, e.getMessage());
+            return null;
         }
     }
 

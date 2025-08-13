@@ -35,7 +35,8 @@ public class EstateService {
             return estateDTOConverter.toDTOList(entities);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getEstateByElement: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -56,8 +57,8 @@ public class EstateService {
             return estateDTOConverter.toDTO(estate);
         }
         catch(Exception e) {
-            log.error("위도/경도로 부동산 정보 조회 중 오류 발생: lat={}, lng={}, error={}", lat, lng, e.getMessage(), e);
-            throw e;
+            log.warn("Failed to getEstateByLatLng: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -69,7 +70,8 @@ public class EstateService {
             return estateDTOConverter.toDTO(estate);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getEstateById: message={}", e.getMessage());
+            return null;
         }
     }
     //위경도로 건물 정보 가져오기 - 예외 없는 버전.
@@ -88,7 +90,8 @@ public class EstateService {
             return estateDTOConverter.toDTOList(entities);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getAllEstateByLatLng: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -100,7 +103,8 @@ public class EstateService {
             return estateDTO;
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getEstateByAddress: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -111,7 +115,8 @@ public class EstateService {
             return estateDTOConverter.toDTOList(entities);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getEstateBySqaure: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -121,7 +126,8 @@ public class EstateService {
             return estateDTOConverter.toDTOSalesList(entities);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getEstateSalesByElement: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -131,7 +137,8 @@ public class EstateService {
             return estateDTOConverter.toDTOList(entites);
         }
         catch(Exception e) {
-            throw e;
+            log.warn("Failed to getNearyByLatLng: message={}", e.getMessage());
+            return null;
         }
     }
 
@@ -143,8 +150,8 @@ public class EstateService {
             log.info("건물 정보 목록 조회 완료: {}개", buildingInfos != null ? buildingInfos.size() : 0);
             return buildingInfos;
         } catch (Exception e) {
-            log.error("건물 정보 목록 조회 중 에러 발생 - regionCode: {}, dongName: {}", regionCode, dongName, e);
-            throw e;
+            log.warn("Failed to getBuildingInfosByRegionCodeAndDongName: message={}", e.getMessage());
+            return null;
         }
     }
 }

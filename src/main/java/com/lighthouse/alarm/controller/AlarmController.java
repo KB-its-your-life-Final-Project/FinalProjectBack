@@ -8,11 +8,13 @@ import com.lighthouse.member.service.MemberService;
 import com.lighthouse.response.ApiResponse;
 import com.lighthouse.response.ErrorCode;
 import com.lighthouse.response.SuccessCode;
+import com.lighthouse.security.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,7 @@ import java.util.List;
 public class AlarmController {
    private final AlarmService alarmService;
    private final MemberService memberService;
+   private final JwtUtil jwtUtil;
    
    // 특정 알림 설정 업데이트
    // 알림 설정 페이지에서 사용
@@ -36,22 +39,14 @@ public class AlarmController {
    @ApiOperation(value = "알림 설정 변경")
    public ResponseEntity<ApiResponse<Void>> updateAlarmSetting(
            @RequestBody AlarmSettingRequestDto requestDto, 
-           HttpServletRequest request,
-           HttpServletResponse response){
+           @ApiIgnore @CookieValue("accessToken") String token){
       try{
-         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         if (memberDto == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-         }
-         
-         int memberId = memberDto.getId();
+         int memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
          alarmService.updateAlarmSetting(memberId, requestDto.getType(), requestDto.getGetAlarm());
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_UPDATE_SUCCESS));
       }catch(Exception e){
          log.error("알림 설정 업데이트 실패",e);
-         return ResponseEntity.internalServerError()
+         return ResponseEntity.ok()
                  .body(ApiResponse.error(ErrorCode.ALARM_SETTING_FAIL));
       }
    }
@@ -61,24 +56,16 @@ public class AlarmController {
    @GetMapping("/list")
    @ApiOperation(value = "알림 목록")
    public ResponseEntity<ApiResponse<List<AlarmResponseDto>>> getAlarmList(
-           HttpServletRequest request,
-           HttpServletResponse response){
-      try{
-         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         if (memberDto == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-         }
-         
-         int memberId = memberDto.getId();
-         List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
-         return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList));
-      }catch(Exception e){
-         log.error("알림 목록 조회 실패",e);
-         return ResponseEntity.internalServerError()
-                 .body(ApiResponse.error(ErrorCode.ALARM_FETCH_FAIL));
-      }
+      @ApiIgnore @CookieValue("accessToken") String token){
+         try {
+            int memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
+            List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
+            return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList));
+        } catch (Exception e) {
+            log.error("알림 목록 조회 실패", e);
+            return ResponseEntity.ok()
+                .body(ApiResponse.error(ErrorCode.ALARM_FETCH_FAIL));
+        }
    }
 
    // 알림 읽음 처리
@@ -87,22 +74,14 @@ public class AlarmController {
     public ResponseEntity<ApiResponse<Void>> markAlarmRead(
             @ApiParam(value = "알림 ID", required = true, example = "1") 
             @PathVariable int alarmId, 
-            HttpServletRequest request,
-            HttpServletResponse response){
+            @ApiIgnore @CookieValue("accessToken") String token){
         try{
-          // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
-          MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-          if (memberDto == null) {
-             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-          }
-          
-          int memberId = memberDto.getId();
-          alarmService.setAlarmRead(memberId, alarmId);
-          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_READ_SUCCESS));
+            int memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
+            alarmService.setAlarmRead(memberId, alarmId);
+            return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_READ_SUCCESS));
        }catch(Exception e){
-          log.error("알림 읽음 처리 실패: alarmId={}, error={}", alarmId, e.getMessage(), e);
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            log.error("알림 읽음 처리 실패: alarmId={}, error={}", alarmId, e.getMessage(), e);
+            return ResponseEntity.ok()
                   .body(ApiResponse.error(ErrorCode.ALARM_READ_FAIL));
        }
     }
@@ -111,22 +90,14 @@ public class AlarmController {
    @GetMapping("/count")
    @ApiOperation(value = "미확인 알림 개수", notes = "사용자의 미확인 알림 개수를 조회합니다.")
    public ResponseEntity<ApiResponse<Integer>> getUnreadAlarmCount(
-           HttpServletRequest request,
-           HttpServletResponse response){
+      @ApiIgnore @CookieValue("accessToken") String token){
        try{
-         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         if (memberDto == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-         }
-         
-         int memberId = memberDto.getId();
+         int memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
          List<AlarmResponseDto> alarmList = alarmService.getAlarmList(memberId);
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_FETCH_SUCCESS, alarmList.size()));
       }catch(Exception e){
          log.error("알림 개수 조회 실패",e);
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+         return ResponseEntity.ok()
                  .body(ApiResponse.error(ErrorCode.ALARM_FETCH_FAIL));
       }
     }

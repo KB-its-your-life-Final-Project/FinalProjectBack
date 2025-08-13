@@ -234,8 +234,8 @@ public class HomeRegisterService {
             return homeEntity;
             
         } catch (Exception e) {
-            log.error("createHomeEntity 오류 발생: {}", e.getMessage(), e);
-            throw e;
+            log.warn("Failed to createHomeEntity: message={}", e.getMessage());
+            return null;
         }
     }
     

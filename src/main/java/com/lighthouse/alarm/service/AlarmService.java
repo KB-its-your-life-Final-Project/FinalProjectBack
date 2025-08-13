@@ -46,7 +46,6 @@ public class AlarmService {
             log.info("알림 생성 완료: memberId={}, type={}", memberId, type);
         } catch (Exception e) {
             log.error("알림 생성 실패: memberId={}, type={}", memberId, type, e);
-            throw e;
         }
     }
     
@@ -80,7 +79,6 @@ public class AlarmService {
             }
         } catch (Exception e) {
             log.error("스마트 알림 생성 실패: memberId={}, type={}", memberId, type, e);
-            throw e;
         }
     }
     
@@ -330,7 +328,6 @@ public class AlarmService {
         } catch (Exception e) {
             log.error("알림 읽음 처리 중 오류 발생: memberId={}, alarmId={}, error={}", 
                     memberId, alarmId, e.getMessage(), e);
-            throw e;
         }
     }
     

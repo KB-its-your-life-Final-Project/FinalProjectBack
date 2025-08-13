@@ -105,7 +105,7 @@ public class MemberController {
 //            memberService.sendVerificationCode(email);
 //            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SENT, true));
 //        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
+//            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
 //        }
 //    }
 
@@ -159,7 +159,12 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UNREGISTER_SUCCESS, unregisteredMemberDto));
         } catch (Exception e) {
             log.error("회원 탈퇴 실패", e);
+<<<<<<< HEAD
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UNREGISTER_FAIL));
+=======
+            return ResponseEntity.ok()
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UNREGISTER_FAIL));
+>>>>>>> 0761bf6f929ed70fd85daf374794d0cc302c80d4
         }
     }
 
@@ -257,7 +262,12 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGOUT_SUCCESS, isTokenRemoved));
         } catch (Exception e) {
             log.error("로그아웃 실패", e);
+<<<<<<< HEAD
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_LOGOUT_FAIL));
+=======
+            return ResponseEntity.ok()
+                    .body(ApiResponse.error(ErrorCode.MEMBER_LOGOUT_FAIL));
+>>>>>>> 0761bf6f929ed70fd85daf374794d0cc302c80d4
         }
     }
 
@@ -310,7 +320,12 @@ public class MemberController {
             }
         } catch (Exception e) {
             log.error("회원 정보 변경 실패", e);
+<<<<<<< HEAD
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+=======
+            return ResponseEntity.ok()
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+>>>>>>> 0761bf6f929ed70fd85daf374794d0cc302c80d4
         }
     }
 
@@ -330,7 +345,12 @@ public class MemberController {
                     .body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
         } catch (Exception e) {
             log.error("프로필 이미지 업로드 실패", e);
+<<<<<<< HEAD
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+=======
+            return ResponseEntity.ok()
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+>>>>>>> 0761bf6f929ed70fd85daf374794d0cc302c80d4
         }
     }
 
@@ -349,7 +369,12 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
         } catch (Exception e) {
             log.error("프로필 이미지 삭제 실패", e);
+<<<<<<< HEAD
             return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+=======
+            return ResponseEntity.ok()
+                    .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+>>>>>>> 0761bf6f929ed70fd85daf374794d0cc302c80d4
         }
     }
 }
