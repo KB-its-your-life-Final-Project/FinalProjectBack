@@ -105,7 +105,7 @@ public class MemberController {
 //            memberService.sendVerificationCode(email);
 //            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SENT, true));
 //        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
+//            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
 //        }
 //    }
 

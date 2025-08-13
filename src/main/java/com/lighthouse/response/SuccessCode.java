@@ -56,7 +56,10 @@ public enum SuccessCode implements ResponseCode{
 	// alarm
 	ALARM_FETCH_SUCCESS(8001, "알림 목록 조회 성공"),
 	ALARM_UPDATE_SUCCESS(8002, "알림 설정 변경 성공"),
-	ALARM_READ_SUCCESS(8003,"알림 읽음 처리 성공");
+	ALARM_READ_SUCCESS(8003,"알림 읽음 처리 성공"),
+
+	// aiRecommend
+	AI_RECOMMEND_SUCCESS(9001, "AI 추천 성공");
 
 
 	private final int code;

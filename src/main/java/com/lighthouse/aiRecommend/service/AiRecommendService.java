@@ -128,7 +128,7 @@ public class AiRecommendService {
 
         String prompt = "넌 한국의 안전자산 관리를 위한 부동산 서비스를 맡고 있어 너는 내가 제공하는 사용자의 정보로 집을 추천해야해 다른 집은 찾아보면 안돼. 투자보다는 실제로 거주 목적의 집들을 추천해야해 ";
         prompt += "내가 너에게 어떤 데이터를 줄껀데 그거 기반으로 json 타입으로만 리턴해줘 왜냐면 바로 사용할꺼니까. ";        
-        prompt += "리턴할 json 타입은 { jibunAddres: 지번주소, positiveFactor: 장점 (한줄 - 설명하듯이), reason: 추천한 이유 (한줄 - 설명하듯이)} ";
+        prompt += "리턴할 json 타입은 { jibunAddress: 지번주소, positiveFactor: 장점 (한줄 - 설명하듯이), reason: 추천한 이유 (한줄 - 설명하듯이)} ";
     
 
         // 최근 검색 목록 데이터 추가
