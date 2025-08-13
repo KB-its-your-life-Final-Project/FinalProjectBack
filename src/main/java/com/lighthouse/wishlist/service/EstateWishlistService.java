@@ -55,35 +55,42 @@ public class EstateWishlistService {
                 //건물명 + 건물 타입 가져오기
                 newItem.setEstateId(estateDTO.getId());
                 BuildingInfoDTO buildingInfo = mapper.findByEstateId(estateDTO.getId());
-                newItem.setBuildingName(buildingInfo.getBuildingName());
+                if(buildingInfo != null) {
+                    newItem.setBuildingName(dto.getBuildingName());
+                }
+                else{
+                    newItem.setBuildingName(buildingInfo.getBuildingName());
+                }
                 newItem.setBuildingType(buildingInfo.getBuildingType());
             }
             else{
-                String buildingName = null;
-                //네이버 map API로 건물명 가져오기
-                Map<String,Object>geocodeResult = naverMapClient.getInfoOfAddress(dto.getJibunAddr());
-                if(!geocodeResult.isEmpty()){
-                    List<Map<String, Object>> addressElements =
-                            (List<Map<String, Object>>) geocodeResult.get("addressElements");
+                String buildingName = dto.getBuildingName();
+                if(buildingName == null || buildingName.isEmpty()){
+                    //네이버 map API로 건물명 가져오기
+                    Map<String,Object>geocodeResult = naverMapClient.getInfoOfAddress(dto.getJibunAddr());
+                    if(!geocodeResult.isEmpty()){
+                        List<Map<String, Object>> addressElements =
+                                (List<Map<String, Object>>) geocodeResult.get("addressElements");
 
-                    for (Map<String, Object> element : addressElements) {
-                        List<String> types = (List<String>) element.get("types");
-                        if (types != null && types.contains("BUILDING_NAME")) {
-                            buildingName = (String) element.get("longName");
-                            break;
+                        for (Map<String, Object> element : addressElements) {
+                            List<String> types = (List<String>) element.get("types");
+                            if (types != null && types.contains("BUILDING_NAME")) {
+                                buildingName = (String) element.get("longName");
+                                break;
+                            }
                         }
+                        log.info("건물명 = {}", buildingName);
                     }
-                    log.info("건물명 = {}", buildingName);
-                    newItem.setBuildingName(buildingName);
-                    if(!Objects.requireNonNull(buildingName).isEmpty()){
-                        //네이버 검색 API로 건물 타입 가져오기
-                        String[] tokens = dto.getJibunAddr().split(" ");
-                        // 시도 + 시군구 + 빌딩명이 가장 정확한 검색결과로 나타남
-                        String query = tokens[0] + " " + tokens[1] + " " + tokens[2] + buildingName;
-                        int category = naverSearchClient.getCategoryCodeByAddress(query);
-                        log.info("category = {}", category);
-                        newItem.setBuildingType(category);
-                    }
+                }
+                newItem.setBuildingName(buildingName);
+                if(buildingName != null){
+                    //네이버 검색 API로 건물 타입 가져오기
+                    String[] tokens = dto.getJibunAddr().split(" ");
+                    // 시도 + 시군구 + 빌딩명이 가장 정확한 검색결과로 나타남
+                    String query = tokens[0] + " " + tokens[1] + " " + tokens[2] + buildingName;
+                    int category = naverSearchClient.getCategoryCodeByAddress(query);
+                    log.info("category = {}", category);
+                    newItem.setBuildingType(category);
                 }
             }
             newItem.setJibunAddr(dto.getJibunAddr());

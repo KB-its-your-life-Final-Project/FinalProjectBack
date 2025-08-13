@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstateWishlistRequestDTO {
     private String jibunAddr;
+    private String buildingName;
 }
