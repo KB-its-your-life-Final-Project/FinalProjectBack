@@ -39,22 +39,14 @@ public class AlarmController {
    @ApiOperation(value = "알림 설정 변경")
    public ResponseEntity<ApiResponse<Void>> updateAlarmSetting(
            @RequestBody AlarmSettingRequestDto requestDto, 
-           HttpServletRequest request,
-           HttpServletResponse response){
+           @ApiIgnore @CookieValue("accessToken") String token){
       try{
-         // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
-         MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
-         if (memberDto == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
-         }
-         
-         int memberId = memberDto.getId();
+         int memberId = Integer.valueOf(jwtUtil.getSubjectFromToken(token));
          alarmService.updateAlarmSetting(memberId, requestDto.getType(), requestDto.getGetAlarm());
          return ResponseEntity.ok(ApiResponse.success(SuccessCode.ALARM_UPDATE_SUCCESS));
       }catch(Exception e){
          log.error("알림 설정 업데이트 실패",e);
-         return ResponseEntity.internalServerError()
+         return ResponseEntity.ok()
                  .body(ApiResponse.error(ErrorCode.ALARM_SETTING_FAIL));
       }
    }

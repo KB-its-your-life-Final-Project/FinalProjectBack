@@ -43,6 +43,7 @@ public class YouthProgramController {
             value = "청년 프로그램 동기화"
 
     )
+
     public ResponseEntity<?> syncYouthPrograms() {
         youthProgramService.syncYouthProgramsFromApi();
         return ResponseEntity.ok("청년 프로그램 동기화 완료");
