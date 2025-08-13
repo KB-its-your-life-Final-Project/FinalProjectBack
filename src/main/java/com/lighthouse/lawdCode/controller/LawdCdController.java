@@ -57,7 +57,7 @@ public class LawdCdController {
             List<SidoDto> sidoList = selectAddressService.getSidoList();
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.LAWDCD_FETCH_SUCCESS, sidoList));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.SERVER_NOT_RESPONDING));
         }
     }
@@ -76,7 +76,7 @@ public class LawdCdController {
             List<SigugunDto> sigugunList = selectAddressService.getSigugunList(sidoCd);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.LAWDCD_FETCH_SUCCESS, sigugunList));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.SERVER_NOT_RESPONDING));
         }
     }
@@ -96,7 +96,7 @@ public class LawdCdController {
             List<DongDto> dongList = selectAddressService.getDongList(sidoCd, sggCd);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.LAWDCD_FETCH_SUCCESS, dongList));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.SERVER_NOT_RESPONDING));
         }
     }
@@ -117,7 +117,7 @@ public class LawdCdController {
             BuildingResponseDto buildingList = selectAddressService.getBuildingList(regionCode, dongName);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.LAWDCD_FETCH_SUCCESS, buildingList));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.SERVER_NOT_RESPONDING));
         }
     }

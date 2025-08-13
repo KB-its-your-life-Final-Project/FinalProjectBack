@@ -43,7 +43,7 @@ public class SelectAddressService {
             return result;
         } catch (Exception e) {
             log.error("시/도 목록 조회 중 에러 발생", e);
-            throw e;
+            return null;
         }
     }
 
@@ -70,7 +70,7 @@ public class SelectAddressService {
             return result;
         } catch (Exception e) {
             log.error("시/군/구 목록 조회 중 에러 발생 - sidoCd: {}", sidoCd, e);
-            throw e;
+            return null;
         }
     }
 
@@ -83,7 +83,7 @@ public class SelectAddressService {
             return result;
         } catch (Exception e) {
             log.error("읍/면/동 목록 조회 중 에러 발생 - sidoCd: {}, sggCd: {}", sidoCd, sggCd, e);
-            throw e;
+            return null;
         }
     }
     
@@ -101,7 +101,7 @@ public class SelectAddressService {
                     .build();
         } catch (Exception e) {
             log.error("건물 정보 목록 조회 중 에러 발생 - regionCode: {}, dongName: {}", regionCode, dongName, e);
-            throw e;
+            return null;
         }
     }
 }

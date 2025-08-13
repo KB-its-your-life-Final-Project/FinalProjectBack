@@ -83,7 +83,7 @@ public class SafeReportController {
             // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.ok()
                         .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
@@ -92,7 +92,7 @@ public class SafeReportController {
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_LIST_SUCCESS, recentReports));
         } catch (Exception e) {
             log.error("최근 본 안심레포트 목록 조회 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.RECENT_SAFEREPORT_LIST_FAIL));
         }
     }
@@ -112,7 +112,7 @@ public class SafeReportController {
             // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.ok()
                         .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
@@ -120,14 +120,14 @@ public class SafeReportController {
             SafeReportResponseDto report = recentSafeReportService.getRecentReportDetail(id, userId);
             
             if (report == null) {
-                return ResponseEntity.status(404)
+                return ResponseEntity.ok()
                         .body(ApiResponse.error(ErrorCode.RECENT_SAFEREPORT_NOT_FOUND));
             }
             
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DETAIL_SUCCESS, report));
         } catch (Exception e) {
             log.error("최근 본 안심레포트 상세 조회 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.RECENT_SAFEREPORT_DETAIL_FAIL));
         }
     }
@@ -147,7 +147,7 @@ public class SafeReportController {
             // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(request, response);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.ok()
                         .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
@@ -156,7 +156,7 @@ public class SafeReportController {
             return ResponseEntity.ok(ApiResponse.success(SuccessCode.RECENT_SAFEREPORT_DELETE_SUCCESS, null));
         } catch (Exception e) {
             log.error("최근 본 안심레포트 삭제 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.RECENT_SAFEREPORT_DELETE_FAIL));
         }
     }

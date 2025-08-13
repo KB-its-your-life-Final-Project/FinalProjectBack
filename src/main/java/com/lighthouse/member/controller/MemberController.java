@@ -50,7 +50,7 @@ public class MemberController {
             MemberResponseDTO dto = memberService.findMemberById(id);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, dto));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
         }
     }
 
@@ -63,11 +63,11 @@ public class MemberController {
             if (memberDto != null) {
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_FETCH_SUCCESS, memberDto));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
         } catch (NoSuchElementException e) {
             log.error("회원 정보 조회 실패", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
         }
     }
 
@@ -105,7 +105,7 @@ public class MemberController {
 //            memberService.sendVerificationCode(email);
 //            return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_VERIFICATION_CODE_SENT, true));
 //        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
+//            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.EMAIL_SEND_FAIL));
 //        }
 //    }
 
@@ -141,7 +141,7 @@ public class MemberController {
             MemberResponseDTO userDto = memberService.registerByEmail(registerReqDto, req);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_REGISTER_SUCCESS, userDto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
         }
     }
 
@@ -153,13 +153,13 @@ public class MemberController {
         try {
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             MemberResponseDTO unregisteredMemberDto = memberService.unregister(memberDto);
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UNREGISTER_SUCCESS, unregisteredMemberDto));
         } catch (Exception e) {
             log.error("회원 탈퇴 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.MEMBER_UNREGISTER_FAIL));
         }
     }
@@ -200,10 +200,10 @@ public class MemberController {
                     return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGIN_EMAIL_SUCCESS, memberDto));
                 } catch (Exception e) {
                     log.error("이메일 로그인 실패", e);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.EMAIL_LOGIN_FAIL));
+                    return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.EMAIL_LOGIN_FAIL));
                 }
             }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_NOT_FOUND));
             // 카카오 로그인
         } else if (loginReqDto.getCreatedType() == 2) {
             try {
@@ -221,7 +221,7 @@ public class MemberController {
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_KAKAO_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("카카오 회원가입/로그인 실패", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
             }
             // 구글 로그인
         } else if (loginReqDto.getCreatedType() == 3) {
@@ -240,11 +240,11 @@ public class MemberController {
                 return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS, memberDto));
             } catch (Exception e) {
                 log.error("구글 회원가입/로그인 실패", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_REGISTER_FAIL));
             }
             // 지원하지 않는 로그인 타입
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_LOGIN_TYPE));
+            return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_LOGIN_TYPE));
         }
     }
 
@@ -258,7 +258,7 @@ public class MemberController {
             return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_LOGOUT_SUCCESS, isTokenRemoved));
         } catch (Exception e) {
             log.error("로그아웃 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.MEMBER_LOGOUT_FAIL));
         }
     }
@@ -273,7 +273,7 @@ public class MemberController {
         try {
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
 
             int changeType = changeReqDto.getChangeType();
@@ -286,11 +286,11 @@ public class MemberController {
                     if (updatedMemberDto != null) {
                         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_NAME_SUCCESS, updatedMemberDto));
                     } else {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_NAME_INPUT));
+                        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_NAME_INPUT));
                     }
                 } catch (Exception e) {
                     log.error("회원 정보 변경 실패. 요청자: {}", changeReqDto.getName(), e);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                    return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
                 }
                 // 비밀번호 변경
             } else if (changeType == 2) {
@@ -300,19 +300,19 @@ public class MemberController {
                     if (updatedMemberDto != null) {
                         return ResponseEntity.ok().body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PWD_SUCCESS, updatedMemberDto));
                     } else {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                        return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
                     }
                 } catch (Exception e) {
                     log.error("회원 정보 변경 실패. 요청자: {}", changeReqDto.getName(), e);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
+                    return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
                 }
                 // 지원하지 않는 변경 타입
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INVALID_UPDATE_TYPE));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.INVALID_UPDATE_TYPE));
             }
         } catch (Exception e) {
             log.error("회원 정보 변경 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }
     }
@@ -325,7 +325,7 @@ public class MemberController {
         try {
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
 
             MemberResponseDTO updatedMember = memberService.uploadProfileImg(memberDto, file);
@@ -333,7 +333,7 @@ public class MemberController {
                     .body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
         } catch (Exception e) {
             log.error("프로필 이미지 업로드 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }
     }
@@ -346,7 +346,7 @@ public class MemberController {
         try {
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
+                return ResponseEntity.ok().body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
 
             MemberResponseDTO updatedMember = memberService.deleteProfileImg(memberDto);
@@ -354,7 +354,7 @@ public class MemberController {
                     .body(ApiResponse.success(SuccessCode.MEMBER_UPDATE_PROFILEIMAGE_SUCCESS, updatedMember));
         } catch (Exception e) {
             log.error("프로필 이미지 삭제 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.MEMBER_UPDATE_FAIL));
         }
     }

@@ -40,7 +40,7 @@ public class HomeRegisterController {
             // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
@@ -55,7 +55,7 @@ public class HomeRegisterController {
             
         } catch (Exception e) {
             log.error("집 정보 조회 중 오류 발생", e);
-            return ResponseEntity.internalServerError()
+            return ResponseEntity.ok()
                 .body(ApiResponse.error(ErrorCode.HOME_REGISTER_FAIL));
         }
     }
@@ -71,7 +71,7 @@ public class HomeRegisterController {
             // findMemberLoggedIn을 바로 호출하여 토큰 검증 및 사용자 정보 조회
             MemberResponseDTO memberDto = memberService.findMemberLoggedIn(req, resp);
             if (memberDto == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.ok()
                     .body(ApiResponse.error(ErrorCode.UNAUTHORIZED));
             }
             
@@ -117,7 +117,7 @@ public class HomeRegisterController {
             
         } catch (Exception e) {
             log.error("집 정보 등록/수정 중 오류 발생", e);
-            return ResponseEntity.internalServerError()
+            return ResponseEntity.ok()
                 .body(ApiResponse.error(ErrorCode.HOME_REGISTER_FAIL));
         }
     }

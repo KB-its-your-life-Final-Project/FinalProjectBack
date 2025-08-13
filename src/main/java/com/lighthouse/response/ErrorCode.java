@@ -73,6 +73,10 @@ public enum ErrorCode implements ResponseCode{
     ALARM_FETCH_FAIL(8002, "알림 목록 조회에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ALARM_READ_FAIL(8003, "알림 읽음 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    //airecommend
+    AI_RECOMMEND_FAIL(9001, "AI 추천에 실패하였습니다.", HttpStatus.NOT_FOUND),
+    
+
 
     //Server Error
     SERVER_NOT_RESPONDING(99001, "서버가 응답하지 않습니다", HttpStatus.SERVICE_UNAVAILABLE),

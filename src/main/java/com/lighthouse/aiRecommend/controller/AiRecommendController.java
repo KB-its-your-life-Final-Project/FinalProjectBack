@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lighthouse.aiRecommend.service.AiRecommendService;
-
+import com.lighthouse.response.ApiResponse;
+import com.lighthouse.response.ErrorCode;
+import com.lighthouse.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,18 +29,18 @@ public class AiRecommendController {
     @ApiOperation(
             value = "회원 맞춤 AI 추천 조회",
             notes = "회원 ID를 기반으로 AI가 분석한 맞춤 추천 결과를 알려줍니다.")
-    public ResponseEntity<String> getAiRecommend(@PathVariable Long memberId) {
+    public ResponseEntity<ApiResponse<String>> getAiRecommend(@PathVariable Long memberId) {
         try {
-            log.info("AI 추천 요청 - memberId: {}", memberId);
+            // log.info("AI 추천 요청 - memberId: {}", memberId);
             
             String aiResponse = aiRecommendService.getAiRecommend(memberId);
             
-            return ResponseEntity.ok(aiResponse);
+            return ResponseEntity.ok(ApiResponse.success(SuccessCode.AI_RECOMMEND_SUCCESS, aiResponse));
             
         } catch (Exception e) {
             log.error("AI 추천 처리 중 에러 발생 - memberId: {}", memberId, e);
-            return ResponseEntity.internalServerError()
-                .body("AI 추천 처리 중 에러 발생: " + e.getMessage());
+            return ResponseEntity.ok()
+            .body(ApiResponse.error(ErrorCode.AI_RECOMMEND_FAIL));
         }
     }
 }
