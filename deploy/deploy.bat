@@ -2,8 +2,8 @@
 SETLOCAL ENABLEDELAYEDEXPANSION
 
 :: 설정
-set "PROJECT_DIR=C:\your\path"
-set "TOMCAT_DIR=C:\your\path"
+set "PROJECT_DIR=%USERPROFILE%\light_house\FinalProjectBack"
+set "TOMCAT_DIR=%USERPROFILE%\light_house\apache-tomcat-9.0.105"
 set "WAR_NAME=ROOT.war"
 set "CATALINA_HOME=%TOMCAT_DIR%"
 

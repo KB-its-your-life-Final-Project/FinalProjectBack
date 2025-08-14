@@ -1,14 +1,25 @@
 #!/bin/bash
 
-# 설정
-PROJECT_DIR="/"
-TOMCAT_DIR="/"
+# OS별 홈 디렉터리 기반 경로 설정
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    BASE_DIR="$HOME/light_house"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    BASE_DIR="$HOME/light_house"
+else
+    echo "지원되지 않는 OS: $OSTYPE"
+    exit 1
+fi
+
+PROJECT_DIR="$BASE_DIR/FinalProjectBack"
+TOMCAT_DIR="$BASE_DIR/apache-tomcat-9.0.105"
 WAR_NAME="ROOT.war"
 
 echo "==== 백엔드 빌드 시작 ===="
-cd "$PROJECT_DIR" || exit 1
+cd "$PROJECT_DIR" || { echo "❌ 프로젝트 디렉터리 이동 실패"; exit 1; }
 
-# 1. 빌드 (일반 사용자 권한)
+# 빌드
 ./gradlew clean build -x test || { echo "❌ 빌드 실패"; exit 1; }
 
 echo "==== WAR 파일 배포 ===="
