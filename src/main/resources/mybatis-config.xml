@@ -19,8 +19,8 @@
         <property name="API_LAWD_CD" value="api_lawd_cd"/>
         <property name="BUILDING_REGISTRY" value="building_registry"/>
         <property name="BUILDING_REGISTRY_USE_FOR" value="building_registry_use_for"/>
-        <property name="ESTATE_API_INTEGRATION_SALES_TBL" value="estate_api_integration_sales_tbl_0811"/>
-        <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl_0811"/>
+        <property name="ESTATE_API_INTEGRATION_SALES_TBL" value="estate_api_integration_sales_tbl"/>
+        <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl"/>
         <property name="KMA_GRID" value="kma_grid"/>
         <property name="LEGAL_DICTIONARY_SELECT_TBL" value="legal_dictionary_select_tbl"/>
         <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
