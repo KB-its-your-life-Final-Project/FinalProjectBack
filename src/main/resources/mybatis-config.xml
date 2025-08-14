@@ -23,18 +23,15 @@
         <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl"/>
         <property name="KMA_GRID" value="kma_grid"/>
         <property name="LEGAL_DICTIONARY_SELECT_TBL" value="legal_dictionary_select_tbl"/>
+        <property name="ESTATE_API_INTEGRATION_SALES_TBL" value="estate_api_integration_sales_tbl_0811"/>
+        <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl_0811"/>
         <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
         <property name="LIKE_UMD_NM_TBL" value="like_umd_nm_tbl"/>
-        <property name="LOCATHIGH_CD" value="locathigh_cd"/>
-        <property name="MEMBER_HISTORY_TBL" value="member_history_tbl"/>
         <property name="MEMBER_TBL" value="member_tbl"/>
         <property name="MEMBER_TOKEN_TBL" value="member_token_tbl"/>
         <property name="MYHOME_TBL" value="myhome_tbl"/>
         <property name="SAFE_REPORT_TBL" value="safe_report_tbl"/>
-        <property name="SAFE_REPORT_UNIFIED" value="safe_report_unified"/>
-        <property name="TBL_MEMBER" value="tbl_member"/>
-        <property name="TBL_MEMBER_AUTH" value="tbl_member_auth"/>
-        <property name="WEATHER" value="weather"/>
+        <property name="WEATHER_TBL" value="api_weather_tbl"/>
         <property name="LIKE_REGION_TBL" value="like_umd_nm_tbl"/>
         <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
         <property name="SEARCH_HISTORY_TBL" value="search_history_tbl"/>
