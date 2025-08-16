@@ -23,8 +23,6 @@
         <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl"/>
         <property name="KMA_GRID" value="kma_grid"/>
         <property name="LEGAL_DICTIONARY_SELECT_TBL" value="legal_dictionary_select_tbl"/>
-        <property name="ESTATE_API_INTEGRATION_SALES_TBL" value="estate_api_integration_sales_tbl_0811"/>
-        <property name="ESTATE_API_INTEGRATION_TBL" value="estate_api_integration_tbl_0811"/>
         <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
         <property name="LIKE_UMD_NM_TBL" value="like_umd_nm_tbl"/>
         <property name="MEMBER_TBL" value="member_tbl"/>
