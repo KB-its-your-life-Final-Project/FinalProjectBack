@@ -2,7 +2,7 @@
 SETLOCAL ENABLEDELAYEDEXPANSION
 
 :: 설정
-set "PROJECT_DIR=%USERPROFILE%\light_house\FinalProjectBack"
+set "PROJECT_DIR=%USERPROFILE%\light_house\FinalProjectBack-dev"
 set "TOMCAT_DIR=%USERPROFILE%\light_house\apache-tomcat-9.0.105"
 set "WAR_NAME=ROOT.war"
 set "CATALINA_HOME=%TOMCAT_DIR%"
@@ -22,7 +22,6 @@ if %errorlevel% neq 0 (
     echo [ERROR] 빌드 실패
     exit /b 1
 )
-
 echo ==== WAR 파일 배포 ====
 if exist "%TOMCAT_DIR%\webapps\ROOT" (
     rmdir /s /q "%TOMCAT_DIR%\webapps\ROOT"
@@ -30,22 +29,14 @@ if exist "%TOMCAT_DIR%\webapps\ROOT" (
 if exist "%TOMCAT_DIR%\webapps\%WAR_NAME%" (
     del /f /q "%TOMCAT_DIR%\webapps\%WAR_NAME%"
 )
-
+echo 복사할 WAR 파일 경로: "%PROJECT_DIR%\build\libs\%WAR_NAME%"
 copy /Y "%PROJECT_DIR%\build\libs\%WAR_NAME%" "%TOMCAT_DIR%\webapps\" || (
     echo [ERROR] WAR 파일 복사 실패
     exit /b 1
 )
-
 echo ==== 톰캣 재시작 ====
 call "%TOMCAT_DIR%\bin\shutdown.bat"
-if %errorlevel% neq 0 echo [WARN] 톰캣 종료 명령 실패
 timeout /t 3 /nobreak >nul
 call "%TOMCAT_DIR%\bin\startup.bat"
-if %errorlevel% neq 0 (
-    echo [ERROR] 톰캣 시작 실패
-    exit /b 1
-)
-
-echo 배포 완료 [OK]
-
+echo 배포 완료 :흰색_확인_표시:
 ENDLOCAL
