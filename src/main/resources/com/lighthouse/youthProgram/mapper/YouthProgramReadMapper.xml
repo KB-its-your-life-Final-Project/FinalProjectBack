@@ -5,7 +5,7 @@
 <mapper namespace="com.lighthouse.youthProgram.mapper.YouthProgramReadMapper">
 
     <insert id="insertReadRecord" parameterType="map">
-        INSERT IGNORE INTO youth_program_read_tbl (member_id, content_id)
+        INSERT IGNORE INTO ${YOUTH_PROGRAM_READ_TBL} (member_id, content_id)
         VALUES (#{memberId}, #{contentId})
     </insert>
 

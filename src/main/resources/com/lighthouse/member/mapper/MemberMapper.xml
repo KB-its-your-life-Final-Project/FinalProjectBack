@@ -9,40 +9,40 @@
 
     <select id="findAllMembers" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
     </select>
 
     <select id="findMemberById" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE id = #{id}
           AND is_delete = 1
     </select>
 
     <select id="findDeletedMemberById" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE id = #{id}
           AND is_delete = 2
     </select>
 
     <select id="findMemberByEmail" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE email = #{email}
           AND is_delete = 1
     </select>
 
     <select id="findMemberByKakaoId" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE kakao_id = #{kakaoId}
           AND is_delete = 1
     </select>
 
     <select id="findMemberByGoogleId" resultMap="memberMap">
         SELECT *
-        FROM member_tbl
+        FROM ${MEMBER_TBL}
         WHERE google_id = #{googleId}
           AND is_delete = 1
     </select>
@@ -50,7 +50,7 @@
     <select id="existsByEmail" resultType="java.lang.Boolean">
         SELECT EXISTS(
             SELECT 1
-            FROM member_tbl
+            FROM ${MEMBER_TBL}
             WHERE email = #{email}
               AND is_delete = 1)
     </select>
@@ -58,7 +58,7 @@
     <select id="existsByKakaoId" resultType="java.lang.Boolean">
         SELECT EXISTS(
             SELECT 1
-            FROM member_tbl
+            FROM ${MEMBER_TBL}
             WHERE kakao_id = #{kakaoId}
               AND is_delete = 1)
     </select>
@@ -66,7 +66,7 @@
     <select id="existsByGoogleId" resultType="java.lang.Boolean">
         SELECT EXISTS(
             SELECT 1
-            FROM member_tbl
+            FROM ${MEMBER_TBL}
             WHERE google_id = #{googleId}
               AND is_delete = 1)
     </select>
@@ -78,7 +78,7 @@
     </insert>
 
     <update id="updateMember">
-        UPDATE member_tbl
+        UPDATE ${MEMBER_TBL}
         SET name        = #{name},
             pwd         = #{pwd},
             phone       = #{phone},

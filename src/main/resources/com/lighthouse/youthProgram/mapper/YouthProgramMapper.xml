@@ -5,11 +5,11 @@
 <mapper namespace="com.lighthouse.youthProgram.mapper.YouthProgramMapper">
 
     <select id="existsByPostSn" resultType="boolean" parameterType="String">
-        SELECT COUNT(*) > 0 FROM api_youth_program WHERE pst_sn = #{pstSn}
+        SELECT COUNT(*) > 0 FROM ${API_YOUTH_PROGRAM} WHERE pst_sn = #{pstSn}
     </select>
 
     <insert id="insertYouthProgram" parameterType="com.lighthouse.youthProgram.dto.YouthProgramDTO">
-        INSERT INTO api_youth_program (
+        INSERT INTO ${API_YOUTH_PROGRAM} (
         bbs_sn, pst_sn, pst_se_sn, pst_se_nm, pst_ttl, pst_whol_cn,
         pst_inq_cnt, pst_url_addr, atch_file,
         frst_rgtr_nm, frst_reg_dt, last_mdfr_nm, last_mdfcn_dt
@@ -22,7 +22,7 @@
 
     <select id="findAllUnreadPrograms" resultType="com.lighthouse.youthProgram.dto.YouthProgramDTO">
         SELECT *
-        FROM api_youth_program yp
+        FROM ${API_YOUTH_PROGRAM} yp
         WHERE NOT EXISTS (
         SELECT 1 FROM youth_program_read_tbl ypr
         WHERE ypr.member_id = #{memberId}

@@ -12,7 +12,7 @@
             fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
             updated_at as updatedAt
         FROM
-            api_weather_tbl
+            ${API_WEATHER_TBL}
         WHERE
             sido_cd = #{sidoCd}
     </select>
@@ -27,7 +27,7 @@
             fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
             updated_at as updatedAt
         FROM
-            api_weather_tbl
+            ${API_WEATHER_TBL}
         WHERE
             grid_x = #{gridX} AND grid_y = #{gridY}
         ORDER BY
@@ -37,7 +37,7 @@
 
     <!-- [신규 추가] 새로운 날씨 정보 삽입 -->
     <insert id="insertWeather" parameterType="com.lighthouse.localinfo.entity.Weather">
-        INSERT INTO api_weather_tbl
+        INSERT INTO ${API_WEATHER_TBL}
         (sido_cd, sgg_cd, region, grid_x, grid_y, sky_condition, temperature, max_temperature, min_temperature, base_date, base_time)
         VALUES
             (#{sidoCd}, #{sggCd}, #{region}, #{gridX}, #{gridY}, #{skyCondition}, #{temperature}, #{maxTemperature}, #{minTemperature}, #{baseDate}, #{baseTime})
@@ -46,7 +46,7 @@
     <!-- 기존 날씨 정보 업데이트 -->
     <update id="updateWeather" parameterType="com.lighthouse.localinfo.entity.Weather">
         UPDATE
-            api_weather_tbl
+            ${API_WEATHER_TBL}
         SET
             sky_condition = #{skyCondition},
             temperature = #{temperature},
@@ -68,11 +68,11 @@
             fcst_date as fcstDate, fcst_time as fcstTime, created_at as createdAt,
             updated_at as updatedAt
         FROM
-            api_weather_tbl
+            ${API_WEATHER_TBL}
     </select>
 
     <select id="findByIdRange" resultType="com.lighthouse.localinfo.entity.Weather">
-        SELECT * FROM api_weather_tbl
+        SELECT * FROM ${API_WEATHER_TBL}
         WHERE id BETWEEN #{startId} AND #{endId}
         ORDER BY id
     </select>

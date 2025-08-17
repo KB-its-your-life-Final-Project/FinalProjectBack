@@ -15,7 +15,7 @@
     <!-- 1. building_register 저장 -->
     <!-- keyProperty="id"로 VO에 저장된 id값이 setter로 저장됨   -->
     <insert id="insertBuildingRegister" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO api_building_register (
+        INSERT INTO ${API_BUILDING_REGISTER} (
             type, res_addr_dong, res_number,
             res_user_addr, comm_addr_lot_number, comm_addr_road_name, res_note,
              res_violation_status,
@@ -30,43 +30,43 @@
 
     <!-- 2. building_register_detail -->
     <insert id="insertBuildingRegisterDetail">
-        INSERT INTO api_building_register_detail (register_id, res_type, res_contents)
+        INSERT INTO ${API_BUILDING_REGISTER_DETAIL} (register_id, res_type, res_contents)
         VALUES (#{registerId}, #{resType}, #{resContents})
     </insert>
 
     <!-- 3. building_register_building_status -->
     <insert id="insertBuildingRegisterStatus">
-        INSERT INTO api_building_register_building_status (register_id, res_type, res_floor, res_structure, res_use_type, res_area)
+        INSERT INTO ${API_BUILDING_REGISTER_BUILDING_STATUS} (register_id, res_type, res_floor, res_structure, res_use_type, res_area)
         VALUES (#{registerId}, #{resType}, #{resFloor}, #{resStructure}, #{resUseType}, #{resArea})
     </insert>
 
     <!-- 4. building_register_parking_lot_status -->
     <insert id="insertBuildingRegisterParkingLot">
-        INSERT INTO api_building_register_parking_lot_status (register_id, res_area, res_number, res_type)
+        INSERT INTO ${API_BUILDING_REGISTER_PARKING_LOT_STATUS} (register_id, res_area, res_number, res_type)
         VALUES (#{registerId}, #{resArea}, #{resNumber}, #{resType})
     </insert>
 
     <!-- 5. building_register_auth_status -->
     <insert id="insertBuildingRegisterAuth">
-        INSERT INTO api_building_register_auth_status (register_id, res_type, res_type1, res_contents)
+        INSERT INTO ${API_BUILDING_REGISTER_AUTH_STATUS} (register_id, res_type, res_type1, res_contents)
         VALUES (#{registerId}, #{resType}, #{resType1}, #{resContents})
     </insert>
 
     <!-- 6. building_register_change -->
     <insert id="insertBuildingRegisterChange">
-        INSERT INTO api_building_register_change (register_id, res_change_date, res_change_reason, res_note, res_issue_date, res_issue_ogz_nm, res_ori_ginal_data)
+        INSERT INTO ${API_BUILDING_REGISTER_CHANGE} (register_id, res_change_date, res_change_reason, res_note, res_issue_date, res_issue_ogz_nm, res_ori_ginal_data)
         VALUES (#{registerId}, #{resChangeDate}, #{resChangeReason}, #{resNote}, #{resIssueDate}, #{resIssueOgzNm}, #{resOriGinalData})
     </insert>
 
     <!-- 7. building_register_owner -->
     <insert id="insertBuildingRegisterOwner">
-        INSERT INTO api_building_register_owner (register_id, res_owner, res_identity_no, res_user_addr, res_ownership_stake, res_change_date, res_change_reason)
+        INSERT INTO ${API_BUILDING_REGISTER_OWNER} (register_id, res_owner, res_identity_no, res_user_addr, res_ownership_stake, res_change_date, res_change_reason)
         VALUES (#{registerId}, #{resOwner}, #{resIdentityNo}, #{resUserAddr}, #{resOwnershipStake}, #{resChangeDate}, #{resChangeReason})
     </insert>
 
     <!-- 8. building_register_license_class -->
     <insert id="insertBuildingRegisterLicense">
-        INSERT INTO api_building_register_license_class (register_id, res_license_no, res_type, res_user_nm)
+        INSERT INTO ${API_BUILDING_REGISTER_LICENSE_CLASS} (register_id, res_license_no, res_type, res_user_nm)
         VALUES (#{registerId}, #{resLicenseNo}, #{resType}, #{resUserNm})
     </insert>
 
@@ -75,7 +75,7 @@
         SELECT
             *
         FROM
-            api_building_register
+            ${API_BUILDING_REGISTER}
         WHERE
             latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001
           AND longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001
@@ -90,9 +90,9 @@
             A.latitude, A.longitude,
             B.register_id, B.res_type, B.res_floor, B.res_structure, B.res_use_type, B.res_area
         FROM
-            api_building_register A
+            ${API_BUILDING_REGISTER} A
                 LEFT JOIN
-            api_building_register_building_status B
+            ${API_BUILDING_REGISTER_BUILDING_STATUS} B
             ON
                 A.id = B.register_id
         WHERE

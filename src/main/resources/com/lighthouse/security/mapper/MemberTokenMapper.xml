@@ -9,18 +9,18 @@
 
     <select id="findRefreshTokenByMemberId" resultMap="memberTokenMap">
         SELECT *
-        FROM member_token_tbl
+        FROM ${MEMBER_TOKEN_TBL}
         WHERE member_id = #{memberId}
     </select>
 
     <insert id="insertRefreshToken">
-        INSERT INTO member_token_tbl
+        INSERT INTO ${MEMBER_TOKEN_TBL}
         (member_id, refresh_token, created_at, expires_at)
         VALUES (#{memberId}, #{refreshToken}, #{createdAt}, #{expiresAt})
     </insert>
 
     <update id="updateRefreshToken">
-        UPDATE member_token_tbl
+        UPDATE ${MEMBER_TOKEN_TBL}
         SET refresh_token    = #{refreshToken},
             created_at       = #{createdAt},
             expires_at       = #{expiresAt}

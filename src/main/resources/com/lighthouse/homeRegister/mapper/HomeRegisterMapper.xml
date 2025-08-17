@@ -9,7 +9,7 @@
     <!-- 사용자별 집 정보 조회 -->
     <select id="selectHomeByMemberId" resultMap="HomeRegisterMap">
         SELECT *
-        FROM myhome_tbl
+        FROM ${MYHOME_TBL}
         WHERE member_id = #{memberId}
         AND is_delete = 1
         LIMIT 1
@@ -17,7 +17,7 @@
 
     <!-- 집 정보 등록 -->
     <insert id="insertHome" parameterType="com.lighthouse.homeregister.entity.HomeRegister">
-        INSERT INTO myhome_tbl (
+        INSERT INTO ${MYHOME_TBL} (
             member_id,
             estate_id,
             building_name,
@@ -54,7 +54,7 @@
 
     <!-- 집 정보 수정 -->
     <update id="updateHome" parameterType="com.lighthouse.homeregister.entity.HomeRegister">
-        UPDATE myhome_tbl
+        UPDATE ${MYHOME_TBL}
         SET estate_id = #{estateId},
             umd_nm = #{umdNm},
             sgg_cd = #{sggCd},
