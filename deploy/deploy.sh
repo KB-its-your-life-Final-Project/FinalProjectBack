@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BASE_DIR="$HOME/light_house"
-PROJECT_DIR="$BASE_DIR/FinalProjectBack"
+PROJECT_DIR="$BASE_DIR/FinalProjectBack-dev"
 TOMCAT_DIR="$BASE_DIR/apache-tomcat-9.0.105"
 WAR_NAME="ROOT.war"
 
@@ -20,3 +20,4 @@ sleep 3
 sudo "$TOMCAT_DIR/bin/startup.sh"
 
 echo "✅ 배포 완료"
+
