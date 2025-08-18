@@ -7,7 +7,7 @@
             region_cd AS regionCd,
             COUNT(*) AS totalCount
         FROM
-            csv_safe_bell_tbl
+            ${CSV_SAFE_BELL}
         WHERE
             region_cd = #{regionCd}
         GROUP BY

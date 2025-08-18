@@ -6,13 +6,13 @@
 
     <!-- 알림 저장 -->
     <insert id="insertAlarm" parameterType="com.lighthouse.alarm.entity.Alarms">
-        INSERT INTO alarm_tbl(member_id,type,text,reg_ip,reg_date,is_checked,get_alarm)
+        INSERT INTO ${ALARM_TBL}(member_id,type,text,reg_ip,reg_date,is_checked,get_alarm)
         VALUES(#{alarm.memberId},#{alarm.type},#{alarm.text},#{alarm.regIp},#{alarm.regDate},#{alarm.isChecked},#{alarm.getAlarm})
     </insert>
 
     <!-- 알림 설정 변경 (get_alarm 업데이트) -->
     <update id="updateAlarmSetting" parameterType="map">
-        UPDATE alarm_tbl
+        UPDATE ${ALARM_TBL}
         SET get_alarm = #{getAlarm}
         WHERE member_id = #{memberId}
         AND type = #{alarmType}
@@ -28,7 +28,7 @@
             DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as regDate,
             is_checked as isChecked,
             get_alarm as getAlarm
-        FROM alarm_tbl
+        FROM ${ALARM_TBL}
         WHERE member_id = #{memberId}
         AND get_alarm = 1
         AND is_checked = 0
@@ -45,14 +45,14 @@
             DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as regDate,
             is_checked as isChecked,
             get_alarm as getAlarm
-        FROM alarm_tbl
+        FROM ${ALARM_TBL}
         WHERE member_id = #{memberId}
         ORDER BY reg_date DESC
     </select>
 
     <!-- 알림 읽음 처리 (is_checked를 1로 변경) -->
     <update id="setAlarmRead">
-        UPDATE alarm_tbl
+        UPDATE ${ALARM_TBL}
         SET is_checked = 1
         WHERE member_id = #{memberId}
         AND id = #{alarmId}
@@ -63,7 +63,7 @@
         SELECT 
             member_id,
             building_name as property_address
-        FROM myhome_tbl
+        FROM ${MYHOME_TBL}
         WHERE member_id = #{memberId}
         AND contract_end = DATE_ADD(CURDATE(), INTERVAL #{daysLeft} DAY)
         AND is_delete = 1
@@ -78,14 +78,14 @@
             is_delete,
             CURDATE() as today,
             DATEDIFF(contract_end, CURDATE()) as days_until_expiry
-        FROM myhome_tbl
+        FROM ${MYHOME_TBL}
         WHERE member_id = #{memberId}
         AND is_delete = 1
     </select>
     
     <!-- 동일한 사용자의 동일한 유형 미확인 알림 업데이트 -->
     <update id="updateAlarmText" parameterType="map">
-        UPDATE alarm_tbl
+        UPDATE ${ALARM_TBL}
         SET text = #{text},
             reg_date = NOW(),
             is_checked = 0
@@ -98,7 +98,7 @@
     
     <!-- 동일한 사용자의 동일한 유형 모든 알림 업데이트 (집 정보 수정 시) -->
     <update id="updateAllAlarmsByMemberAndType" parameterType="map">
-        UPDATE alarm_tbl
+        UPDATE ${ALARM_TBL}
         SET text = #{text},
             reg_date = NOW(),
             is_checked = 0
@@ -109,7 +109,7 @@
     <!-- 동일한 사용자의 동일한 유형 알림 존재 여부 확인 -->
     <select id="existsAlarmByMemberAndType" resultType="boolean">
         SELECT COUNT(*) > 0
-        FROM alarm_tbl
+        FROM ${ALARM_TBL}
         WHERE member_id = #{memberId}
         AND type = #{type}
     </select>
@@ -117,7 +117,7 @@
     <!-- 사용자의 type 1 알림 중 미확인 알림 개수 조회 -->
     <select id="getUnreadType1AlarmCount" resultType="int">
         SELECT COUNT(*)
-        FROM alarm_tbl
+        FROM ${ALARM_TBL}
         WHERE member_id = #{memberId}
         AND type = 1
         AND is_checked = 0
@@ -125,7 +125,7 @@
     
     <!-- 사용자의 모든 type 1 알림 삭제 -->
     <delete id="deleteAllType1AlarmsByMember">
-        DELETE FROM alarm_tbl
+        DELETE FROM ${ALARM_TBL}
         WHERE member_id = #{memberId}
         AND type = 1
     </delete>
@@ -145,7 +145,7 @@
             eais.deal_day,
             eais.id as sales_id,
             le.update_date as liked_date
-        FROM like_estate_tbl le
+        FROM ${LIKE_ESTATE_TBL} le
         JOIN ${ESTATE_API_INTEGRATION_TBL} eai ON le.estate_id = eai.id
         JOIN ${ESTATE_API_INTEGRATION_SALES_TBL} eais ON eai.id = eais.estate_id
         WHERE le.member_id = #{memberId}

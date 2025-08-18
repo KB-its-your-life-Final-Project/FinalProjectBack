@@ -29,10 +29,16 @@
         <property name="MEMBER_TOKEN_TBL" value="member_token_tbl"/>
         <property name="MYHOME_TBL" value="myhome_tbl"/>
         <property name="SAFE_REPORT_TBL" value="safe_report_tbl"/>
-        <property name="WEATHER_TBL" value="api_weather_tbl"/>
+        <property name="API_WEATHER_TBL" value="api_weather_tbl"/>
         <property name="LIKE_REGION_TBL" value="like_umd_nm_tbl"/>
         <property name="LIKE_ESTATE_TBL" value="like_estate_tbl"/>
         <property name="SEARCH_HISTORY_TBL" value="search_history_tbl"/>
+        <property name="API_YOUTH_PROGRAM" value="api_youth_program" />
+        <property name="YOUTH_PROGRAM_READ_TBL" value="youth_program_read_tbl"/>
+        <property name="CSV_SAFE_BELL" value="csv_safe_bell_tbl"/>
+        <property name="CSV_POPULATION" value="csv_population_tbl"/>
+        <property name="CSV_HOSPITAL" value="csv_hospital_tbl"/>
+        <property name="CSV_BICYCLE" value="csv_bicycle_tbl"/>
     </properties>
 
     <!-- SqlSessionTemplate 관련 설정 -->
