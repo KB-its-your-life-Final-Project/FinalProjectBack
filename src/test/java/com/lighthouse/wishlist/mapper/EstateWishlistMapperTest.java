@@ -6,6 +6,7 @@ import com.lighthouse.security.config.SecurityConfig;
 import com.lighthouse.wishlist.dto.EstateWishlistResponseDTO;
 import com.lighthouse.wishlist.entity.LikeEstate;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("local")
 @Transactional
 @Rollback
+@Disabled("실제 데이터 호출 통합 테스트 - 빌드 시 실행 제외")
 class EstateWishlistMapperTest {
 
     @Autowired

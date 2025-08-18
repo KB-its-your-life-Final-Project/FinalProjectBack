@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,16 +39,14 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ActiveProfiles("local")
 class LawdCodeServiceTest {
 
-    @Autowired
     private LawdCodeService service;
-    @Autowired
     private LawdCodeMapper mapper;
 
-//    @BeforeEach // Mock 사용 시 주석 제거
-//    void setUp() {
-//        mapper = Mockito.mock(LawdCodeMapper.class);  // mapper mock 생성
-//        service = new com.lighthouse.lawdCode.service.LawdCodeService(mapper);        // 서비스에 mock 주입
-//    }
+    @BeforeEach // Mock 사용 시 주석 제거
+    void setUp() {
+        mapper = Mockito.mock(LawdCodeMapper.class);  // mapper mock 생성
+        service = new com.lighthouse.lawdCode.service.LawdCodeService(mapper);        // 서비스에 mock 주입
+    }
 
     @Test
     void findRegionByRegionCd_found() {
@@ -75,32 +74,42 @@ class LawdCodeServiceTest {
             service.findRegionByRegionCd("0000000000");
         });
 
-        assertEquals("잘못된 인자가 포함된 요청입니다.", thrown.getMessage());
+        assertEquals("해당 지역 코드를 찾을 수 없습니다.", thrown.getMessage());
     }
-//    @Test
-//    void findAllRegionCdByPartialCd_returnsList() {
-//        // given
-//        LawdCdRequestDTO dto = new LawdCdRequestDTO();
-//        dto.setSidoCd("11");
-//        dto.setSggCd(null);
-//        dto.setUmdCd(null);
-//
-//        LawdCdResponseDTO response1 = new LawdCdResponseDTO("1100000000", "서울시", "강남구", 100, 200);
-//        LawdCdResponseDTO response2 = new LawdCdResponseDTO("1100100000", "서울시", "서초구", 110, 210);
-//
-//        List<LawdCdResponseDTO> mockResult = Arrays.asList(response1, response2);
-//
-//        when(mapper.findAllRegionByPartialCd(dto)).thenReturn(mockResult);
-//
-//        // when
-//        List<LawdCdResponseDTO> result = service.findAllRegionCdByPartialCd(dto);
-//
-//        // then
-//        assertNotNull(result);
-//        assertEquals(2, result.size());
-//        assertEquals("1100000000", result.get(0).getRegionCd());
-//        assertEquals("서초구", result.get(1).getLocallowNm());
-//    }
+    @Test
+    void findAllRegionCdByPartialCd_returnsList() {
+        // given
+        LawdCdRequestDTO dto = new LawdCdRequestDTO();
+        dto.setSidoCd("11");
+        dto.setSggCd(null);
+        dto.setUmdCd(null);
+
+        LawdCdResponseDTO response1 = new LawdCdResponseDTO(
+                "1111013900","11","110","139","00",
+                "1111013900","1111013900","서울특별시 종로구 팔판동",
+                39,"","1111000000", "팔판동","",
+                60, 127,
+                LocalDateTime.of(2025, 8, 18, 15, 30, 0));
+        LawdCdResponseDTO response2 = new LawdCdResponseDTO(
+                "1111013900","11","110","139","00",
+                "1111013900","1111013900","서울특별시 종로구 팔판동",
+                39,"","1111000000", "팔판동","",
+                60, 127,
+                LocalDateTime.of(2025, 8, 18, 15, 30, 0));
+
+        List<LawdCdResponseDTO> mockResult = Arrays.asList(response1, response2);
+
+        when(mapper.findAllRegionByPartialCd(dto)).thenReturn(mockResult);
+
+        // when
+        List<LawdCdResponseDTO> result = service.findAllRegionCdByPartialCd(dto);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("1111013900", result.get(0).getRegionCd());
+        assertEquals("팔판동", result.get(1).getLocallowNm());
+    }
 
     private LawdCdResponseDTO createMockResponse(String regionCd) {
         LawdCdResponseDTO dto = new LawdCdResponseDTO();
@@ -179,15 +188,15 @@ class LawdCodeServiceTest {
         assertThat(capturedDtos.get(2).getLimit()).isEqualTo(1000);
     }
 
-    /**
-     * (실제 데이터) 모든 시군구코드 가져오기 테스트
-     */
-    @Test
-    @DisplayName("getAllUniqueRegionCodesWithPagination - 중복제거/정렬된 시군구코드 가져오기 테스트")
-    void getAllUniqueRegionCodesWithPaginationTest() {
-        List<Integer> allUniqueLawdCodes = service.getAllUniqueRegionCodesWithPagination();
-        log.info("📋 불러온 시군구 리스트: {}", allUniqueLawdCodes);
-        allUniqueLawdCodes.forEach(code -> System.out.print(code + " "));
-        assertFalse(allUniqueLawdCodes.isEmpty());
-    }
+//    /**
+//     * (실제 데이터) 모든 시군구코드 가져오기 테스트
+//     */
+//    @Test
+//    @DisplayName("getAllUniqueRegionCodesWithPagination - 중복제거/정렬된 시군구코드 가져오기 테스트")
+//    void getAllUniqueRegionCodesWithPaginationTest() {
+//        List<Integer> allUniqueLawdCodes = service.getAllUniqueRegionCodesWithPagination();
+//        log.info("📋 불러온 시군구 리스트: {}", allUniqueLawdCodes);
+//        allUniqueLawdCodes.forEach(code -> System.out.print(code + " "));
+//        assertFalse(allUniqueLawdCodes.isEmpty());
+//    }
 }

@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AiRecommendService {
     
     private final GeminiService geminiService;
-    private final GeminiChatService geminiChatService;
     private final SearchHistoryService searchHistoryService;
     private final EstateWishlistService estateWishlistService;
     private final EstateService estateService;

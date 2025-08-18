@@ -26,6 +26,7 @@ import java.util.List;
 @ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @ActiveProfiles("local")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled("실제 데이터 호출 통합 테스트 - 빌드 시 실행 제외")
 class EstateApiIntegrationTest {
 
     @Autowired
@@ -40,8 +41,7 @@ class EstateApiIntegrationTest {
     @Order(1)
     @DisplayName("단일 시군구코드 단일 연월 Estate API Integration 테스트")
     @Transactional
-    // @Rollback // 테스트 완료 후 데이터 삭제
-    @Rollback(false) // 실제 데이터 삽입
+    @Rollback(true) // 실제 데이터 삽입
     void singleRegionSingleMonthTest() {
         // Given
         List<Integer> singleLawdCd = Arrays.asList(11215); // 거제시:48310, 광진구:11215
@@ -52,7 +52,7 @@ class EstateApiIntegrationTest {
         assertDoesNotThrow(() -> {
             long startTime = System.currentTimeMillis();
             apiService.insertEstateApiIntgAndSalesTbl(singleLawdCd, startYmd, endYmd);
-            long endTime = System.currentTimeMillis();
+            long endTime =  System.currentTimeMillis();
 
             long elapsedMs = endTime - startTime;
             long minutes = elapsedMs / (1000 * 60);

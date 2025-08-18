@@ -24,6 +24,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -54,76 +56,123 @@ class EstateWishlistServiceTest {
 
     @Test
     void saveOrUpdateWishlist_existingUpdateSuccess() {
+        // DTO 준비
+        EstateWishlistRequestDTO dto = new EstateWishlistRequestDTO();
+        dto.setJibunAddr("아주동 1575");
+
+        // geoCodingService 목킹
+        Mockito.when(geoCodingService.getCoordinateFromAddress("아주동 1575"))
+                .thenReturn(Map.of(
+                        "lng", 127.0,  // longitude
+                        "lat", 37.0    // latitude
+                ));
+
+        // 기존 찜 데이터
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
         existing.setEstateId(null);
+        existing.setJibunAddr("아주동 1575");
+        existing.setLatitude(37.0);
+        existing.setLongitude(127.0);
 
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
+        // mapper 목킹
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 37.0, 127.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(1);
 
-        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
+        // 테스트 실행
+        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, dto));
         Mockito.verify(mapper).updateLikeEstate(existing);
     }
-
     @Test
     void saveOrUpdateWishlist_existingUpdateFail() {
+        EstateWishlistRequestDTO dto = new EstateWishlistRequestDTO("아주동 1575");
+        Mockito.when(geoCodingService.getCoordinateFromAddress("아주동 1575"))
+                .thenReturn(Map.of("lat", 37.0, "lng", 127.0));
+
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
+        existing.setLatitude(37.0);
+        existing.setLongitude(127.0);
 
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 37.0, 127.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(0);
 
-        CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
+        CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, dto));
         assertEquals(ErrorCode.WISHLIST_PROCESS_FAIL, ex.getErrorCode());
     }
 
     @Test
     void saveOrUpdateWishlist_newInsertSuccess() {
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(null);
+        EstateWishlistRequestDTO dto = new EstateWishlistRequestDTO("도마교동 458");
+        Mockito.when(geoCodingService.getCoordinateFromAddress("도마교동 458"))
+                .thenReturn(Map.of("lat", 36.5, "lng", 127.2));
+
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 36.5, 127.2, false)).thenReturn(null);
         Mockito.when(mapper.saveLikeEstate(any())).thenReturn(1);
 
-        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, new  EstateWishlistRequestDTO("도마교동 458" )));
+        assertDoesNotThrow(() -> service.saveOrUpdateWishlist(1L, dto));
         Mockito.verify(mapper).saveLikeEstate(any());
     }
 
     @Test
     void saveOrUpdateWishlist_newInsertFail() {
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(null);
+        EstateWishlistRequestDTO dto = new EstateWishlistRequestDTO("도마교동 458");
+        Mockito.when(geoCodingService.getCoordinateFromAddress("도마교동 458"))
+                .thenReturn(Map.of("lat", 36.5, "lng", 127.2));
+
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 36.5, 127.2, false)).thenReturn(null);
         Mockito.when(mapper.saveLikeEstate(any())).thenReturn(0);
 
-        CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, new EstateWishlistRequestDTO()));
+        CustomException ex = assertThrows(CustomException.class, () -> service.saveOrUpdateWishlist(1L, dto));
         assertEquals(ErrorCode.WISHLIST_PROCESS_FAIL, ex.getErrorCode());
     }
 
     @Test
     void deleteWishlist_existingDeleteSuccess() {
+        String addr = "아주동 1575";
+        Mockito.when(geoCodingService.getCoordinateFromAddress(addr))
+                .thenReturn(Map.of("lat", 37.0, "lng", 127.0));
+
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
+        existing.setLatitude(37.0);
+        existing.setLongitude(127.0);
 
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0, 0.0, false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 37.0, 127.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(1);
 
-        assertDoesNotThrow(() -> service.deleteWishlist(1L, "아주동 1575"));
+        assertDoesNotThrow(() -> service.deleteWishlist(1L, addr));
         Mockito.verify(mapper).updateLikeEstate(existing);
     }
 
     @Test
     void deleteWishlist_existingDeleteFail() {
+        String addr = "아주동 1575";
+        Mockito.when(geoCodingService.getCoordinateFromAddress(addr))
+                .thenReturn(Map.of("lat", 37.0, "lng", 127.0));
+
         LikeEstate existing = new LikeEstate();
         existing.setMemberId(1L);
+        existing.setLatitude(37.0);
+        existing.setLongitude(127.0);
 
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0,0.0, false)).thenReturn(existing);
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 37.0, 127.0, false)).thenReturn(existing);
         Mockito.when(mapper.updateLikeEstate(any())).thenReturn(0);
 
-        CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "아주동 1575"));
+        CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, addr));
         assertEquals(ErrorCode.WISHLIST_PROCESS_FAIL, ex.getErrorCode());
     }
 
     @Test
     void deleteWishlist_notFound() {
-        Mockito.when(mapper.findByMemberIdAndCoord(1L, 0.0,0.0, false)).thenReturn(null);
+        String addr = "아주동 1575";
+        Mockito.when(geoCodingService.getCoordinateFromAddress(addr))
+                .thenReturn(Map.of("lat", 37.0, "lng", 127.0));
 
-        CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, "아주동 1575"));
+        Mockito.when(mapper.findByMemberIdAndCoord(1L, 37.0, 127.0, false)).thenReturn(null);
+
+        CustomException ex = assertThrows(CustomException.class, () -> service.deleteWishlist(1L, addr));
         assertEquals(ErrorCode.WISHLIST_NOT_FOUND, ex.getErrorCode());
     }
+
 }

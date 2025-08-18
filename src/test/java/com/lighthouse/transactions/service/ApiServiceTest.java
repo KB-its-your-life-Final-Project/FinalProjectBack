@@ -2,11 +2,10 @@ package com.lighthouse.transactions.service;
 
 import com.lighthouse.config.EnvLoader;
 import com.lighthouse.config.RootConfig;
-import com.lighthouse.lawdCode.dto.LawdCdRequestDTO;
 import com.lighthouse.lawdCode.service.LawdCodeService;
 import com.lighthouse.security.config.SecurityConfig;
-import com.lighthouse.transactions.dto.ApiNameCallDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,15 +17,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @Slf4j
 @ActiveProfiles("local")
+@Disabled("실제 데이터 삽입 테스트. 빌드 시 제외")
 class ApiServiceTest {
 
     @Autowired
