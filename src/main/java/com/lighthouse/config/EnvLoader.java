@@ -18,7 +18,15 @@ public class EnvLoader implements ApplicationContextInitializer<ConfigurableAppl
 
         // Tomcat conf 디렉토리(/opt/tomcat9/conf/.env) 확인
         String catalinaBase = System.getProperty("catalina.base");
-        File envFile = new File(catalinaBase + "/conf", ".env");
+        File envFile;
+
+        if (catalinaBase != null) {
+            // 운영/톰캣: catalina.base/conf/.env
+            envFile = new File(catalinaBase + "/conf", ".env");
+        } else {
+            // 로컬/테스트: 프로젝트 루트 .env
+            envFile = new File(System.getProperty("user.dir"), ".env");
+        }
 
         if (!envFile.exists()) {
             throw new IllegalStateException(".env file not found in: " + envFile.getAbsolutePath());
