@@ -17,10 +17,10 @@ public enum SuccessCode implements ResponseCode{
 	MEMBER_GOOGLE_REGISTER_LOGIN_SUCCESS(1008, "구글 회원가입 또는 로그인 성공"),
 	MEMBER_LOGIN_EMAIL_SUCCESS(1009, "이메일 로그인 성공"),
 	MEMBER_LOGOUT_SUCCESS(1010, "로그아웃 성공"),
-	MEMBER_UPDATE_NAME_SUCCESS(1006, "회원 이름 변경 성공"),
-	MEMBER_UPDATE_PWD_SUCCESS(1006, "회원 비밀번호 변경 성공"),
-	MEMBER_UPDATE_PROFILEIMAGE_SUCCESS(1006, "회원 프로필 사진 변경 성공"),
-	MEMBER_PASSWORD_VERIFICATION_SUCCESS(1006, "회원 비밀번호 검증 성공" ),
+	MEMBER_UPDATE_NAME_SUCCESS(1011, "회원 이름 변경 성공"),
+	MEMBER_UPDATE_PWD_SUCCESS(1012, "회원 비밀번호 변경 성공"),
+	MEMBER_UPDATE_PROFILEIMAGE_SUCCESS(1013, "회원 프로필 사진 변경 성공"),
+	MEMBER_PASSWORD_VERIFICATION_SUCCESS(1014, "회원 비밀번호 검증 성공" ),
 
 	// SafeReport
 	SAFEREPORT_FETCH_SUCCESS(2000, "안심 레포트 데이터 조회 성공"),
