@@ -1,8 +1,10 @@
 package com.lighthouse.security.util;
 
 import com.lighthouse.security.dto.TokenDTO;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
@@ -15,7 +17,7 @@ import java.util.Date;
 @Slf4j
 public class JwtCookieUtil {
     private final JwtUtil jwtUtil;
-
+    @Value("${JWT_EXPIRATION:600000}") int cookieMaxAge;
     public TokenDTO setTokensToCookies(HttpServletResponse resp, int subject) {
         log.info("JwtCookieUtil.setTokensToCookies 실행  ======");
         
@@ -43,7 +45,7 @@ public class JwtCookieUtil {
         accessTokenCookie.setHttpOnly(true);
         // accessTokenCookie.setSecure(true);  // HTTPS 적용 시 true
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 10); // 10분
+        accessTokenCookie.setMaxAge(cookieMaxAge/1000);
         log.info("[accessToken 쿠키]");
         log.info(" - Name: {}", accessTokenCookie.getName());
         log.info(" - Value: {}", accessTokenCookie.getValue());

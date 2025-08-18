@@ -21,7 +21,6 @@ import java.util.Optional;
 @CrossOrigin(origins = "${FRONT_ORIGIN}")
 @RequiredArgsConstructor
 @Api(tags = "Local Info", description = "지역 정보, 인구, 편의시설, 병원, 안전도, 날씨 조회 API")
-
 public class LocalInfoController {
 
     private final LocalInfoService localInfoService;
@@ -34,6 +33,9 @@ public class LocalInfoController {
     /**
      * 모든 검색 가능 지역 목록을 반환하는 API
      */
+    @ApiOperation(
+            value = "검색 가능 지역 목록 조회"
+    )
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<LocalInfoResponseDTO>>> getAllRegions() {
         List<LocalInfoResponseDTO> regions = localInfoService.findAllRegions();
