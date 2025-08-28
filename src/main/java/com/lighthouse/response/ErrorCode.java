@@ -60,7 +60,7 @@ public enum ErrorCode implements ResponseCode{
 
     //LawdCd
     LAWDCD_NOT_FOUND(6001, "지역 코드 조회 실패", HttpStatus.NOT_FOUND),
-    LAWDCD_TARGET_NOT_FOUND(6002, "해당 지역 코드를 찾을 수 업습니다.", HttpStatus.NOT_FOUND),
+    LAWDCD_TARGET_NOT_FOUND(6002, "해당 지역 코드를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     LAWDCD_SQUARE_EMPTY(6002, "해당 지역에서 정보가 없습니다.", HttpStatus.NOT_FOUND),
 
     // HomeRegister

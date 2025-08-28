@@ -1,52 +1,88 @@
 package com.lighthouse.member.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import com.lighthouse.alarm.service.AlarmSchedulerService;
+import com.lighthouse.member.dto.MemberResponseDTO;
+import com.lighthouse.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import com.lighthouse.config.ServletConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import java.util.List;
 
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-@ContextConfiguration(classes = {ServletConfig.class})
-@Slf4j
-@ActiveProfiles("local")
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 class MemberControllerTest {
-    @Autowired
-    private WebApplicationContext ctx;
-    private MockMvc mockMvc;
 
-//    @BeforeEach
-//    public void setup() {
-//        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
-//    }
+    private MemberController controller;
+    private MemberService service;
+    private AlarmSchedulerService alarmSchedulerService;
+    @BeforeEach
+    void setUp() {
+        service = mock(MemberService.class);
+        alarmSchedulerService = mock(AlarmSchedulerService.class);
+        controller = new MemberController(service, alarmSchedulerService);
+    }
 
-    // @Test
-    // void testGetById() throws Exception {
-    //     String testId = "admin";
-    //     mockMvc.perform(MockMvcRequestBuilders.get("/api/member/{id}", testId))
-    //             .andExpect(status().isOk())
-    //             .andExpect(content().contentTypeCompatibleWith("application/json"))
-    //             .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
-    // }
+    @Test
+    @DisplayName("회원 ID로 조회 - 성공")
+    void testGetById() {
+        int memberId = 1;
+        // Mock Member 엔티티 생성
+        MemberResponseDTO dto = MemberResponseDTO.builder()
+                .id(1)
+                .name("관리자")
+                .email("admin@example.com")
+                .kakaoId("kakao123")
+                .googleId(null)
+                .phone("010-1234-5678")
+                .age(30)
+                .profileImg(null)
+                .createdType(1)
+                .regDate(null)
+                .isDelete(0)
+                .build();
 
-    // @Test
-    // void testGetList() throws Exception {
-    //     mockMvc.perform(MockMvcRequestBuilders.get("/api/member"))
-    //             .andExpect(status().isOk())
-    //             .andExpect(content().contentTypeCompatibleWith("application/json"))
-    //             .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()));
-    // }
+        when(service.findMemberById(memberId)).thenReturn(dto);
+
+        var response = controller.findMemberById(memberId);
+
+        verify(service).findMemberById(memberId);
+        assertNotNull(response.getBody());
+        assertEquals(memberId, response.getBody().getData().getId());
+    }
+
+    @Test
+    @DisplayName("회원 목록 조회 - 성공")
+    void testGetList() {
+        MemberResponseDTO member1 = MemberResponseDTO.builder()
+                .id(1)
+                .name("관리자")
+                .email("admin@example.com")
+                .kakaoId("kakao123")
+                .phone("010-1234-5678")
+                .createdType(1)
+                .isDelete(0)
+                .build();
+
+        MemberResponseDTO member2 = MemberResponseDTO.builder()
+                .id(2)
+                .name("사용자1")
+                .email("user1@example.com")
+                .kakaoId(null)
+                .phone("010-9876-5432")
+                .createdType(1)
+                .isDelete(0)
+                .build();
+        List<MemberResponseDTO> members = List.of(member1, member2);
+
+        when(service.findAllMembers()).thenReturn(members);
+
+        var response = controller.findAllMembers();
+
+        verify(service).findAllMembers();
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().getData().size());
+        assertEquals(1, response.getBody().getData().get(0).getId());
+    }
 }

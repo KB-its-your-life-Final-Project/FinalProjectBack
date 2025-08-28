@@ -1,6 +1,5 @@
 package com.lighthouse.lawdCode.service;
 
-import com.lighthouse.lawdCode.converter.LawdCdDTOConverter;
 import com.lighthouse.lawdCode.dto.LawdCdRequestDTO;
 import com.lighthouse.lawdCode.dto.LawdCdResponseDTO;
 import com.lighthouse.lawdCode.mapper.LawdCodeMapper;

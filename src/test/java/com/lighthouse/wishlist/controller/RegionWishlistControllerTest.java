@@ -1,6 +1,5 @@
 package com.lighthouse.wishlist.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lighthouse.response.SuccessCode;
 import com.lighthouse.security.util.JwtUtil;
 import com.lighthouse.wishlist.dto.RegionWishlistRequestDTO;
@@ -22,9 +21,7 @@ public class RegionWishlistControllerTest {
     private RegionWishlistService service;
     private JwtUtil jwtUtil;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final String bearerToken = "Bearer mock.jwt.token";
+    private final String bearerToken = "mock.jwt.token";
     private final String rawToken = "mock.jwt.token";
 
     @BeforeEach

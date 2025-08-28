@@ -6,9 +6,11 @@ import com.lighthouse.lawdCode.dto.LawdCdRequestDTO;
 import com.lighthouse.lawdCode.dto.LawdCdResponseDTO;
 import com.lighthouse.security.config.SecurityConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -21,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(classes = { RootConfig.class, SecurityConfig.class }, initializers = EnvLoader.class)
 @Slf4j
 @ActiveProfiles("local")
+@Rollback
+@Disabled("실제 데이터 삽입 테스트. 빌드 시 제외")
 class LawdCodeMapperTest {
     @Autowired
     private LawdCodeMapper mapper;

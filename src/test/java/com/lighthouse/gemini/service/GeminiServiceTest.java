@@ -1,6 +1,7 @@
 package com.lighthouse.gemini.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
@@ -27,6 +28,7 @@ class GeminiServiceTest {
     
     @Test
     @DisplayName("안녕하세요 프롬프트로 실제 AI 응답 받기")
+    @Disabled("실제 AI 요청 테스트. 빌드 시 제외")
     void testAi() {
         // Given
         String prompt = "넌 한국의 안전자산 관리를 위한 부동산 서비스를 맡고 있어 너는 내가 제공하는 사용자의 정보로 집을 추천해야해 다만 집정보는 매우 정확해야하니 모든 정보는 꼭 한번 더 찾아보고 답변하도록 해.";

@@ -1,6 +1,5 @@
 package com.lighthouse.wishlist.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lighthouse.response.SuccessCode;
 import com.lighthouse.security.util.JwtUtil;
 import com.lighthouse.wishlist.dto.EstateWishlistRequestDTO;
@@ -21,9 +20,7 @@ public class EstateWishlistControllerTest {
     private EstateWishlistService service;
     private JwtUtil jwtProcessor;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final String token = "Bearer mock.jwt.token";
+    private final String token = "mock.jwt.token";
 
     @BeforeEach
     void setUp() {
@@ -68,7 +65,26 @@ public class EstateWishlistControllerTest {
     @DisplayName("찜 목록 조회 - 성공")
     void getWishlist() {
         Long memberId = 3L;
-        List<EstateWishlistResponseDTO> estates = List.of(new EstateWishlistResponseDTO(null,null,null,null,null,5,null), new EstateWishlistResponseDTO(null,null,null,null,null,5,null));
+        EstateWishlistResponseDTO dto1 = new EstateWishlistResponseDTO(
+                1L,          // estateId
+                500_000L,    // amount
+                null,        // deposit
+                null,        // monthlyRent
+                "서울시 강남구", // jibunAddr
+                1,           // buildingType
+                "강남빌딩"     // buildingName
+        );
+
+        EstateWishlistResponseDTO dto2 = new EstateWishlistResponseDTO(
+                2L,
+                null,
+                300_000L,
+                50_000L,
+                "서울시 서초구",
+                2,
+                "서초아파트"
+        );
+        List<EstateWishlistResponseDTO> estates = List.of(dto1, dto2);
         String rawToken = "mock.jwt.token";
 
         when(jwtProcessor.getSubjectFromToken(rawToken)).thenReturn(memberId.toString());
